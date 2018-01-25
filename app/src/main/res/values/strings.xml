@@ -5,4 +5,11 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+
+    <string name="yoleni">Yoleni's Flagship store</string>
+    <string name="vorria">Vorria Morria</string>
+    <string name="pnyka">Pnyka</string>
+    <string name="pantopoleio">Pantopoleio medogeiakis diatrofis</string>
+
 </resources>
