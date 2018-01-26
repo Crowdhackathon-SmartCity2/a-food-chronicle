@@ -1,10 +1,25 @@
 package com.afoodchronicle;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.FragmentManager;
-import android.graphics.Color;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,23 +30,43 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.afoodchronicle.Fragments.ImportFragment;
 import com.afoodchronicle.Fragments.MainFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        OnMapReadyCallback,
+        GoogleMap.OnMyLocationButtonClickListener,
+        GoogleMap.OnMyLocationClickListener {
+
+    /**
+     * Request code for location permission request.
+     *
+     * @see #onRequestPermissionsResult(int, String[], int[])
+     */
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
+    /**
+     * Flag indicating whether a requested permission has been denied after returning in
+     * {@link #onRequestPermissionsResult(int, String[], int[])}.
+     */
+
+
+    private boolean mPermissionDenied = false;
 
     SupportMapFragment sMapFragment;
 
-    GoogleMap m_map;
+    GoogleMap mMap;
 
     boolean mapReady=false;
 
@@ -65,8 +100,19 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Acquire a reference to the system Location Manager
+                LocationManager locationManager =
+                        (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+
+                //Acquire the user's location
+                @SuppressLint("MissingPermission")
+                Location selfLocation = locationManager
+                        .getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+
+                //Move the map to the user's location
+                LatLng selfLoc = new LatLng(selfLocation.getLatitude(), selfLocation.getLongitude());
+                CameraUpdate update = CameraUpdateFactory.newLatLngZoom(selfLoc, 15);
+                mMap.animateCamera(update);
             }
         });
 
@@ -166,36 +212,119 @@ public class MainActivity extends AppCompatActivity
 
         mapReady = true;
 
-        m_map= googleMap;
+        mMap = googleMap;
 
-        m_map.moveCamera(CameraUpdateFactory.newCameraPosition(ATHENS));
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(ATHENS));
 
         // Add lots of markers to the map.
         addMarkersToMap();
 
+        mMap.setOnMyLocationButtonClickListener(this);
+        mMap.setOnMyLocationClickListener(this);
+
+        enableMyLocation();
+
+        mMap.getUiSettings().setMyLocationButtonEnabled(false);
     }
 
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+                    Manifest.permission.ACCESS_FINE_LOCATION, true);
+        } else if (mMap != null) {
+            // Access to the location has been granted to the app.
+            mMap.setMyLocationEnabled(true);
+        }
+    }
+    /**
+     * Demonstrates converting a {@link Drawable} to a {@link BitmapDescriptor},
+     * for use as a marker icon.
+     */
+    private BitmapDescriptor vectorToBitmap(@DrawableRes int id, @ColorInt int color) {
+        Drawable vectorDrawable = ResourcesCompat.getDrawable(getResources(), id, null);
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
+                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        DrawableCompat.setTint(vectorDrawable, color);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+    public Bitmap resizeBitmap(String drawableName,int width, int height){
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(drawableName, "drawable", getPackageName()));
+        return Bitmap.createScaledBitmap(imageBitmap, width, height, false);
+    }
     private void addMarkersToMap() {
 
         yoleni = new MarkerOptions()
                 .position(mYoleni)
-                .title(getString(R.string.yoleni));
-        m_map.addMarker(yoleni);
+                .title(getString(R.string.yoleni))
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160)));
+        mMap.addMarker(yoleni);
 
         vorria = new MarkerOptions()
                 .position(mVorria)
-                .title(getString(R.string.vorria));
-        m_map.addMarker(vorria);
+                .title(getString(R.string.vorria))
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160)));
+        mMap.addMarker(vorria);
 
         pnyka = new MarkerOptions()
                 .position(mPnyka)
-                .title(getString(R.string.pnyka));
-        m_map.addMarker(pnyka);
+                .title(getString(R.string.pnyka))
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160)));
+        mMap.addMarker(pnyka);
 
         pantopoleio = new MarkerOptions()
                 .position(mPantopoleio)
-                .title(getString(R.string.pantopoleio));
-        m_map.addMarker(pantopoleio);
+                .title(getString(R.string.pantopoleio))
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160)));
+        mMap.addMarker(pantopoleio);
+        }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+            return;
+        }
+
+        if (PermissionUtils.isPermissionGranted(permissions, grantResults,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // Enable the my location layer if the permission has been granted.
+            enableMyLocation();
+        } else {
+            // Display the missing permission error dialog when the fragments resume.
+            mPermissionDenied = true;
         }
     }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        if (mPermissionDenied) {
+            // Permission was not granted, display error dialog.
+            showMissingPermissionError();
+            mPermissionDenied = false;
+        }
+    }
+
+    /**
+     * Displays a dialog with error message explaining that the location permission is missing.
+     */
+    private void showMissingPermissionError() {
+        PermissionUtils.PermissionDeniedDialog
+                .newInstance(true).show(getSupportFragmentManager(), "dialog");
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        return false;
+    }
+
+    @Override
+    public void onMyLocationClick(@NonNull Location location) {
+
+    }
+}
 
