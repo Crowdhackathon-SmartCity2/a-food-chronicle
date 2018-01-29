@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,6 +30,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -40,13 +42,16 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
         GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMyLocationClickListener {
+        GoogleMap.OnMyLocationClickListener, GoogleMap.OnInfoWindowClickListener {
 
     /**
      * Request code for location permission request.
@@ -70,6 +75,8 @@ public class MainActivity extends AppCompatActivity
 
     boolean mapReady=false;
 
+    HashMap<String, String> markerMap = new HashMap<String, String>();
+
     MarkerOptions yoleni;
     private static final LatLng mYoleni = new LatLng(37.9776514, 23.7388241);
 
@@ -86,6 +93,7 @@ public class MainActivity extends AppCompatActivity
             .target(new LatLng(37.9838096, 23.7275388))
             .zoom(12)
             .build();
+    private Context context;
 
 
     @Override
@@ -221,6 +229,8 @@ public class MainActivity extends AppCompatActivity
 
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
+        mMap.setOnInfoWindowClickListener(this);
+        
 
         enableMyLocation();
 
@@ -242,46 +252,47 @@ public class MainActivity extends AppCompatActivity
      * Demonstrates converting a {@link Drawable} to a {@link BitmapDescriptor},
      * for use as a marker icon.
      */
-    private BitmapDescriptor vectorToBitmap(@DrawableRes int id, @ColorInt int color) {
-        Drawable vectorDrawable = ResourcesCompat.getDrawable(getResources(), id, null);
-        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(),
-                vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-        DrawableCompat.setTint(vectorDrawable, color);
-        vectorDrawable.draw(canvas);
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
-    }
+
     public Bitmap resizeBitmap(String drawableName,int width, int height){
         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(drawableName, "drawable", getPackageName()));
         return Bitmap.createScaledBitmap(imageBitmap, width, height, false);
     }
     private void addMarkersToMap() {
+        String id = null;
 
-        yoleni = new MarkerOptions()
+        Marker yoleni = mMap.addMarker(new MarkerOptions()
                 .position(mYoleni)
                 .title(getString(R.string.yoleni))
-                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160)));
-        mMap.addMarker(yoleni);
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160))));
 
-        vorria = new MarkerOptions()
+        id = yoleni.getId();
+        markerMap.put(id, "yoleni");
+
+        Marker vorria = mMap.addMarker(new MarkerOptions()
                 .position(mVorria)
                 .title(getString(R.string.vorria))
-                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160)));
-        mMap.addMarker(vorria);
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160))));
 
-        pnyka = new MarkerOptions()
+        id = vorria.getId();
+        markerMap.put(id, "vorria");
+
+        Marker pnyka = mMap.addMarker(new MarkerOptions()
                 .position(mPnyka)
                 .title(getString(R.string.pnyka))
-                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160)));
-        mMap.addMarker(pnyka);
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160))));
 
-        pantopoleio = new MarkerOptions()
+        id = pnyka.getId();
+        markerMap.put(id, "pnyka");
+
+        Marker pantopoleio = mMap.addMarker(new MarkerOptions()
                 .position(mPantopoleio)
                 .title(getString(R.string.pantopoleio))
-                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160)));
-        mMap.addMarker(pantopoleio);
-        }
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160))));
+
+        id = pantopoleio.getId();
+        markerMap.put(id, "pantopoleio");
+
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -325,6 +336,24 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMyLocationClick(@NonNull Location location) {
 
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        String m = markerMap.get(marker.getId());
+
+        if (m.equals("yoleni")){
+            Intent i = new Intent(MainActivity.this, InfoWindowDetails.class);
+            startActivity(i);
+        }
+        else {
+            Context context = getApplicationContext();
+            CharSequence text = "Hello toast!";
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }
     }
 }
 
