@@ -32,8 +32,10 @@
         </activity>
 
         <activity android:name=".InfoWindowDetails"
-            android:label="Details"/>
+        android:label="Details"/>
 
+        <activity android:name=".InfoWindowCustom"
+            android:label="Custom"/>
     </application>
 
 </manifest>

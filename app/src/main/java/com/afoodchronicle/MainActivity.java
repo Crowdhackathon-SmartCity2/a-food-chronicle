@@ -21,6 +21,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -30,6 +31,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -51,7 +53,8 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
         GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMyLocationClickListener, GoogleMap.OnInfoWindowClickListener {
+        GoogleMap.OnMyLocationClickListener,
+        GoogleMap.OnInfoWindowClickListener {
 
     /**
      * Request code for location permission request.
@@ -66,6 +69,8 @@ public class MainActivity extends AppCompatActivity
      * {@link #onRequestPermissionsResult(int, String[], int[])}.
      */
 
+
+    LayoutInflater inflater;
 
     private boolean mPermissionDenied = false;
 
@@ -230,11 +235,13 @@ public class MainActivity extends AppCompatActivity
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
         mMap.setOnInfoWindowClickListener(this);
-        
+        //mMap.setOnMarkerClickListener(this);
+        mMap.setInfoWindowAdapter(new InfoWindowCustom(this));
 
         enableMyLocation();
 
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
+
     }
 
     private void enableMyLocation() {
@@ -338,12 +345,14 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+
     @Override
     public void onInfoWindowClick(Marker marker) {
         String m = markerMap.get(marker.getId());
 
         if (m.equals("yoleni")){
             Intent i = new Intent(MainActivity.this, InfoWindowDetails.class);
+            i.putExtra("MARKER_NAME",m);
             startActivity(i);
         }
         else {
@@ -355,5 +364,6 @@ public class MainActivity extends AppCompatActivity
             toast.show();
         }
     }
+
 }
 
