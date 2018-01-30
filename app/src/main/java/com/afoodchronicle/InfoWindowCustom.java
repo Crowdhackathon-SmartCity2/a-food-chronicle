@@ -1,42 +1,49 @@
 package com.afoodchronicle;
 
-import android.content.ClipDescription;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
-public class InfoWindowCustom extends AppCompatActivity implements GoogleMap.InfoWindowAdapter  {
-    Context context;
-    LayoutInflater inflater;
+import java.util.HashMap;
 
-    public InfoWindowCustom(Context context) {
+public class InfoWindowCustom extends AppCompatActivity implements GoogleMap.InfoWindowAdapter  {
+
+    private HashMap<String, String> markerMap;
+    LayoutInflater inflater;
+    private View view;
+    Context context;
+
+
+    public InfoWindowCustom(HashMap<String, String> markerMap, Context context) {
+        this.markerMap = markerMap;
         this.context = context;
     }
     @Override
     public View getInfoContents(Marker marker) {
         return null;
     }
+
     @Override
     public View getInfoWindow(Marker marker) {
-        inflater = (LayoutInflater)
-                context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        View v = inflater.inflate(R.layout.custom_info_contents, null);
-
-        return v;
+        String m = markerMap.get(marker.getId());
+        if (m != null) {
+            inflater = (LayoutInflater)
+                    context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = inflater.inflate(R.layout.custom_info_contents, null);
+            if (m == "yoleni"){
+                TextView title = view.findViewById(R.id.title);
+                title.setText(m);
+                ImageView badge = view.findViewById(R.id.badge);
+                badge.setImageResource(R.drawable.yoleni_restaurant);
+            }
+            return view;
+        }
+        return view;
     }
-        //TextView title = (TextView) v.findViewById(R.id.info_window_title);
-     //   TextView subtitle = (TextView) v.findViewById(R.id.info_window_subtitle);
-        //title.setText(marker.getTitle());
-       // subtitle.setText(marker.getSnippet());
-
     }
