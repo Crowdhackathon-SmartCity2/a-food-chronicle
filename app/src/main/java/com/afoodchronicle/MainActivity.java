@@ -31,7 +31,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.afoodchronicle.Fragments.MainFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -47,21 +46,7 @@ public class MainActivity extends AppCompatActivity
         GoogleMap.OnMyLocationClickListener,
         GoogleMap.OnInfoWindowClickListener {
 
-    /**
-     * Request code for location permission request.
-     *
-     * @see #onRequestPermissionsResult(int, String[], int[])
-     */
-
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
-    /**
-     * Flag indicating whether a requested permission has been denied after returning in
-     * {@link #onRequestPermissionsResult(int, String[], int[])}.
-     */
-
-
-    LayoutInflater inflater;
 
     private boolean mPermissionDenied = false;
 
@@ -73,23 +58,19 @@ public class MainActivity extends AppCompatActivity
 
     HashMap<String, String> markerMap = new HashMap<String, String>();
 
-    MarkerOptions yoleni;
+
     private static final LatLng mYoleni = new LatLng(37.9776514, 23.7388241);
 
-    MarkerOptions vorria;
     private static final LatLng mVorria = new LatLng(37.9797024, 23.7281983);
 
-    MarkerOptions pnyka;
     private static final LatLng mPnyka = new LatLng(37.9685393, 23.7478882);
 
-    MarkerOptions pantopoleio;
     private static final LatLng mPantopoleio = new LatLng(38.0056227, 23.7826411);
 
     static final CameraPosition ATHENS = CameraPosition.builder()
             .target(new LatLng(37.9838096, 23.7275388))
-            .zoom(12)
+            .zoom(15)
             .build();
-    private Context context;
 
 
     @Override
@@ -129,31 +110,10 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-
         initializeMaps();
 
     }
 
-    public void initializeMaps(){
-
-        sMapFragment = SupportMapFragment.newInstance();
-
-        FragmentManager fm = getFragmentManager();
-        fm.beginTransaction().replace(R.id.content_frame, new MainFragment()).commit();
-
-        sMapFragment.getMapAsync(this);
-
-        android.support.v4.app.FragmentManager sFm = getSupportFragmentManager();
-
-
-        if (!sMapFragment.isAdded())
-            sFm.beginTransaction().add(R.id.map, sMapFragment).commit();
-        else
-            sFm.beginTransaction().show(sMapFragment).commit();
-
-
-    }
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -211,6 +171,22 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
+    ////////   MAPS
+
+
+    public void initializeMaps(){
+
+        sMapFragment = SupportMapFragment.newInstance();
+        sMapFragment.getMapAsync(this);
+        android.support.v4.app.FragmentManager sFm = getSupportFragmentManager();
+
+        if (!sMapFragment.isAdded())
+            sFm.beginTransaction().add(R.id.map, sMapFragment).commit();
+        else
+            sFm.beginTransaction().show(sMapFragment).commit();
+
+    }
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
@@ -226,7 +202,7 @@ public class MainActivity extends AppCompatActivity
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
         mMap.setOnInfoWindowClickListener(this);
-       mMap.setInfoWindowAdapter(new InfoWindowCustom(markerMap, this));
+        mMap.setInfoWindowAdapter(new InfoWindowCustom(markerMap, this));
 
 
         enableMyLocation();
@@ -247,12 +223,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-    public Bitmap resizeBitmap(String drawableName,int width, int height){
-        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(drawableName, "drawable", getPackageName()));
-        return Bitmap.createScaledBitmap(imageBitmap, width, height, false);
-    }
     private void addMarkersToMap() {
+
         String id = null;
 
         Marker yoleni = mMap.addMarker(new MarkerOptions()
@@ -289,6 +261,42 @@ public class MainActivity extends AppCompatActivity
 
     }
     @Override
+    public boolean onMyLocationButtonClick() {
+        return false;
+    }
+
+    @Override
+    public void onMyLocationClick(@NonNull Location location) {
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        String m = markerMap.get(marker.getId());
+
+        if (m.equals("yoleni")){
+            Intent i = new Intent(MainActivity.this, InfoWindowDetails.class);
+            i.putExtra("MARKER_NAME",m);
+            startActivity(i);
+        }
+        else {
+            Context context = getApplicationContext();
+            CharSequence text = "Hello toast!";
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }
+    }
+
+
+    //// MISC
+
+    public Bitmap resizeBitmap(String drawableName,int width, int height){
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(drawableName, "drawable", getPackageName()));
+        return Bitmap.createScaledBitmap(imageBitmap, width, height, false);
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
@@ -322,36 +330,5 @@ public class MainActivity extends AppCompatActivity
         PermissionUtils.PermissionDeniedDialog
                 .newInstance(true).show(getSupportFragmentManager(), "dialog");
     }
-
-    @Override
-    public boolean onMyLocationButtonClick() {
-        return false;
-    }
-
-    @Override
-    public void onMyLocationClick(@NonNull Location location) {
-
-    }
-
-
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-        String m = markerMap.get(marker.getId());
-
-        if (m.equals("yoleni")){
-            Intent i = new Intent(MainActivity.this, InfoWindowDetails.class);
-            i.putExtra("MARKER_NAME",m);
-            startActivity(i);
-        }
-        else {
-            Context context = getApplicationContext();
-            CharSequence text = "Hello toast!";
-            int duration = Toast.LENGTH_SHORT;
-
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-        }
-    }
-
-}
+ }
 
