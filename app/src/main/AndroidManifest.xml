@@ -3,7 +3,11 @@
     package="com.afoodchronicle">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission  android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
+
+    <uses-sdk android:minSdkVersion="16" />
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -36,6 +40,9 @@
 
         <activity android:name=".InfoWindowCustom"
             android:label="Custom"/>
+
+        <activity android:name=".LogInActivity"
+            android:label="Log In"/>
     </application>
 
 </manifest>

@@ -2,7 +2,6 @@ package com.afoodchronicle;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,7 +13,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -24,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -47,7 +46,6 @@ public class MainActivity extends AppCompatActivity
         GoogleMap.OnInfoWindowClickListener {
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-
     private boolean mPermissionDenied = false;
 
     SupportMapFragment sMapFragment;
@@ -71,6 +69,8 @@ public class MainActivity extends AppCompatActivity
             .target(new LatLng(37.9838096, 23.7275388))
             .zoom(15)
             .build();
+
+    private TextView logIn;
 
 
     @Override
@@ -111,6 +111,20 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         initializeMaps();
+
+        ///Login-Signup
+        View parentView = navigationView.getHeaderView(0);
+        TextView logIn = (TextView)parentView.findViewById(R.id.log_in_nav_header);
+        logIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent listIntent = new Intent(MainActivity.this, LogInActivity.class);
+
+                startActivity(listIntent);
+            }
+        });
+
+
 
     }
 
