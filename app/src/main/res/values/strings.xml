@@ -51,6 +51,9 @@
     <string name="firebaseui_title_text">FirebaseUI Auth</string>
     <string name="emailpassword_status_fmt">Email User: %1$s (verified: %2$b)</string>
     <string name="emailpassword_title_text">Email and Password</string>
+    <string name="forgot_password">Forgot password?</string>
 
-
+    <string name="facebook_app_id">1953528261641450</string>
+    <string name="fb_login_protocol_scheme">fb1953528261641450</string>
+    <string name="response_to_exception">Response:</string>
 </resources>

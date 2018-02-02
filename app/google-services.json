@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1089989964844",
+    "firebase_url": "https://a-food-chronicle.firebaseio.com",
+    "project_id": "a-food-chronicle",
+    "storage_bucket": "a-food-chronicle.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1089989964844:android:3e496f11d4cce0ee",
+        "android_client_info": {
+          "package_name": "com.afoodchronicle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1089989964844-bhvbfooaljut7b0da1anvc12762jvt4f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.afoodchronicle",
+            "certificate_hash": "5755cec8742ecf4d4a4d9434964975b09be2868d"
+          }
+        },
+        {
+          "client_id": "1089989964844-8s0nllrqqo6inv1jfun16v0otq9fbccv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAx1AZ3oqVgPmf8Vpjm9y4NjnOiOieK5IY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1089989964844-8s0nllrqqo6inv1jfun16v0otq9fbccv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
