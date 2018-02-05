@@ -60,6 +60,9 @@
         <activity android:name=".InfoWindowDetails"
         android:label="Details"/>
 
+        <activity android:name=".ProfileDetailsActivity"
+            android:label="Profile Details"/>
+
         <activity android:name=".LogInActivity"
             android:label="Log In"/>
     </application>

@@ -1,7 +1,9 @@
 package com.afoodchronicle;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -14,6 +16,7 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.Profile;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -47,6 +50,10 @@ public class LogInActivity extends BaseActivity implements
     // [END declare_auth]
 
     // Facebook
+    public static final String PROFILE_USER_ID = "USER_ID";
+    public static final String PROFILE_FIRST_NAME = "PROFILE_FIRST_NAME";
+    public static final String PROFILE_LAST_NAME = "PROFILE_LAST_NAME";
+    public static final String PROFILE_IMAGE_URL = "PROFILE_IMAGE_URL";
 
 
     @Override
@@ -102,6 +109,23 @@ public class LogInActivity extends BaseActivity implements
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
                 handleFacebookAccessToken(loginResult.getAccessToken());
+                String userLoginId = loginResult.getAccessToken().getUserId();
+                Intent facebookIntent = new Intent(LogInActivity.this, MainActivity.class);
+                Profile mProfile = Profile.getCurrentProfile();
+                String firstName = mProfile.getFirstName();
+                String lastName = mProfile.getLastName();
+                String userId = mProfile.getId().toString();
+                String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
+
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(LogInActivity.this);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString(PROFILE_USER_ID, userId);
+                editor.putString(PROFILE_FIRST_NAME, firstName);
+                editor.putString(PROFILE_LAST_NAME, lastName);
+                editor.putString(PROFILE_IMAGE_URL, profileImageUrl);
+                editor.apply();
+
+               startActivity(facebookIntent);
             }
 
             @Override

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+    <EditText
+        android:id="@+id/etFirstName"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:layout_margin="20dp"
+        android:background="#11000000"
+        android:ems="10"
+        android:hint="@string/first_name"
+        android:inputType="textPersonName"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="16sp"
+        android:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/tvFacebookFirstName"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:layout_margin="20dp"
+        android:background="#11000000"
+        android:ems="10"
+        android:hint="@string/first_name"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="16sp"
+        android:visibility="gone"/>
+
+    <EditText
+        android:id="@+id/etLastName"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:layout_margin="20dp"
+        android:background="#11000000"
+        android:ems="10"
+        android:hint="@string/last_name"
+        android:inputType="textPersonName"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="16sp"
+        tools:ignore="HardcodedText"
+        android:visibility="visible"/>
+
+    <TextView
+        android:id="@+id/tvFacebookLastName"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:layout_margin="20dp"
+        android:background="#11000000"
+        android:ems="10"
+        android:hint="@string/last_name"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="16sp"
+        android:visibility="gone"/>
+
+    <EditText
+        android:id="@+id/etBirthday"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:layout_margin="20dp"
+        android:background="#11000000"
+        android:ems="10"
+        android:hint="@string/birthday"
+        android:inputType="date"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="16sp" />
+    <EditText
+        android:id="@+id/etDescription"
+        android:layout_width="250dp"
+        android:layout_height="200dp"
+        android:layout_margin="20dp"
+        android:background="#11000000"
+        android:ems="10"
+        android:hint="@string/description"
+        android:inputType="text"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="16sp"
+        />
+</LinearLayout>

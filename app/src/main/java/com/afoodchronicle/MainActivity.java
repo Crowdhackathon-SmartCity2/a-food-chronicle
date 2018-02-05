@@ -4,12 +4,14 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -22,9 +24,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,6 +39,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 
@@ -71,6 +78,14 @@ public class MainActivity extends AppCompatActivity
             .build();
 
     private TextView logIn;
+    private ImageView profileImage;
+    private TextView profileName;
+    private TextView editProfile;
+    private String profileFirstName;
+    private String profileLastName;
+    private String profileImageLink;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
 
     @Override
@@ -87,7 +102,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 //Acquire a reference to the system Location Manager
                 LocationManager locationManager =
-                        (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+                        (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
                 //Acquire the user's location
                 @SuppressLint("MissingPermission")
@@ -111,10 +126,8 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         initializeMaps();
-
-        ///Login-Signup
         View parentView = navigationView.getHeaderView(0);
-        TextView logIn = (TextView)parentView.findViewById(R.id.log_in_nav_header);
+        final TextView logIn = parentView.findViewById(R.id.logIn);
         logIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -122,11 +135,75 @@ public class MainActivity extends AppCompatActivity
 
                 startActivity(listIntent);
             }
+
         });
 
+        profileImage = parentView.findViewById(R.id.profile_image);
+        profileName = parentView.findViewById(R.id.profile_name);
+        editProfile = parentView.findViewById(R.id.edit_profile);
+
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mAuth = FirebaseAuth.getInstance();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                if (user != null) {
+                    ///Facebook
+                    if (isLoggedIn()) {
+                        //Facebook details after login in
+
+                        profileFirstName = preferences.getString(LogInActivity.PROFILE_FIRST_NAME, "");
+                        profileLastName = preferences.getString(LogInActivity.PROFILE_LAST_NAME, "");
+                        profileImageLink = preferences.getString(LogInActivity.PROFILE_IMAGE_URL, "");
+
+                        logIn.setVisibility(View.GONE);
+                        profileName.setVisibility(View.VISIBLE);
+                        profileName.setText(profileFirstName + " " + profileLastName);
+                        editProfile.setVisibility(View.VISIBLE);
+                        editProfile.setText(R.string.edit_profile);
+                        editProfile.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent listIntent = new Intent(MainActivity.this, ProfileDetailsActivity.class);
+
+                                startActivity(listIntent);
+                            }
+                        });
+
+                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
+                    }
+                ///Email
+                    else{
 
 
+                    }
+
+                }
+            }
+        };
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    protected void onStop() {
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
+        super.onStop();
+    }
+
+    public static boolean isLoggedIn() {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        return accessToken != null;
+    }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -343,5 +420,6 @@ public class MainActivity extends AppCompatActivity
         PermissionUtils.PermissionDeniedDialog
                 .newInstance(true).show(getSupportFragmentManager(), "dialog");
     }
+
  }
 
