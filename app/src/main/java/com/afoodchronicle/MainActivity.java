@@ -41,6 +41,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
@@ -52,38 +57,35 @@ public class MainActivity extends AppCompatActivity
         GoogleMap.OnMyLocationClickListener,
         GoogleMap.OnInfoWindowClickListener {
 
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private boolean mPermissionDenied = false;
 
-    SupportMapFragment sMapFragment;
+    public static final String PROFILE_USER_ID = "USER_ID";
+    public static final String PROFILE_FIRST_NAME = "PROFILE_FIRST_NAME";
+    public static final String PROFILE_LAST_NAME = "PROFILE_LAST_NAME";
+    public static final String PROFILE_IMAGE_URL = "PROFILE_IMAGE_URL";
 
-    GoogleMap mMap;
-
-    boolean mapReady=false;
-
+    // Markers
     HashMap<String, String> markerMap = new HashMap<String, String>();
-
-
     private static final LatLng mYoleni = new LatLng(37.9776514, 23.7388241);
-
     private static final LatLng mVorria = new LatLng(37.9797024, 23.7281983);
-
     private static final LatLng mPnyka = new LatLng(37.9685393, 23.7478882);
-
     private static final LatLng mPantopoleio = new LatLng(38.0056227, 23.7826411);
 
+    // Maps
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private boolean mPermissionDenied = false;
+    SupportMapFragment sMapFragment;
+    GoogleMap mMap;
+    boolean mapReady=false;
     static final CameraPosition ATHENS = CameraPosition.builder()
             .target(new LatLng(37.9838096, 23.7275388))
             .zoom(15)
             .build();
 
+    // Views
     private TextView logIn;
     private ImageView profileImage;
     private TextView profileName;
     private TextView editProfile;
-    private String profileFirstName;
-    private String profileLastName;
-    private String profileImageLink;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
@@ -126,6 +128,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         initializeMaps();
+
         View parentView = navigationView.getHeaderView(0);
         final TextView logIn = parentView.findViewById(R.id.logIn);
         logIn.setOnClickListener(new View.OnClickListener() {
@@ -142,9 +145,11 @@ public class MainActivity extends AppCompatActivity
         profileName = parentView.findViewById(R.id.profile_name);
         editProfile = parentView.findViewById(R.id.edit_profile);
 
-        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+//        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
+
+
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
@@ -152,15 +157,35 @@ public class MainActivity extends AppCompatActivity
                 if (user != null) {
                     ///Facebook
                     if (isLoggedIn()) {
-                        //Facebook details after login in
 
-                        profileFirstName = preferences.getString(LogInActivity.PROFILE_FIRST_NAME, "");
-                        profileLastName = preferences.getString(LogInActivity.PROFILE_LAST_NAME, "");
-                        profileImageLink = preferences.getString(LogInActivity.PROFILE_IMAGE_URL, "");
+                        DatabaseReference facebookRef = FirebaseDatabase.getInstance().getReference("fb_users");
+                        facebookRef.addValueEventListener(new ValueEventListener()
+
+                        {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                               for(DataSnapshot ds : dataSnapshot.getChildren())
+
+                                {
+                                    String firstName = ds.child("firstName").getValue(String.class);
+                                    String lastName = ds.child("lastName").getValue(String.class);
+                                    String profileImageLink = ds.child("photoUrl").getValue(String.class);
+                                    profileName.setText(firstName + " " + lastName);
+                                    Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
+
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
 
                         logIn.setVisibility(View.GONE);
                         profileName.setVisibility(View.VISIBLE);
-                        profileName.setText(profileFirstName + " " + profileLastName);
+
                         editProfile.setVisibility(View.VISIBLE);
                         editProfile.setText(R.string.edit_profile);
                         editProfile.setOnClickListener(new View.OnClickListener() {
@@ -171,9 +196,7 @@ public class MainActivity extends AppCompatActivity
                                 startActivity(listIntent);
                             }
                         });
-
-                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
-                    }
+                        }
                 ///Email
                     else{
 

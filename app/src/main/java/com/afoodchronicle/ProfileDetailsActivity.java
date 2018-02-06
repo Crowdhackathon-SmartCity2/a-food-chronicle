@@ -76,8 +76,8 @@ public class ProfileDetailsActivity extends AppCompatActivity {
             lastName.setVisibility(View.GONE);
             facebookLastName.setVisibility(View.VISIBLE);
 
-            profileFirstName = preferences.getString(LogInActivity.PROFILE_FIRST_NAME, "");
-            profileLastName = preferences.getString(LogInActivity.PROFILE_LAST_NAME,"");
+            profileFirstName = preferences.getString(MainActivity.PROFILE_FIRST_NAME, "");
+            profileLastName = preferences.getString(MainActivity.PROFILE_LAST_NAME,"");
 
             facebookFirstName.setText(profileFirstName);
             facebookLastName.setText(profileLastName);

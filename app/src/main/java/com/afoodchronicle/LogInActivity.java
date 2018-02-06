@@ -30,6 +30,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 
 public class LogInActivity extends BaseActivity implements
@@ -37,24 +39,23 @@ public class LogInActivity extends BaseActivity implements
 
     private static final String TAG = "EmailPassword";
 
+    // Views
     private TextView mStatusTextView;
     private TextView mDetailTextView;
     private EditText mEmailField;
     private EditText mPasswordField;
-    private FirebaseAuth.AuthStateListener mAuthListener;
+
     static final String LOG_TAG = LogInActivity.class.getSimpleName();
-    // [START declare_auth]
-    private FirebaseAuth mAuth;
-    private CallbackManager mCallbackManager;
-    private LoginManager mAuthFacebook;
-    // [END declare_auth]
+
 
     // Facebook
-    public static final String PROFILE_USER_ID = "USER_ID";
-    public static final String PROFILE_FIRST_NAME = "PROFILE_FIRST_NAME";
-    public static final String PROFILE_LAST_NAME = "PROFILE_LAST_NAME";
-    public static final String PROFILE_IMAGE_URL = "PROFILE_IMAGE_URL";
+    private CallbackManager mCallbackManager;
+    private LoginManager mAuthFacebook;
 
+    //Firebase
+    private DatabaseReference mDatabase;
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -99,6 +100,10 @@ public class LogInActivity extends BaseActivity implements
         };
         // [END auth_state_listener]
 
+        // Firebase Database
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         // Initialize Facebook Login button
 
         mCallbackManager = CallbackManager.Factory.create();
@@ -117,15 +122,8 @@ public class LogInActivity extends BaseActivity implements
                 String userId = mProfile.getId().toString();
                 String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
 
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(LogInActivity.this);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.putString(PROFILE_USER_ID, userId);
-                editor.putString(PROFILE_FIRST_NAME, firstName);
-                editor.putString(PROFILE_LAST_NAME, lastName);
-                editor.putString(PROFILE_IMAGE_URL, profileImageUrl);
-                editor.apply();
-
-               startActivity(facebookIntent);
+                writeNewUser(userId, firstName, lastName, profileImageUrl);
+                startActivity(facebookIntent);
             }
 
             @Override
@@ -152,6 +150,11 @@ public class LogInActivity extends BaseActivity implements
     }
     // [END on_activity_result]
 
+    private void writeNewUser(String id, String firstName, String lastName, String photoUrl) {
+        User user = new User(id, firstName, lastName, photoUrl);
+
+        mDatabase.child("fb_users").child(id).setValue(user);
+    }
     private void handleFacebookAccessToken(AccessToken token) {
         Log.d(TAG, "handleFacebookAccessToken:" + token);
 
