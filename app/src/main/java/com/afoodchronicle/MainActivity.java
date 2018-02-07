@@ -4,14 +4,12 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -29,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -199,10 +198,29 @@ public class MainActivity extends AppCompatActivity
                         }
                 ///Email
                     else{
+                        logIn.setVisibility(View.GONE);
+                        profileName.setVisibility(View.VISIBLE);
+
+                        editProfile.setVisibility(View.VISIBLE);
+                        editProfile.setText(R.string.edit_profile);
+                        editProfile.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent listIntent = new Intent(MainActivity.this, ProfileDetailsActivity.class);
+
+                                startActivity(listIntent);
+                            }
+                        });
 
 
                     }
 
+                }
+                //User signed out
+                else{
+                    logIn.setVisibility(View.VISIBLE);
+                    profileName.setVisibility(View.GONE);
+                    editProfile.setVisibility(View.GONE);
                 }
             }
         };
@@ -252,8 +270,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_logout) {
+
         }
 
         return super.onOptionsItemSelected(item);

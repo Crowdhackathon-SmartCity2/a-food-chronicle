@@ -86,16 +86,10 @@ public class LogInActivity extends BaseActivity implements
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
                 if (user != null) {
-                    // User is signed in
-                    //redirect
-                    updateUI(user);
+                    Intent intent = new Intent(LogInActivity.this, MainActivity.class);
+                    startActivity(intent);
 
-                } else {
-                    // User is signed out
-                    Log.d(TAG, "onAuthStateChanged:signed_out");
-                    updateUI(null);
                 }
-
             }
         };
         // [END auth_state_listener]
@@ -103,6 +97,7 @@ public class LogInActivity extends BaseActivity implements
         // Firebase Database
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
 
         // Initialize Facebook Login button
 
@@ -220,6 +215,7 @@ public class LogInActivity extends BaseActivity implements
                 {
                     Log.d(TAG, "createUserWithEmail:success");
                     FirebaseUser user = mAuth.getCurrentUser();
+                    sendEmailVerification();
                     updateUI(user);
                 }
 
@@ -288,7 +284,7 @@ public class LogInActivity extends BaseActivity implements
 
     private void sendEmailVerification() {
         // Disable button
-        findViewById(R.id.verify_email_button).setEnabled(false);
+//        findViewById(R.id.verify_email_button).setEnabled(false);
 
         // Send verification email
         // [START send_email_verification]
@@ -342,15 +338,9 @@ public class LogInActivity extends BaseActivity implements
     private void updateUI(FirebaseUser user) {
         hideProgressDialog();
         if (user != null) {
-            mStatusTextView.setText(getString(R.string.emailpassword_status_fmt,
-                    user.getEmail(), user.isEmailVerified()));
-            mDetailTextView.setText(getString(R.string.firebaseui_status_fmt, user.getUid()));
+            Intent listIntent = new Intent(LogInActivity.this, ProfileDetailsActivity.class);
 
-            findViewById(R.id.email_password_buttons).setVisibility(View.GONE);
-            findViewById(R.id.email_password_fields).setVisibility(View.GONE);
-            findViewById(R.id.signed_in_buttons).setVisibility(View.VISIBLE);
-
-            findViewById(R.id.verify_email_button).setEnabled(!user.isEmailVerified());
+            startActivity(listIntent);
         } else {
             mStatusTextView.setText(R.string.signed_out);
             mDetailTextView.setText(null);
