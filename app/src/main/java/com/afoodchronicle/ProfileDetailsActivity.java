@@ -1,23 +1,30 @@
 package com.afoodchronicle;
 
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.icu.text.SimpleDateFormat;
+import android.icu.util.Calendar;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.Profile;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -35,6 +42,7 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.UUID;
 
 
@@ -44,8 +52,8 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
     private TextView facebookFirstName;
     private EditText lastNameEt;
     private TextView facebookLastName;
-    private TextView birthday;
-    private TextView description;
+    private TextView birthdayEt;
+    private TextView descriptionEt;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private ImageView profilePic;
@@ -53,9 +61,21 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
     private Uri filePath;
     private final int PICK_IMAGE_REQUEST = 71;
 
+
+    //Strings
+    private String firstNameEmail;
+    private String firstNameFacebook;
+    private String lastNameEmail;
+    private String lastNameFacebook;
+    private String birthday;
+    private String description;
+    private String emailPhotoUrl;
+
     //Firebase
     FirebaseStorage storage;
     StorageReference storageReference;
+    private DatabaseReference mDatabase;
+
 
     @Override
     public void onBackPressed() {
@@ -74,6 +94,8 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
         findViewById(R.id.btnLog_out).setOnClickListener(this);
         findViewById(R.id.btnChoose).setOnClickListener(this);
         findViewById(R.id.btnUpload).setOnClickListener(this);
+        findViewById(R.id.btnSave).setOnClickListener(this);
+        findViewById(R.id.etBirthday).setOnClickListener(this);
 
         profilePic = findViewById(R.id.profile_pic_details);
 
@@ -83,9 +105,15 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
         lastNameEt = findViewById(R.id.etLastName);
         facebookLastName = findViewById(R.id.tvFacebookLastName);
 
-        birthday = findViewById(R.id.etBirthday);
 
-        description = findViewById(R.id.etDescription);
+        birthdayEt = findViewById(R.id.etBirthday);
+
+        descriptionEt = findViewById(R.id.etDescription);
+
+        // Firebase Database
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
 
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -116,10 +144,10 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
                                 {
                                     String firstName = ds.child("firstName").getValue(String.class);
                                     String lastName = ds.child("lastName").getValue(String.class);
-                                    String profileImageLink = ds.child("photoUrl").getValue(String.class);
+                                    String facebookPhotoUrl = ds.child("photoUrl").getValue(String.class);
                                     facebookFirstName.setText(firstName);
                                     facebookLastName.setText(lastName);
-                                    Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).into(profilePic);
+                                    Picasso.with(ProfileDetailsActivity.this).load(facebookPhotoUrl).into(profilePic);
 
                                 }
                             }
@@ -131,21 +159,89 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
                         });
 
                     }
-                    //Email
-                    else {
-                        String firstName = firstNameEt.getText().toString().trim();
-                        String lastName = lastNameEt.getText().toString().trim();
-                    }
-
-                }
-                else {
+                } else {
                     Intent i = new Intent(ProfileDetailsActivity.this, MainActivity.class);
                     startActivity(i);
                 }
             }
-        };
+         };
     }
 
+
+    private void setBirthday(){
+        final Calendar myCalendar = Calendar.getInstance();
+
+        final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                                  int dayOfMonth) {
+                // TODO Auto-generated method stub
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, monthOfYear);
+                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                String myFormat = "MM/dd/yy"; //In which you need put here
+                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+
+                birthdayEt.setText(sdf.format(myCalendar.getTime()));
+            }
+
+
+        };
+
+        birthdayEt.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                new DatePickerDialog(ProfileDetailsActivity.this, date, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+    }
+
+    private void saveDetails(){
+
+        firstNameEmail =firstNameEt.getText().toString().trim();
+        firstNameFacebook = facebookFirstName.getText().toString().trim();
+
+        lastNameEmail = lastNameEt.getText().toString().trim();
+        lastNameFacebook = facebookLastName.getText().toString().trim();
+
+        birthday = birthdayEt.getText().toString().trim();
+        description= descriptionEt.getText().toString().trim();
+
+//        emailPhotoUrl = String.valueOf(storageReference.child("images/"+ mAuth.getUid() +"/profilePicture.png").getDownloadUrl().getResult());
+
+        // Facebook
+        if(MainActivity.isLoggedIn()){
+            writeExtraInfoToDatabaseFacebook(birthday, description);
+        }
+        // Email
+        else
+        {
+            writeBasicInfoToDatabaseEmail(firstNameEmail, lastNameEmail, emailPhotoUrl);
+            writeExtraInfoToDatabaseEmail(birthday, description);
+        }
+        Intent i = new Intent(ProfileDetailsActivity.this, MainActivity.class);
+        startActivity(i);
+    }
+
+    private void writeExtraInfoToDatabaseFacebook(String birthday, String description) {
+        User userExtraInfo = new User(birthday, description);
+        mDatabase.child("fb_users").child(Profile.getCurrentProfile().getId()).child("extra").setValue(userExtraInfo);
+    }
+
+    private void writeBasicInfoToDatabaseEmail(String firstName, String lastName, String photoUrl) {
+        User userBasicInfo = new User(firstName, lastName, photoUrl);
+        mDatabase.child("email_users").child(mAuth.getUid()).setValue(userBasicInfo);
+    }
+    private void writeExtraInfoToDatabaseEmail(String birthday, String description) {
+        User userExtraInfo = new User(birthday, description);
+        mDatabase.child("email_users").child(mAuth.getUid()).child("extra").setValue(userExtraInfo);
+    }
     private void chooseImage() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -242,6 +338,12 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
         }
         else if(i == R.id.btnUpload){
             uploadImage();
+        }
+        else if(i == R.id.btnSave){
+            saveDetails();
+        }
+        else if(i == R.id.etBirthday){
+            setBirthday();
         }
     }
 }
