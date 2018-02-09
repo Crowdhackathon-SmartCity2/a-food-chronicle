@@ -127,47 +127,29 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
                 if (user != null) {
-                    if (MainActivity.isLoggedIn()) {
-
+                    if (MainActivity.isLoggedIn())
+                    {
                         firstNameEt.setVisibility(View.GONE);
                         facebookFirstName.setVisibility(View.VISIBLE);
                         lastNameEt.setVisibility(View.GONE);
                         facebookLastName.setVisibility(View.VISIBLE);
-
-                        DatabaseReference facebookRef = FirebaseDatabase.getInstance().getReference("fb_users");
-                        facebookRef.addValueEventListener(new ValueEventListener()
-
-                        {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                for (DataSnapshot ds : dataSnapshot.getChildren())
-
-                                {
-                                    String firstName = ds.child("firstName").getValue(String.class);
-                                    String lastName = ds.child("lastName").getValue(String.class);
-                                    String facebookPhotoUrl = ds.child("photoUrl").getValue(String.class);
-                                    facebookFirstName.setText(firstName);
-                                    facebookLastName.setText(lastName);
-                                    Picasso.with(ProfileDetailsActivity.this).load(facebookPhotoUrl).into(profilePic);
-
-                                    final BlurredAsynctask task = new BlurredAsynctask(ProfileDetailsActivity.this,
-                                            profilePicBackground, 15);
-                                    task.execute(facebookPhotoUrl);
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-
+                        facebookFirstName.setText(MainActivity.getPreferences("FACEBOOK_FIRST_NAME",
+                                ProfileDetailsActivity.this));
+                        facebookLastName.setText(MainActivity.getPreferences("FACEBOOK_LAST_NAME",
+                                ProfileDetailsActivity.this));
+                        Picasso.with(ProfileDetailsActivity.this).load(MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
+                                ProfileDetailsActivity.this)).into(profilePic);
+                        final BlurredAsynctask task = new BlurredAsynctask(ProfileDetailsActivity.this,
+                        profilePicBackground, 15);
+                        task.execute(MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
+                                ProfileDetailsActivity.this));
                     }
-                } else {
+                }
+                else
+                    {
                     Intent i = new Intent(ProfileDetailsActivity.this, MainActivity.class);
                     startActivity(i);
-                }
+                    }
             }
          };
     }
@@ -218,9 +200,6 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
 
         birthday = birthdayEt.getText().toString().trim();
         description = descriptionEt.getText().toString().trim();
-
-//        emailPhotoUrl = String.valueOf(storageReference.child("images/"+ mAuth.getUid() +"/profilePicture.png").getDownloadUrl().getResult());
-
         // Facebook
         if (MainActivity.isLoggedIn()) {
             writeExtraInfoToDatabaseFacebook(birthday, description);
@@ -235,15 +214,21 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
 
     private void writeExtraInfoToDatabaseFacebook(String birthday, String description) {
         User userExtraInfo = new User(birthday, description);
+        MainActivity.setPreferences("FACEBOOK_BIRTHDAY", birthday, ProfileDetailsActivity.this);
+        MainActivity.setPreferences("FACEBOOK_DESCRIPTION", description, ProfileDetailsActivity.this);
         mDatabase.child("fb_users").child(Profile.getCurrentProfile().getId()).child("extra").setValue(userExtraInfo);
     }
 
     private void writeBasicInfoToDatabaseEmail(String firstName, String lastName, String photoUrl) {
         User userBasicInfo = new User(firstName, lastName, photoUrl);
+        MainActivity.setPreferences("EMAIL_FIRST_NAME", firstName, ProfileDetailsActivity.this);
+        MainActivity.setPreferences("EMAIL_LAST_NAME", lastName, ProfileDetailsActivity.this);
         mDatabase.child("email_users").child(mAuth.getUid()).setValue(userBasicInfo);
     }
     private void writeExtraInfoToDatabaseEmail(String birthday, String description) {
         User userExtraInfo = new User(birthday, description);
+        MainActivity.setPreferences("EMAIL_BIRTHDAY", birthday, ProfileDetailsActivity.this);
+        MainActivity.setPreferences("EMAIL_DESCRIPTION", description, ProfileDetailsActivity.this);
         mDatabase.child("email_users").child(mAuth.getUid()).child("extra").setValue(userExtraInfo);
     }
     private void chooseImage() {

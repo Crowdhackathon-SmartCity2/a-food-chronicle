@@ -1,9 +1,8 @@
 package com.afoodchronicle;
 
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
@@ -118,12 +117,11 @@ public class LogInActivity extends BaseActivity implements
                 String lastName = mProfile.getLastName();
                 String userId = mProfile.getId().toString();
                 String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
-
-                SharedPreferences profile_details_preferences = PreferenceManager.getDefaultSharedPreferences(LogInActivity.this);
-
-
-
                 writeBasicInfoToDatabaseFacebook(firstName, lastName, profileImageUrl);
+
+                MainActivity.setPreferences("FACEBOOK_FIRST_NAME", firstName, LogInActivity.this);
+                MainActivity.setPreferences("FACEBOOK_LAST_NAME", lastName, LogInActivity.this);
+                MainActivity.setPreferences("FACEBOOK_PROFILE_PIC", profileImageUrl, LogInActivity.this);
                 startActivity(facebookIntent);
             }
 
