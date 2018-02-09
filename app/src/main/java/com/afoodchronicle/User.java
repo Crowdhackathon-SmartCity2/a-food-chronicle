@@ -6,20 +6,37 @@ public class User {
     private String firstName;
     private String lastName;
     private String photoUrl;
+    private String birthday;
     private String description;
+
+    public User(String birthday, String description) {
+        this.birthday = birthday;
+        this.description = description;
+    }
+
+    public User(String firstName, String lastName, String photoUrl, String birthday, String description) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.photoUrl = photoUrl;
+        this.birthday = birthday;
+        this.description = description;
+    }
 
     public User() {
     }
 
-    public User(String id, String firstName, String lastName, String photoUrl) {
-        this.id = id;
+    public User(String firstName, String lastName, String photoUrl) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.photoUrl = photoUrl;
     }
 
-    public User(String description) {
-        this.description = description;
+    public String getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
     }
 
     public String getId() {

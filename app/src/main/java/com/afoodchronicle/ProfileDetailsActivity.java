@@ -16,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.DatePicker;
@@ -75,6 +76,7 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
     FirebaseStorage storage;
     StorageReference storageReference;
     private DatabaseReference mDatabase;
+    private ImageView profilePicBackground;
 
 
     @Override
@@ -98,7 +100,7 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
         findViewById(R.id.etBirthday).setOnClickListener(this);
 
         profilePic = findViewById(R.id.profile_pic_details);
-
+        profilePicBackground = findViewById(R.id.profile_pic_background);
         firstNameEt = findViewById(R.id.etFirstName);
         facebookFirstName = findViewById(R.id.tvFacebookFirstName);
 
@@ -149,6 +151,9 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
                                     facebookLastName.setText(lastName);
                                     Picasso.with(ProfileDetailsActivity.this).load(facebookPhotoUrl).into(profilePic);
 
+                                    final BlurredAsynctask task = new BlurredAsynctask(ProfileDetailsActivity.this,
+                                            profilePicBackground, 15);
+                                    task.execute(facebookPhotoUrl);
                                 }
                             }
 
@@ -181,8 +186,8 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
                 myCalendar.set(Calendar.YEAR, year);
                 myCalendar.set(Calendar.MONTH, monthOfYear);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                String myFormat = "MM/dd/yy"; //In which you need put here
-                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+                String myFormat = "dd/MM/yy"; //In which you need put here
+                SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMAN);
 
                 birthdayEt.setText(sdf.format(myCalendar.getTime()));
             }
@@ -202,31 +207,30 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
         });
     }
 
-    private void saveDetails(){
+    private void saveDetails() {
 
-        firstNameEmail =firstNameEt.getText().toString().trim();
+        validateForm();
+        firstNameEmail = firstNameEt.getText().toString().trim();
         firstNameFacebook = facebookFirstName.getText().toString().trim();
 
         lastNameEmail = lastNameEt.getText().toString().trim();
         lastNameFacebook = facebookLastName.getText().toString().trim();
 
         birthday = birthdayEt.getText().toString().trim();
-        description= descriptionEt.getText().toString().trim();
+        description = descriptionEt.getText().toString().trim();
 
 //        emailPhotoUrl = String.valueOf(storageReference.child("images/"+ mAuth.getUid() +"/profilePicture.png").getDownloadUrl().getResult());
 
         // Facebook
-        if(MainActivity.isLoggedIn()){
+        if (MainActivity.isLoggedIn()) {
             writeExtraInfoToDatabaseFacebook(birthday, description);
         }
         // Email
-        else
-        {
+        else {
             writeBasicInfoToDatabaseEmail(firstNameEmail, lastNameEmail, emailPhotoUrl);
             writeExtraInfoToDatabaseEmail(birthday, description);
         }
-        Intent i = new Intent(ProfileDetailsActivity.this, MainActivity.class);
-        startActivity(i);
+
     }
 
     private void writeExtraInfoToDatabaseFacebook(String birthday, String description) {
@@ -294,12 +298,50 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 profilePic.setImageBitmap(bitmap);
+                profilePicBackground.setImageBitmap(BlurredAsynctask.CreateBlurredImage(bitmap, 15, this));
+
             }
             catch (IOException e)
             {
                 e.printStackTrace();
             }
         }
+    }
+    private boolean validateForm() {
+        boolean valid = true;
+
+        if(!MainActivity.isLoggedIn()) {
+
+            String fName = firstNameEt.getText().toString();
+            if (TextUtils.isEmpty(fName)) {
+                firstNameEt.setError("Required.");
+                valid = false;
+            } else {
+                firstNameEt.setError(null);
+
+            }
+
+            String lName = lastNameEt.getText().toString();
+            if (TextUtils.isEmpty(lName)) {
+                lastNameEt.setError("Required.");
+                valid = false;
+            } else {
+                lastNameEt.setError(null);
+            }
+        }
+
+
+        String birthday = birthdayEt.getText().toString();
+        if (TextUtils.isEmpty(birthday)) {
+            birthdayEt.setError("Required.");
+            valid = false;
+        } else {
+            birthdayEt.setError(null);
+        }
+        if (valid){
+        Intent i = new Intent(ProfileDetailsActivity.this, MainActivity.class);
+        startActivity(i);}
+        return valid;
     }
     @Override
     protected void onStart() {

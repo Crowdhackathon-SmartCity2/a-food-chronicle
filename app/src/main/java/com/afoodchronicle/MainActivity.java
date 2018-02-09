@@ -4,12 +4,14 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -198,6 +200,31 @@ public class MainActivity extends AppCompatActivity
                         }
                 ///Email
                     else{
+
+                        DatabaseReference facebookRef = FirebaseDatabase.getInstance().getReference("email_users");
+                        facebookRef.addValueEventListener(new ValueEventListener()
+
+                        {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                for(DataSnapshot ds : dataSnapshot.getChildren())
+
+                                {
+                                    String firstName = ds.child("firstName").getValue(String.class);
+                                    String lastName = ds.child("lastName").getValue(String.class);
+                                    String profileImageLink = ds.child("photoUrl").getValue(String.class);
+                                    profileName.setText(firstName + " " + lastName);
+                                    Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
+
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
                         logIn.setVisibility(View.GONE);
                         profileName.setVisibility(View.VISIBLE);
 
@@ -225,6 +252,7 @@ public class MainActivity extends AppCompatActivity
             }
         };
     }
+
 
     @Override
     protected void onStart() {

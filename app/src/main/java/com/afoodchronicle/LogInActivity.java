@@ -74,6 +74,8 @@ public class LogInActivity extends BaseActivity implements
         findViewById(R.id.sign_out_button).setOnClickListener(this);
         findViewById(R.id.verify_email_button).setOnClickListener(this);
 
+
+
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
         mAuthFacebook = LoginManager.getInstance();
@@ -117,7 +119,11 @@ public class LogInActivity extends BaseActivity implements
                 String userId = mProfile.getId().toString();
                 String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
 
-                writeNewUser(userId, firstName, lastName, profileImageUrl);
+                SharedPreferences profile_details_preferences = PreferenceManager.getDefaultSharedPreferences(LogInActivity.this);
+
+
+
+                writeBasicInfoToDatabaseFacebook(firstName, lastName, profileImageUrl);
                 startActivity(facebookIntent);
             }
 
@@ -145,10 +151,10 @@ public class LogInActivity extends BaseActivity implements
     }
     // [END on_activity_result]
 
-    private void writeNewUser(String id, String firstName, String lastName, String photoUrl) {
-        User user = new User(id, firstName, lastName, photoUrl);
+    private void writeBasicInfoToDatabaseFacebook(String firstName, String lastName, String photoUrl) {
+        User user = new User(firstName, lastName, photoUrl);
 
-        mDatabase.child("fb_users").child(id).setValue(user);
+        mDatabase.child("fb_users").child(Profile.getCurrentProfile().getId()).setValue(user);
     }
     private void handleFacebookAccessToken(AccessToken token) {
         Log.d(TAG, "handleFacebookAccessToken:" + token);
