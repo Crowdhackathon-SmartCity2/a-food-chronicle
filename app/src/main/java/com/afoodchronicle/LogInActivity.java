@@ -132,8 +132,6 @@ public class LogInActivity extends BaseActivity implements
                 String userId = mProfile.getId();
                 String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
                 writeBasicInfoToDatabaseFacebook(firstName, lastName, profileImageUrl);
-                mProfileTracker.stopTracking();
-
                 }
                 Intent facebookIntent = new Intent(LogInActivity.this, MainActivity.class);
                 startActivity(facebookIntent);
