@@ -16,6 +16,7 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.Profile;
+import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -106,24 +107,39 @@ public class LogInActivity extends BaseActivity implements
         LoginButton loginButton = findViewById(R.id.button_facebook_login);
         loginButton.setReadPermissions("email", "public_profile");
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+            private ProfileTracker mProfileTracker;
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                handleFacebookAccessToken(loginResult.getAccessToken());
-                String userLoginId = loginResult.getAccessToken().getUserId();
-                Intent facebookIntent = new Intent(LogInActivity.this, MainActivity.class);
+                if(Profile.getCurrentProfile() == null) {
+                    mProfileTracker = new ProfileTracker() {
+                        @Override
+                        protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
+                            String firstName = currentProfile.getFirstName();
+                            String lastName = currentProfile.getLastName();
+                            String userId = currentProfile.getId();
+                            String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
+                            writeBasicInfoToDatabaseFacebook(firstName, lastName, profileImageUrl);
+                            mProfileTracker.stopTracking();
+                        }
+                    };
+                    // no need to call startTracking() on mProfileTracker
+                    // because it is called by its constructor, internally.
+                }
+                else {
                 Profile mProfile = Profile.getCurrentProfile();
                 String firstName = mProfile.getFirstName();
                 String lastName = mProfile.getLastName();
-                String userId = mProfile.getId().toString();
+                String userId = mProfile.getId();
                 String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
                 writeBasicInfoToDatabaseFacebook(firstName, lastName, profileImageUrl);
+                mProfileTracker.stopTracking();
 
-                MainActivity.setPreferences("FACEBOOK_FIRST_NAME", firstName, LogInActivity.this);
-                MainActivity.setPreferences("FACEBOOK_LAST_NAME", lastName, LogInActivity.this);
-                MainActivity.setPreferences("FACEBOOK_PROFILE_PIC", profileImageUrl, LogInActivity.this);
+                }
+                Intent facebookIntent = new Intent(LogInActivity.this, MainActivity.class);
                 startActivity(facebookIntent);
+                handleFacebookAccessToken(loginResult.getAccessToken());
             }
+
 
             @Override
             public void onCancel() {
@@ -151,6 +167,9 @@ public class LogInActivity extends BaseActivity implements
 
     private void writeBasicInfoToDatabaseFacebook(String firstName, String lastName, String photoUrl) {
         User user = new User(firstName, lastName, photoUrl);
+        MainActivity.setPreferences("FACEBOOK_FIRST_NAME", firstName, LogInActivity.this);
+        MainActivity.setPreferences("FACEBOOK_LAST_NAME", lastName, LogInActivity.this);
+        MainActivity.setPreferences("FACEBOOK_PROFILE_PIC", photoUrl, LogInActivity.this);
 
         mDatabase.child("fb_users").child(Profile.getCurrentProfile().getId()).setValue(user);
     }
