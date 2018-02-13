@@ -159,32 +159,6 @@ public class MainActivity extends AppCompatActivity
                     ///Facebook
                     if (isLoggedIn()) {
 
-//                        DatabaseReference facebookRef = FirebaseDatabase.getInstance().getReference("fb_users");
-//                        facebookRef.addValueEventListener(new ValueEventListener()
-//
-//                        {
-//                            @Override
-//                            public void onDataChange(DataSnapshot dataSnapshot) {
-//
-//                               for(DataSnapshot ds : dataSnapshot.getChildren())
-//
-//                                {
-//                                    String firstName = ds.child("firstName").getValue(String.class);
-//                                    String lastName = ds.child("lastName").getValue(String.class);
-//                                    String profileImageLink = ds.child("photoUrl").getValue(String.class);
-//                                    profileName.setText(firstName + " " + lastName);
-//                                    Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
-//
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(DatabaseError databaseError) {
-//
-//                            }
-//                        });
-
-
                         profileName.setText(getPreferences("FACEBOOK_FIRST_NAME", MainActivity.this)
                         + " " + getPreferences("FACEBOOK_LAST_NAME", MainActivity.this));
                         Picasso.with(MainActivity.this).load(getPreferences("FACEBOOK_PROFILE_PIC",

@@ -47,7 +47,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 
-public class ProfileDetailsActivity extends AppCompatActivity implements View.OnClickListener {
+public class ProfileDetailsActivity extends FacebookActivity implements View.OnClickListener {
 
     private EditText firstNameEt;
     private TextView facebookFirstName;
@@ -157,7 +157,7 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
 
     private void setBirthday(){
         final Calendar myCalendar = Calendar.getInstance();
-
+        showProgressDialog();
         final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
 
             @RequiresApi(api = Build.VERSION_CODES.N)
@@ -335,7 +335,7 @@ public class ProfileDetailsActivity extends AppCompatActivity implements View.On
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);

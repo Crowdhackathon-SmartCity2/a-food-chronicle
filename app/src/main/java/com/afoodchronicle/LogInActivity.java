@@ -34,14 +34,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 
-public class LogInActivity extends BaseActivity implements
+public class LogInActivity extends FacebookActivity implements
         View.OnClickListener {
 
     private static final String TAG = "EmailPassword";
 
     // Views
     private TextView mStatusTextView;
-    private TextView mDetailTextView;
     private EditText mEmailField;
     private EditText mPasswordField;
 
@@ -64,16 +63,13 @@ public class LogInActivity extends BaseActivity implements
 
         // Views
         mStatusTextView = findViewById(R.id.status);
-        mDetailTextView = findViewById(R.id.detail);
         mEmailField = findViewById(R.id.etEmail);
         mPasswordField = findViewById(R.id.etPassword);
 
         // Buttons
         findViewById(R.id.email_sign_in_button).setOnClickListener(this);
         findViewById(R.id.email_create_account_button).setOnClickListener(this);
-        findViewById(R.id.sign_out_button).setOnClickListener(this);
-        findViewById(R.id.verify_email_button).setOnClickListener(this);
-
+        findViewById(R.id.tvForgotPassword).setOnClickListener(this);
 
 
         // [START initialize_auth]
@@ -102,153 +98,28 @@ public class LogInActivity extends BaseActivity implements
         mAuth = FirebaseAuth.getInstance();
 
         // Initialize Facebook Login button
-
-        mCallbackManager = CallbackManager.Factory.create();
-        LoginButton loginButton = findViewById(R.id.button_facebook_login);
-        loginButton.setReadPermissions("email", "public_profile");
-        loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
-            private ProfileTracker mProfileTracker;
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                if(Profile.getCurrentProfile() == null) {
-                    mProfileTracker = new ProfileTracker() {
-                        @Override
-                        protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
-                            String firstName = currentProfile.getFirstName();
-                            String lastName = currentProfile.getLastName();
-                            String userId = currentProfile.getId();
-                            String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
-                            writeBasicInfoToDatabaseFacebook(firstName, lastName, profileImageUrl);
-                            mProfileTracker.stopTracking();
-                        }
-                    };
-                    // no need to call startTracking() on mProfileTracker
-                    // because it is called by its constructor, internally.
-                }
-                else {
-                Profile mProfile = Profile.getCurrentProfile();
-                String firstName = mProfile.getFirstName();
-                String lastName = mProfile.getLastName();
-                String userId = mProfile.getId();
-                String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
-                writeBasicInfoToDatabaseFacebook(firstName, lastName, profileImageUrl);
-                }
-                Intent facebookIntent = new Intent(LogInActivity.this, MainActivity.class);
-                startActivity(facebookIntent);
-                handleFacebookAccessToken(loginResult.getAccessToken());
-            }
-
-
-            @Override
-            public void onCancel() {
-                Log.d(TAG, "facebook:onCancel");
-                updateUI(null);
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Log.d(TAG, "facebook:onError", error);
-                updateUI(null);
-            }
-
-        });
+        initializeFacebookLogin(LogInActivity.this);
     }
+
     // [START on_activity_result]
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        // Pass the activity result back to the Facebook SDK
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
-    }
-    // [END on_activity_result]
 
-    private void writeBasicInfoToDatabaseFacebook(String firstName, String lastName, String photoUrl) {
-        User user = new User(firstName, lastName, photoUrl);
-        MainActivity.setPreferences("FACEBOOK_FIRST_NAME", firstName, LogInActivity.this);
-        MainActivity.setPreferences("FACEBOOK_LAST_NAME", lastName, LogInActivity.this);
-        MainActivity.setPreferences("FACEBOOK_PROFILE_PIC", photoUrl, LogInActivity.this);
-
-        mDatabase.child("fb_users").child(Profile.getCurrentProfile().getId()).setValue(user);
-    }
-    private void handleFacebookAccessToken(AccessToken token) {
-        Log.d(TAG, "handleFacebookAccessToken:" + token);
-
-        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (!task.isSuccessful()) {
-                            try {
-                                throw task.getException();
-                            } catch (FirebaseNetworkException e) {
-                                Toast.makeText(LogInActivity.this,"error_message_failed_sign_in_no_network",
-                                        Toast.LENGTH_SHORT).show();
-                            } catch (Exception e) {
-                                Log.e(LOG_TAG, e.getMessage());
-                            }
-                            Log.w(LOG_TAG, "signInWithFacebook:failed", task.getException());
-                            Toast.makeText(LogInActivity.this, R.string.auth_failed,
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-
-                    }
-                });
-    }
-
-    // [START on_start_check_user]
     @Override
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
+        updateUI(currentUser, LogInActivity.this);
     }
     // [END on_start_check_user]
+
     @Override
     public void onStop() {
         super.onStop();
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
-    }
-
-    private void createAccount(String email, String password)
-    {
-        Log.d(TAG, "createAccount:" + email);
-        if (!validateForm())
-        {
-            return;
-        }
-
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener
-                (this, new OnCompleteListener<AuthResult>()
-        {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task)
-            {
-
-
-                if (task.isSuccessful())
-                {
-                    Log.d(TAG, "createUserWithEmail:success");
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    sendEmailVerification();
-                    updateUI(user);
-                }
-
-                else
-                {
-                    Log.w(TAG,"createUserWithEmail:failure",task.getException());
-                    Toast.makeText(LogInActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
-                    updateUI(null);
-                }
-
-            }
-        });
     }
 
     private void signIn(String email, String password) {
@@ -288,50 +159,11 @@ public class LogInActivity extends BaseActivity implements
                             Log.w(LOG_TAG, "signInWithEmail:failed", task.getException());
                             Toast.makeText(LogInActivity.this, R.string.auth_failed,
                                     Toast.LENGTH_SHORT).show();
-                            updateUI(null);
+                            updateUI(null, LogInActivity.this);
                         }
 
 
                 }});
-    }
-
-    private void signOut() {
-        mAuth.signOut();
-        mAuthFacebook.logOut();
-        mEmailField.setText(null);
-        mPasswordField.setText(null);
-        updateUI(null);
-    }
-
-    private void sendEmailVerification() {
-        // Disable button
-//        findViewById(R.id.verify_email_button).setEnabled(false);
-
-        // Send verification email
-        // [START send_email_verification]
-        final FirebaseUser user = mAuth.getCurrentUser();
-        user.sendEmailVerification()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        // [START_EXCLUDE]
-                        // Re-enable button
-                        findViewById(R.id.verify_email_button).setEnabled(true);
-
-                        if (task.isSuccessful()) {
-                            Toast.makeText(LogInActivity.this,
-                                    "Verification email sent to " + user.getEmail(),
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            Log.e(TAG, "sendEmailVerification", task.getException());
-                            Toast.makeText(LogInActivity.this,
-                                    "Failed to send verification email.",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                        // [END_EXCLUDE]
-                    }
-                });
-        // [END send_email_verification]
     }
 
     private boolean validateForm() {
@@ -356,34 +188,21 @@ public class LogInActivity extends BaseActivity implements
         return valid;
     }
 
-    private void updateUI(FirebaseUser user) {
-        hideProgressDialog();
-        if (user != null) {
-            Intent listIntent = new Intent(LogInActivity.this, ProfileDetailsActivity.class);
-
-            startActivity(listIntent);
-        } else {
-            mStatusTextView.setText(R.string.signed_out);
-            mDetailTextView.setText(null);
-
-            findViewById(R.id.email_password_buttons).setVisibility(View.VISIBLE);
-            findViewById(R.id.email_password_fields).setVisibility(View.VISIBLE);
-            findViewById(R.id.signed_in_buttons).setVisibility(View.GONE);
-        }
-    }
 
     @Override
     public void onClick(View v) {
         int i = v.getId();
         if (i == R.id.email_create_account_button) {
-            createAccount(mEmailField.getText().toString().trim().toLowerCase(), mPasswordField.getText().toString().trim());
-        } else if (i == R.id.email_sign_in_button) {
+            Intent listIntent = new Intent(LogInActivity.this, CreateUserActivity.class);
+
+            startActivity(listIntent);
+        }
+        else if (i == R.id.email_sign_in_button) {
             signIn(mEmailField.getText().toString().trim().toLowerCase(), mPasswordField.getText().toString().trim());
-        } else if (i == R.id.sign_out_button) {
-            signOut();
-        } else if (i == R.id.verify_email_button) {
-            sendEmailVerification();
-        } else if (i == R.id.tvForgotPassword) {
-        sendEmailVerification();
+        }
+        else if (i == R.id.tvForgotPassword) {
+            Intent listIntent = new Intent(LogInActivity.this, ResetPasswordActivity.class);
+            startActivity(listIntent);
     }}
 }
+
