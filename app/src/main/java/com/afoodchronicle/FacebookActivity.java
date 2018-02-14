@@ -98,7 +98,10 @@ public class FacebookActivity extends AppCompatActivity {
         User user = new User(firstName, lastName, photoUrl);
         MainActivity.setPreferences("FACEBOOK_FIRST_NAME", firstName, parentActivity);
         MainActivity.setPreferences("FACEBOOK_LAST_NAME", lastName, parentActivity);
-        MainActivity.setPreferences("FACEBOOK_PROFILE_PIC", photoUrl, parentActivity);
+        String ifExist = MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",parentActivity);
+        if (ifExist == null) {
+            MainActivity.setPreferences("FACEBOOK_PROFILE_PIC", photoUrl, parentActivity);
+        }
         mDatabase.child("fb_users").child(id).setValue(user);
     }
     public void handleFacebookAccessToken(AccessToken token, final Context parentActivity) {
@@ -149,6 +152,7 @@ public class FacebookActivity extends AppCompatActivity {
 
         mProgressDialog.show();
     }
+
 
     public void hideProgressDialog() {
         if (mProgressDialog != null && mProgressDialog.isShowing()) {

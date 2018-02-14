@@ -90,12 +90,10 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_details);
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mAuthFacebook = LoginManager.getInstance();
         findViewById(R.id.btnLog_out).setOnClickListener(this);
         findViewById(R.id.btnChoose).setOnClickListener(this);
-        findViewById(R.id.btnUpload).setOnClickListener(this);
         findViewById(R.id.btnSave).setOnClickListener(this);
         findViewById(R.id.etBirthday).setOnClickListener(this);
 
@@ -143,6 +141,10 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
                         profilePicBackground, 15);
                         task.execute(MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
                                 ProfileDetailsActivity.this));
+                    }
+                    //Email
+                    {
+
                     }
                 }
                 else
@@ -259,12 +261,12 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
                                         // Got the download URL for 'users/me/profile.png'
                                         MainActivity.setPreferences("FACEBOOK_PROFILE_PIC",taskSnapshot.getMetadata().getDownloadUrl().toString(),
                                                 ProfileDetailsActivity.this);
-                                        Picasso.with(ProfileDetailsActivity.this).load(MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
-                                                ProfileDetailsActivity.this)).into(profilePic);
-                                        final BlurredAsynctask task = new BlurredAsynctask(ProfileDetailsActivity.this,
-                                                profilePicBackground, 15);
-                                        task.execute(MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
-                                                ProfileDetailsActivity.this));
+//                                        Picasso.with(ProfileDetailsActivity.this).load(MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
+//                                                ProfileDetailsActivity.this)).into(profilePic);
+//                                        final BlurredAsynctask task = new BlurredAsynctask(ProfileDetailsActivity.this,
+//                                                profilePicBackground, 15);
+//                                        task.execute(MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
+//                                                ProfileDetailsActivity.this));
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
@@ -386,9 +388,6 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
              }
         else if(i == R.id.btnChoose){
             chooseImage();
-        }
-        else if(i == R.id.btnUpload){
-            uploadImage();
         }
         else if(i == R.id.btnSave){
             saveDetails();
