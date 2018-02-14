@@ -64,16 +64,20 @@
         android:label="Details"/>
 
         <activity android:name=".ProfileDetailsActivity"
-            android:label="Profile Details"/>
+            android:label="Profile Details"
+            android:windowSoftInputMode="stateHidden"/>
 
         <activity android:name=".LogInActivity"
-            android:label="Log In"/>
+            android:label="Log In"
+            android:windowSoftInputMode="stateHidden"/>
 
         <activity android:name=".CreateUserActivity"
-            android:label="Sign up"/>
+            android:label="Sign up"
+            android:windowSoftInputMode="stateHidden"/>
 
         <activity android:name=".ResetPasswordActivity"
-            android:label="Reset Password"/>
+            android:label="Reset Password"
+            android:windowSoftInputMode="stateHidden"/>
     </application>
 
 </manifest>

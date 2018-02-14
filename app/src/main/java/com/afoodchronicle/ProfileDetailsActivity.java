@@ -240,25 +240,49 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
 
     private void uploadImage() {
 
+
         if(filePath != null)
         {
-            final ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setTitle("Uploading...");
-            progressDialog.show();
+//            final ProgressDialog progressDialog = new ProgressDialog(this);
+//            progressDialog.setTitle("Uploading...");
+//            progressDialog.show();
 
-            StorageReference ref = storageReference.child("images/"+mAuth.getUid()+"/"+ "profilePicture.png".toString());
+            final StorageReference ref = storageReference.child("images/"+mAuth.getUid()+"/"+ "profilePicture.png");
             ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            progressDialog.dismiss();
+                        public void onSuccess(final UploadTask.TaskSnapshot taskSnapshot) {
+                            if(MainActivity.isLoggedIn()){
+                                ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        // Got the download URL for 'users/me/profile.png'
+                                        MainActivity.setPreferences("FACEBOOK_PROFILE_PIC",taskSnapshot.getMetadata().getDownloadUrl().toString(),
+                                                ProfileDetailsActivity.this);
+                                        Picasso.with(ProfileDetailsActivity.this).load(MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
+                                                ProfileDetailsActivity.this)).into(profilePic);
+                                        final BlurredAsynctask task = new BlurredAsynctask(ProfileDetailsActivity.this,
+                                                profilePicBackground, 15);
+                                        task.execute(MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
+                                                ProfileDetailsActivity.this));
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception exception) {
+                                        // Handle any errors
+                                    }
+                                });
+
+
+                            }
+//                            progressDialog.dismiss();
                             Toast.makeText(ProfileDetailsActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            progressDialog.dismiss();
+//                            progressDialog.dismiss();
                             Toast.makeText(ProfileDetailsActivity.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     })
@@ -267,7 +291,7 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
                         public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                             double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
                                     .getTotalByteCount());
-                            progressDialog.setMessage("Uploaded "+(int)progress+"%");
+//                            progressDialog.setMessage("Uploaded "+(int)progress+"%");
                         }
                     });
         }
@@ -275,12 +299,12 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
                 && data != null && data.getData() != null )
         {
             filePath = data.getData();
             try {
+                uploadImage();
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 profilePic.setImageBitmap(bitmap);
                 profilePicBackground.setImageBitmap(BlurredAsynctask.CreateBlurredImage(bitmap, 15, this));
