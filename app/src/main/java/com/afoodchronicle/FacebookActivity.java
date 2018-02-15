@@ -3,6 +3,8 @@ package com.afoodchronicle;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
 import android.support.v7.app.AppCompatActivity;
@@ -66,9 +68,7 @@ public class FacebookActivity extends AppCompatActivity {
                     String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
                     writeBasicInfoToDatabaseFacebook(parentActivity, userId, firstName, lastName, profileImageUrl);
                 }
-                Intent facebookIntent = new Intent(parentActivity, MainActivity.class);
-                startActivity(facebookIntent);
-                handleFacebookAccessToken(loginResult.getAccessToken(), parentActivity);
+                    handleFacebookAccessToken(loginResult.getAccessToken(), parentActivity);
             }
 
 
@@ -127,6 +127,20 @@ public class FacebookActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null, parentActivity);
                         }
+                        else{
+
+                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(parentActivity);
+                            if (!prefs.getBoolean("firstTime", false)) {
+                                Intent facebookIntent = new Intent(parentActivity, ProfileDetailsActivity.class);
+                                startActivity(facebookIntent);
+                            }
+                            else {
+                                Intent facebookIntent = new Intent(parentActivity, MainActivity.class);
+                                startActivity(facebookIntent);
+                            }
+
+                        }
+
 
                     }
                 });

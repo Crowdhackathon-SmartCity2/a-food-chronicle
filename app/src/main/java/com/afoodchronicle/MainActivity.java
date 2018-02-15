@@ -50,13 +50,15 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
+import java.util.prefs.PreferenceChangeListener;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
         GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnMyLocationClickListener,
-        GoogleMap.OnInfoWindowClickListener {
+        GoogleMap.OnInfoWindowClickListener,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
 
     public static final String PROFILE_USER_ID = "USER_ID";
@@ -89,6 +91,8 @@ public class MainActivity extends AppCompatActivity
     private TextView editProfile;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private SharedPreferences mPrefs;
+    private PreferenceChangeListener mPreferenceListener;
 
 
     @Override
@@ -144,6 +148,11 @@ public class MainActivity extends AppCompatActivity
         profileImage = parentView.findViewById(R.id.profile_image);
         profileName = parentView.findViewById(R.id.profile_name);
         editProfile = parentView.findViewById(R.id.edit_profile);
+
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        mPrefs.registerOnSharedPreferenceChangeListener((SharedPreferences.
+                OnSharedPreferenceChangeListener) mPreferenceListener);
 
 //        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         mAuth = FirebaseAuth.getInstance();
@@ -247,13 +256,22 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
+        mPrefs.registerOnSharedPreferenceChangeListener(this);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mPrefs.registerOnSharedPreferenceChangeListener(this);
+
+    }
     @Override
     protected void onStop() {
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
+        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
+
         super.onStop();
     }
 
@@ -479,5 +497,13 @@ public class MainActivity extends AppCompatActivity
                 .newInstance(true).show(getSupportFragmentManager(), "dialog");
     }
 
- }
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if(s.equals(getPreferences("FACEBOOK_PROFILE_PIC",
+                MainActivity.this))){
+            Picasso.with(MainActivity.this).load(getPreferences("FACEBOOK_PROFILE_PIC",
+                    MainActivity.this)).into(profileImage);
+        }
+    }
+}
 

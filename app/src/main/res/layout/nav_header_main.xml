@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:srcCompat="@mipmap/ic_user"
-        android:scaleType="fitXY"/>
+        android:scaleType="fitCenter"/>
     </android.support.v7.widget.CardView>
     <TextView
         android:id="@+id/logIn"

@@ -1,7 +1,6 @@
 package com.afoodchronicle;
 
 import android.app.DatePickerDialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -15,9 +14,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -31,23 +28,22 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.UUID;
+import java.util.prefs.PreferenceChangeListener;
 
 
-public class ProfileDetailsActivity extends FacebookActivity implements View.OnClickListener {
+public class ProfileDetailsActivity extends FacebookActivity implements View.OnClickListener,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private EditText firstNameEt;
     private TextView facebookFirstName;
@@ -77,6 +73,8 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
     StorageReference storageReference;
     private DatabaseReference mDatabase;
     private ImageView profilePicBackground;
+    private PreferenceChangeListener mPreferenceListener;
+    private SharedPreferences mPrefs;
 
 
     @Override
@@ -105,6 +103,10 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
         lastNameEt = findViewById(R.id.etLastName);
         facebookLastName = findViewById(R.id.tvFacebookLastName);
 
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        mPrefs.registerOnSharedPreferenceChangeListener((SharedPreferences.
+                OnSharedPreferenceChangeListener) mPreferenceListener);
 
         birthdayEt = findViewById(R.id.etBirthday);
 
@@ -114,10 +116,20 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
+        final String profileEditPic = MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
+                ProfileDetailsActivity.this);
+        MainActivity.setPreferences("FACEBOOK_PROFILE_EDIT_PIC",profileEditPic,
+                ProfileDetailsActivity.this);
+
+        mPrefs.registerOnSharedPreferenceChangeListener(this);
 
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
         // [START initialize_auth]
+        initializeAuth();
+    }
+
+    private void initializeAuth(){
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -125,8 +137,7 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
                 if (user != null) {
-                    if (MainActivity.isLoggedIn())
-                    {
+                    if (MainActivity.isLoggedIn()) {
                         firstNameEt.setVisibility(View.GONE);
                         facebookFirstName.setVisibility(View.VISIBLE);
                         lastNameEt.setVisibility(View.GONE);
@@ -135,31 +146,34 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
                                 ProfileDetailsActivity.this));
                         facebookLastName.setText(MainActivity.getPreferences("FACEBOOK_LAST_NAME",
                                 ProfileDetailsActivity.this));
-                        Picasso.with(ProfileDetailsActivity.this).load(MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
-                                ProfileDetailsActivity.this)).into(profilePic);
-                        final BlurredAsynctask task = new BlurredAsynctask(ProfileDetailsActivity.this,
-                        profilePicBackground, 15);
-                        task.execute(MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
-                                ProfileDetailsActivity.this));
-                    }
-                    //Email
-                    {
 
+
+                        Picasso.with(ProfileDetailsActivity.this).load(MainActivity.getPreferences
+                                ("FACEBOOK_PROFILE_EDIT_PIC",
+                                        ProfileDetailsActivity.this)).into(profilePic);
+                        final BlurredAsynctask task = new BlurredAsynctask(
+                                ProfileDetailsActivity.this,
+                                profilePicBackground, 15);
+                        task.execute(MainActivity.getPreferences("FACEBOOK_PROFILE_EDIT_PIC",
+                                        ProfileDetailsActivity.this));
+                        //Email
+                        {
+
+                        }
+                    } else {
+                        Intent i = new Intent(ProfileDetailsActivity.this, MainActivity.class);
+                        startActivity(i);
                     }
                 }
-                else
-                    {
-                    Intent i = new Intent(ProfileDetailsActivity.this, MainActivity.class);
-                    startActivity(i);
-                    }
             }
-         };
+
+
+        };
+
     }
-
-
     private void setBirthday(){
         final Calendar myCalendar = Calendar.getInstance();
-        showProgressDialog();
+
         final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
 
             @RequiresApi(api = Build.VERSION_CODES.N)
@@ -212,6 +226,13 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
             writeExtraInfoToDatabaseEmail(birthday, description);
         }
 
+        MainActivity.setPreferences("FACEBOOK_PROFILE_PIC",MainActivity.getPreferences
+                        ("FACEBOOK_PROFILE_EDIT_PIC",
+                                ProfileDetailsActivity.this),
+                ProfileDetailsActivity.this);
+
+        uploadImage();
+
     }
 
     private void writeExtraInfoToDatabaseFacebook(String birthday, String description) {
@@ -245,10 +266,6 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
 
         if(filePath != null)
         {
-//            final ProgressDialog progressDialog = new ProgressDialog(this);
-//            progressDialog.setTitle("Uploading...");
-//            progressDialog.show();
-
             final StorageReference ref = storageReference.child("images/"+mAuth.getUid()+"/"+ "profilePicture.png");
             ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -259,14 +276,8 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
                                     @Override
                                     public void onSuccess(Uri uri) {
                                         // Got the download URL for 'users/me/profile.png'
-                                        MainActivity.setPreferences("FACEBOOK_PROFILE_PIC",taskSnapshot.getMetadata().getDownloadUrl().toString(),
-                                                ProfileDetailsActivity.this);
-//                                        Picasso.with(ProfileDetailsActivity.this).load(MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
-//                                                ProfileDetailsActivity.this)).into(profilePic);
-//                                        final BlurredAsynctask task = new BlurredAsynctask(ProfileDetailsActivity.this,
-//                                                profilePicBackground, 15);
-//                                        task.execute(MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",
-//                                                ProfileDetailsActivity.this));
+//                                        MainActivity.setPreferences("FACEBOOK_PROFILE_PIC",taskSnapshot.getMetadata().getDownloadUrl().toString(),
+//                                                ProfileDetailsActivity.this);
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
@@ -277,14 +288,12 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
 
 
                             }
-//                            progressDialog.dismiss();
                             Toast.makeText(ProfileDetailsActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-//                            progressDialog.dismiss();
                             Toast.makeText(ProfileDetailsActivity.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     })
@@ -293,7 +302,6 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
                         public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                             double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
                                     .getTotalByteCount());
-//                            progressDialog.setMessage("Uploaded "+(int)progress+"%");
                         }
                     });
         }
@@ -306,10 +314,11 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
         {
             filePath = data.getData();
             try {
-                uploadImage();
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                profilePic.setImageBitmap(bitmap);
                 profilePicBackground.setImageBitmap(BlurredAsynctask.CreateBlurredImage(bitmap, 15, this));
+                profilePic.setImageBitmap(bitmap);
+                MainActivity.setPreferences("FACEBOOK_PROFILE_EDIT_PIC",filePath.toString(),
+                        ProfileDetailsActivity.this);
 
             }
             catch (IOException e)
@@ -318,6 +327,7 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
             }
         }
     }
+
     private boolean validateForm() {
         boolean valid = true;
 
@@ -358,19 +368,35 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
     protected void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
+        mPrefs.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
+        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        mPrefs.registerOnSharedPreferenceChangeListener(this);
 
+        initializeAuth();
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        mPrefs.registerOnSharedPreferenceChangeListener(this);
+        initializeAuth();
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
@@ -395,5 +421,18 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
         else if(i == R.id.etBirthday){
             setBirthday();
         }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if(s.equals("FACEBOOK_PROFILE_EDIT_PIC")){
+            Picasso.with(ProfileDetailsActivity.this).load(MainActivity.getPreferences("FACEBOOK_PROFILE_EDIT_PIC",
+                    ProfileDetailsActivity.this)).into(profilePic);
+            final BlurredAsynctask task = new BlurredAsynctask(ProfileDetailsActivity.this,
+                    profilePicBackground, 15);
+            task.execute(MainActivity.getPreferences("FACEBOOK_PROFILE_EDIT_PIC",
+                    ProfileDetailsActivity.this));
+        }
+
     }
 }
