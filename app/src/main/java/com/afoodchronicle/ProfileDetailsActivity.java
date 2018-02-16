@@ -42,8 +42,7 @@ import java.util.Locale;
 import java.util.prefs.PreferenceChangeListener;
 
 
-public class ProfileDetailsActivity extends FacebookActivity implements View.OnClickListener,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+public class ProfileDetailsActivity extends FacebookActivity implements View.OnClickListener {
 
     private EditText firstNameEt;
     private TextView facebookFirstName;
@@ -94,6 +93,7 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
         findViewById(R.id.btnChoose).setOnClickListener(this);
         findViewById(R.id.btnSave).setOnClickListener(this);
         findViewById(R.id.etBirthday).setOnClickListener(this);
+        findViewById(R.id.btnCancel).setOnClickListener(this);
 
         profilePic = findViewById(R.id.profile_pic_details);
         profilePicBackground = findViewById(R.id.profile_pic_background);
@@ -121,7 +121,6 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
         MainActivity.setPreferences("FACEBOOK_PROFILE_EDIT_PIC",profileEditPic,
                 ProfileDetailsActivity.this);
 
-        mPrefs.registerOnSharedPreferenceChangeListener(this);
 
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -151,20 +150,22 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
                         Picasso.with(ProfileDetailsActivity.this).load(MainActivity.getPreferences
                                 ("FACEBOOK_PROFILE_EDIT_PIC",
                                         ProfileDetailsActivity.this)).into(profilePic);
-                        final BlurredAsynctask task = new BlurredAsynctask(
-                                ProfileDetailsActivity.this,
-                                profilePicBackground, 15);
-                        task.execute(MainActivity.getPreferences("FACEBOOK_PROFILE_EDIT_PIC",
-                                        ProfileDetailsActivity.this));
-                        //Email
-                        {
 
-                        }
+                        //Email
+
                     } else {
-                        Intent i = new Intent(ProfileDetailsActivity.this, MainActivity.class);
-                        startActivity(i);
+
+                        Picasso.with(ProfileDetailsActivity.this).load(MainActivity.getPreferences
+                                ("EMAIL_PROFILE_EDIT_PIC",
+                                        ProfileDetailsActivity.this)).into(profilePic);
+
                     }
                 }
+               else{
+                    Intent i = new Intent(ProfileDetailsActivity.this, MainActivity.class);
+                    startActivity(i);
+                }
+
             }
 
 
@@ -180,7 +181,6 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear,
                                   int dayOfMonth) {
-                // TODO Auto-generated method stub
                 myCalendar.set(Calendar.YEAR, year);
                 myCalendar.set(Calendar.MONTH, monthOfYear);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
@@ -197,8 +197,7 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
-                new DatePickerDialog(ProfileDetailsActivity.this, date, myCalendar
+                 new DatePickerDialog(ProfileDetailsActivity.this, date, myCalendar
                         .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                         myCalendar.get(Calendar.DAY_OF_MONTH)).show();
             }
@@ -208,6 +207,8 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
     private void saveDetails() {
 
         validateForm();
+        uploadImage();
+
         firstNameEmail = firstNameEt.getText().toString().trim();
         firstNameFacebook = facebookFirstName.getText().toString().trim();
 
@@ -219,19 +220,24 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
         // Facebook
         if (MainActivity.isLoggedIn()) {
             writeExtraInfoToDatabaseFacebook(birthday, description);
+            MainActivity.setPreferences("FACEBOOK_PROFILE_PIC",MainActivity.getPreferences
+                            ("FACEBOOK_PROFILE_EDIT_PIC",
+                                    ProfileDetailsActivity.this),
+                    ProfileDetailsActivity.this);
         }
         // Email
         else {
             writeBasicInfoToDatabaseEmail(firstNameEmail, lastNameEmail, emailPhotoUrl);
             writeExtraInfoToDatabaseEmail(birthday, description);
+            MainActivity.setPreferences("EMAIL_PROFILE_PIC",MainActivity.getPreferences
+                            ("EMAIL_PROFILE_EDIT_PIC",
+                                    ProfileDetailsActivity.this),
+                    ProfileDetailsActivity.this);
         }
 
-        MainActivity.setPreferences("FACEBOOK_PROFILE_PIC",MainActivity.getPreferences
-                        ("FACEBOOK_PROFILE_EDIT_PIC",
-                                ProfileDetailsActivity.this),
-                ProfileDetailsActivity.this);
 
-        uploadImage();
+
+
 
     }
 
@@ -275,9 +281,9 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
                                 ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
-                                        // Got the download URL for 'users/me/profile.png'
-//                                        MainActivity.setPreferences("FACEBOOK_PROFILE_PIC",taskSnapshot.getMetadata().getDownloadUrl().toString(),
-//                                                ProfileDetailsActivity.this);
+
+                                      MainActivity.setPreferences("FACEBOOK_PROFILE_EDIT_PIC",taskSnapshot.getMetadata().getDownloadUrl().toString(),
+                                               ProfileDetailsActivity.this);
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
@@ -287,6 +293,12 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
                                 });
 
 
+                            }
+                            //Email
+                            else
+                            {
+                                MainActivity.setPreferences("EMAIL_PROFILE_EDIT_PIC",taskSnapshot.getMetadata().getDownloadUrl().toString(),
+                                        ProfileDetailsActivity.this);
                             }
                             Toast.makeText(ProfileDetailsActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
                         }
@@ -315,9 +327,10 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
             filePath = data.getData();
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                profilePicBackground.setImageBitmap(BlurredAsynctask.CreateBlurredImage(bitmap, 15, this));
                 profilePic.setImageBitmap(bitmap);
                 MainActivity.setPreferences("FACEBOOK_PROFILE_EDIT_PIC",filePath.toString(),
+                        ProfileDetailsActivity.this);
+                MainActivity.setPreferences("EMAIL_PROFILE_EDIT_PIC",filePath.toString(),
                         ProfileDetailsActivity.this);
 
             }
@@ -368,13 +381,11 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
     protected void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-        mPrefs.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
@@ -382,7 +393,6 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
     @Override
     public void onResume() {
         super.onResume();
-        mPrefs.registerOnSharedPreferenceChangeListener(this);
 
         initializeAuth();
     }
@@ -390,13 +400,11 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
     @Override
     public void onRestart() {
         super.onRestart();
-        mPrefs.registerOnSharedPreferenceChangeListener(this);
         initializeAuth();
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
@@ -421,18 +429,12 @@ public class ProfileDetailsActivity extends FacebookActivity implements View.OnC
         else if(i == R.id.etBirthday){
             setBirthday();
         }
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        if(s.equals("FACEBOOK_PROFILE_EDIT_PIC")){
-            Picasso.with(ProfileDetailsActivity.this).load(MainActivity.getPreferences("FACEBOOK_PROFILE_EDIT_PIC",
-                    ProfileDetailsActivity.this)).into(profilePic);
-            final BlurredAsynctask task = new BlurredAsynctask(ProfileDetailsActivity.this,
-                    profilePicBackground, 15);
-            task.execute(MainActivity.getPreferences("FACEBOOK_PROFILE_EDIT_PIC",
-                    ProfileDetailsActivity.this));
+        else if (i == R.id.btnCancel){
+            Intent intent = new Intent(ProfileDetailsActivity.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         }
-
     }
+
+//
 }

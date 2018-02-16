@@ -29,12 +29,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 public class FacebookActivity extends AppCompatActivity {
     private static final String TAG = "Facebook";
     private FirebaseAuth mAuth;
     private CallbackManager mCallbackManager;
     private DatabaseReference mDatabase;
+    private StorageReference storageReference;
+    private FirebaseStorage storage;
 
     public void initializeFacebookLogin(final Context parentActivity){
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -98,10 +102,6 @@ public class FacebookActivity extends AppCompatActivity {
         User user = new User(firstName, lastName, photoUrl);
         MainActivity.setPreferences("FACEBOOK_FIRST_NAME", firstName, parentActivity);
         MainActivity.setPreferences("FACEBOOK_LAST_NAME", lastName, parentActivity);
-        String ifExist = MainActivity.getPreferences("FACEBOOK_PROFILE_PIC",parentActivity);
-        if (ifExist == null) {
-            MainActivity.setPreferences("FACEBOOK_PROFILE_PIC", photoUrl, parentActivity);
-        }
         mDatabase.child("fb_users").child(id).setValue(user);
     }
     public void handleFacebookAccessToken(AccessToken token, final Context parentActivity) {

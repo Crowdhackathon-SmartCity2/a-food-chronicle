@@ -69,7 +69,6 @@ public class CreateUserActivity extends FacebookActivity implements View.OnClick
                         {
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            sendEmailVerification();
                             updateUI(user);
                         }
 

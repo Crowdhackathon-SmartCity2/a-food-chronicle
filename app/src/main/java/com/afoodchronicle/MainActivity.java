@@ -47,6 +47,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
@@ -57,8 +58,7 @@ public class MainActivity extends AppCompatActivity
         OnMapReadyCallback,
         GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnMyLocationClickListener,
-        GoogleMap.OnInfoWindowClickListener,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        GoogleMap.OnInfoWindowClickListener {
 
 
     public static final String PROFILE_USER_ID = "USER_ID";
@@ -93,6 +93,9 @@ public class MainActivity extends AppCompatActivity
     private FirebaseAuth.AuthStateListener mAuthListener;
     private SharedPreferences mPrefs;
     private PreferenceChangeListener mPreferenceListener;
+
+    //Firebase
+    private StorageReference storageReference;
 
 
     @Override
@@ -149,12 +152,8 @@ public class MainActivity extends AppCompatActivity
         profileName = parentView.findViewById(R.id.profile_name);
         editProfile = parentView.findViewById(R.id.edit_profile);
 
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        mPrefs.registerOnSharedPreferenceChangeListener((SharedPreferences.
-                OnSharedPreferenceChangeListener) mPreferenceListener);
 
-//        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
 
@@ -164,13 +163,17 @@ public class MainActivity extends AppCompatActivity
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
                 if (user != null) {
+
                     ///Facebook
+
                     if (isLoggedIn()) {
 
-                        profileName.setText(getPreferences("FACEBOOK_FIRST_NAME", MainActivity.this)
-                        + " " + getPreferences("FACEBOOK_LAST_NAME", MainActivity.this));
-                        Picasso.with(MainActivity.this).load(getPreferences("FACEBOOK_PROFILE_PIC",
-                                MainActivity.this)).into(profileImage);
+
+                        String firstName = getPreferences("FACEBOOK_FIRST_NAME", MainActivity.this);
+                        String lastName = getPreferences("FACEBOOK_LAST_NAME", MainActivity.this);
+                        profileName.setText(firstName+" "+lastName);
+                        String profileImageLink = getPreferences("FACEBOOK_PROFILE_PIC", MainActivity.this);
+                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
 //
                         logIn.setVisibility(View.GONE);
                         profileName.setVisibility(View.VISIBLE);
@@ -185,34 +188,43 @@ public class MainActivity extends AppCompatActivity
                                 startActivity(listIntent);
                             }
                         });
+
                         }
                 ///Email
-                    else{
+                    else {
 
-                        DatabaseReference facebookRef = FirebaseDatabase.getInstance().getReference("email_users");
-                        facebookRef.addValueEventListener(new ValueEventListener()
 
-                        {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
+                        String firstName = getPreferences("EMAIL_FIRST_NAME", MainActivity.this);
+                        String lastName = getPreferences("EMAIL_LAST_NAME", MainActivity.this);
+                        String profileImageLink = getPreferences("EMAIL_PROFILE_PIC", MainActivity.this);
+                        profileName.setText(firstName + " " + lastName);
+                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
 
-                                for(DataSnapshot ds : dataSnapshot.getChildren())
-
-                                {
-                                    String firstName = ds.child("firstName").getValue(String.class);
-                                    String lastName = ds.child("lastName").getValue(String.class);
-                                    String profileImageLink = ds.child("photoUrl").getValue(String.class);
-                                    profileName.setText(firstName + " " + lastName);
-                                    Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
-
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
+//                        DatabaseReference facebookRef = FirebaseDatabase.getInstance().getReference("email_users");
+//                        facebookRef.addValueEventListener(new ValueEventListener()
+//
+//                        {
+//                            @Override
+//                            public void onDataChange(DataSnapshot dataSnapshot) {
+//
+//                                for(DataSnapshot ds : dataSnapshot.getChildren())
+//
+//                                {
+//                                    String firstName = ds.child("firstName").getValue(String.class);
+//                                    String lastName = ds.child("lastName").getValue(String.class);
+//                                    String profileImageLink = ds.child("photoUrl").getValue(String.class);
+//                                    profileName.setText(firstName + " " + lastName);
+//                                    Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
+//
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onCancelled(DatabaseError databaseError) {
+//
+//                            }
+//                        });
+                    }
                         logIn.setVisibility(View.GONE);
                         profileName.setVisibility(View.VISIBLE);
 
@@ -226,13 +238,10 @@ public class MainActivity extends AppCompatActivity
                                 startActivity(listIntent);
                             }
                         });
-
-
-                    }
-
                 }
                 //User signed out
-                else{
+                else
+                    {
                     logIn.setVisibility(View.VISIBLE);
                     profileName.setVisibility(View.GONE);
                     editProfile.setVisibility(View.GONE);
@@ -256,13 +265,11 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-        mPrefs.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mPrefs.registerOnSharedPreferenceChangeListener(this);
 
     }
     @Override
@@ -270,7 +277,6 @@ public class MainActivity extends AppCompatActivity
         if (mAuthListener != null) {
             mAuth.removeAuthStateListener(mAuthListener);
         }
-        mPrefs.unregisterOnSharedPreferenceChangeListener(this);
 
         super.onStop();
     }
@@ -495,15 +501,6 @@ public class MainActivity extends AppCompatActivity
     private void showMissingPermissionError() {
         PermissionUtils.PermissionDeniedDialog
                 .newInstance(true).show(getSupportFragmentManager(), "dialog");
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        if(s.equals(getPreferences("FACEBOOK_PROFILE_PIC",
-                MainActivity.this))){
-            Picasso.with(MainActivity.this).load(getPreferences("FACEBOOK_PROFILE_PIC",
-                    MainActivity.this)).into(profileImage);
-        }
     }
 }
 
