@@ -39,6 +39,10 @@ public class InfoWindowCustom extends AppCompatActivity implements GoogleMap.Inf
             if (m == "yoleni"){
                 TextView title = view.findViewById(R.id.title);
                 title.setText(m);
+
+                TextView snippet = view.findViewById(R.id.snippet);
+                snippet.setText(R.string.lorem_ipsum);
+
                 ImageView badge = view.findViewById(R.id.badge);
                 badge.setImageResource(R.drawable.yoleni_restaurant);
             }

@@ -63,9 +63,13 @@
         <activity android:name=".InfoWindowDetails"
         android:label="Details"/>
 
+        <activity android:name=".ChatActivity"
+            android:label="Chat"/>
+
         <activity android:name=".ProfileDetailsActivity"
             android:label="Profile Details"
-            android:windowSoftInputMode="stateHidden"/>
+            android:windowSoftInputMode="stateHidden"
+          />
 
         <activity android:name=".LogInActivity"
             android:label="Log In"

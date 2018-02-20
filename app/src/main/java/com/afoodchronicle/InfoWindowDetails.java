@@ -3,6 +3,7 @@ package com.afoodchronicle;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 
@@ -16,9 +17,15 @@ public class InfoWindowDetails extends AppCompatActivity{
         Intent intent = getIntent();
         String markerName=intent.getExtras().getString(markerKey);
         if (markerName!= null){
-            TextView title = findViewById(R.id.title);
-            title.setText(markerName);
+            if (markerName.equals("yoleni")) {
+                TextView title = findViewById(R.id.title);
+                TextView snippet = findViewById(R.id.snippet);
+                snippet.setText(R.string.lorem_ipsum_detail);
+                title.setText(markerName);
 
+                ImageView badge = findViewById(R.id.badge);
+                badge.setImageResource(R.drawable.yoleni_restaurant);
+            }
         }
     }
 }

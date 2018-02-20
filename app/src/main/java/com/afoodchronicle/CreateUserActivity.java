@@ -16,7 +16,11 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class CreateUserActivity extends FacebookActivity implements View.OnClickListener {
+import com.afoodchronicle.utilities.FacebookUtils;
+import com.afoodchronicle.utilities.PermissionUtils;
+import com.afoodchronicle.utilities.PreferenceUtils;
+
+public class CreateUserActivity extends FacebookUtils implements View.OnClickListener {
 
     public static final String TAG = CreateUserActivity.class.getSimpleName();
     private FirebaseAuth mAuth;

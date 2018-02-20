@@ -11,7 +11,6 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
@@ -28,8 +27,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.AccessToken;
-import com.facebook.login.LoginManager;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -42,16 +39,15 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.prefs.PreferenceChangeListener;
+
+import com.afoodchronicle.utilities.FacebookUtils;
+import com.afoodchronicle.utilities.PermissionUtils;
+import com.afoodchronicle.utilities.PreferenceUtils;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -61,12 +57,8 @@ public class MainActivity extends AppCompatActivity
         GoogleMap.OnInfoWindowClickListener {
 
 
-    public static final String PROFILE_USER_ID = "USER_ID";
-    public static final String PROFILE_FIRST_NAME = "PROFILE_FIRST_NAME";
-    public static final String PROFILE_LAST_NAME = "PROFILE_LAST_NAME";
-    public static final String PROFILE_IMAGE_URL = "PROFILE_IMAGE_URL";
-
     // Markers
+    public static final String MARKER_NAME = "MARKER_NAME";
     HashMap<String, String> markerMap = new HashMap<String, String>();
     private static final LatLng mYoleni = new LatLng(37.9776514, 23.7388241);
     private static final LatLng mVorria = new LatLng(37.9797024, 23.7281983);
@@ -96,6 +88,14 @@ public class MainActivity extends AppCompatActivity
 
     //Firebase
     private StorageReference storageReference;
+
+    //Preferences
+    public static final String FACEBOOK_FIRST_NAME = "FACEBOOK_FIRST_NAME";
+    public static final String FACEBOOK_LAST_NAME = "FACEBOOK_LAST_NAME";
+    public static final String FACEBOOK_PROFILE_PIC = "FACEBOOK_PROFILE_PIC";
+    public static final String EMAIL_FIRST_NAME = "EMAIL_FIRST_NAME";
+    public static final String EMAIL_LAST_NAME ="EMAIL_LAST_NAME";
+    public static final String EMAIL_PROFILE_PIC = "EMAIL_PROFILE_PIC";
 
 
     @Override
@@ -166,13 +166,13 @@ public class MainActivity extends AppCompatActivity
 
                     ///Facebook
 
-                    if (isLoggedIn()) {
+                    if (FacebookUtils.isLoggedIn()) {
 
 
-                        String firstName = getPreferences("FACEBOOK_FIRST_NAME", MainActivity.this);
-                        String lastName = getPreferences("FACEBOOK_LAST_NAME", MainActivity.this);
+                        String firstName = PreferenceUtils.getPreferences(FACEBOOK_FIRST_NAME, MainActivity.this);
+                        String lastName = PreferenceUtils.getPreferences(FACEBOOK_LAST_NAME, MainActivity.this);
                         profileName.setText(firstName+" "+lastName);
-                        String profileImageLink = getPreferences("FACEBOOK_PROFILE_PIC", MainActivity.this);
+                        String profileImageLink = PreferenceUtils.getPreferences(FACEBOOK_PROFILE_PIC, MainActivity.this);
                         Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
 //
                         logIn.setVisibility(View.GONE);
@@ -194,9 +194,9 @@ public class MainActivity extends AppCompatActivity
                     else {
 
 
-                        String firstName = getPreferences("EMAIL_FIRST_NAME", MainActivity.this);
-                        String lastName = getPreferences("EMAIL_LAST_NAME", MainActivity.this);
-                        String profileImageLink = getPreferences("EMAIL_PROFILE_PIC", MainActivity.this);
+                        String firstName = PreferenceUtils.getPreferences(EMAIL_FIRST_NAME, MainActivity.this);
+                        String lastName = PreferenceUtils.getPreferences(EMAIL_LAST_NAME, MainActivity.this);
+                        String profileImageLink = PreferenceUtils.getPreferences(EMAIL_PROFILE_PIC, MainActivity.this);
                         profileName.setText(firstName + " " + lastName);
                         Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
 
@@ -250,17 +250,6 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
-    public static void setPreferences(String key, String value, Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString(key, value);
-        editor.apply();
-    }
-
-    public static String getPreferences(String key, Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getString(key, null);
-    }
     @Override
     protected void onStart() {
         super.onStart();
@@ -279,11 +268,6 @@ public class MainActivity extends AppCompatActivity
         }
 
         super.onStop();
-    }
-
-    public static boolean isLoggedIn() {
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        return accessToken != null;
     }
 
     @Override
@@ -324,7 +308,10 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.chat) {
+            Intent listIntent = new Intent(MainActivity.this, ChatActivity.class);
+
+            startActivity(listIntent);
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
 
@@ -447,7 +434,7 @@ public class MainActivity extends AppCompatActivity
 
         if (m.equals("yoleni")){
             Intent i = new Intent(MainActivity.this, InfoWindowDetails.class);
-            i.putExtra("MARKER_NAME",m);
+            i.putExtra(MARKER_NAME,m);
             startActivity(i);
         }
         else {
