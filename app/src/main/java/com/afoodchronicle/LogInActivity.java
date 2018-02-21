@@ -198,5 +198,6 @@ public class LogInActivity extends FacebookUtils implements
             Intent listIntent = new Intent(LogInActivity.this, ResetPasswordActivity.class);
             startActivity(listIntent);
     }}
+
 }
 

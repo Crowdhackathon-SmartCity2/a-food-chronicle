@@ -8,6 +8,7 @@ public class User {
     private String photoUrl;
     private String birthday;
     private String description;
+    private String text;
 
     public User(String birthday, String description) {
         this.birthday = birthday;
@@ -22,13 +23,20 @@ public class User {
         this.description = description;
     }
 
+    public User(String text, String lastName, String photoUrl) {
+        this.lastName = lastName;
+        this.photoUrl = photoUrl;
+        this.text = text;
+    }
+
     public User() {
     }
 
-    public User(String firstName, String lastName, String photoUrl) {
+    public User(String firstName, String lastName, String photoUrl, String id) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.photoUrl = photoUrl;
+        this.id = id;
     }
 
     public String getBirthday() {
@@ -77,5 +85,12 @@ public class User {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getText() {
+        return text;
+    }
+    public void setText(String text){
+        this.text = text;
     }
 }

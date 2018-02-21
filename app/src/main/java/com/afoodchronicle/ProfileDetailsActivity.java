@@ -285,7 +285,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         }
         // Email
         else {
-            writeBasicInfoToDatabaseEmail(firstNameEmail, lastNameEmail, emailPhotoUrl);
+            writeBasicInfoToDatabaseEmail(firstNameEmail, lastNameEmail, emailPhotoUrl, mAuth.getUid());
             writeExtraInfoToDatabaseEmail(birthday, description);
             PreferenceUtils.setPreferences(EMAIL_PROFILE_PIC,PreferenceUtils.getPreferences
                             (EMAIL_PROFILE_EDIT_PIC,
@@ -304,8 +304,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         mDatabase.child("fb_users").child(Profile.getCurrentProfile().getId()).child("extra").setValue(userExtraInfo);
     }
 
-    private void writeBasicInfoToDatabaseEmail(String firstName, String lastName, String photoUrl) {
-        User userBasicInfo = new User(firstName, lastName, photoUrl);
+    private void writeBasicInfoToDatabaseEmail(String firstName, String lastName, String photoUrl, String id) {
+        User userBasicInfo = new User(firstName, lastName, photoUrl, id);
         PreferenceUtils.setPreferences(EMAIL_FIRST_NAME, firstName, ProfileDetailsActivity.this);
         PreferenceUtils.setPreferences(EMAIL_LAST_NAME, lastName, ProfileDetailsActivity.this);
         mDatabase.child("email_users").child(mAuth.getUid()).setValue(userBasicInfo);
