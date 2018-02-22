@@ -166,6 +166,7 @@ public class LogInActivity extends FacebookUtils implements
         String email = mEmailField.getText().toString();
         if (TextUtils.isEmpty(email)) {
             mEmailField.setError("Required.");
+            mEmailField.requestFocus();
             valid = false;
         } else {
             mEmailField.setError(null);
@@ -174,6 +175,7 @@ public class LogInActivity extends FacebookUtils implements
         String password = mPasswordField.getText().toString();
         if (TextUtils.isEmpty(password)) {
             mPasswordField.setError("Required.");
+            mPasswordField.requestFocus();
             valid = false;
         } else {
             mPasswordField.setError(null);

@@ -44,6 +44,24 @@ import com.afoodchronicle.utilities.FacebookUtils;
 import com.afoodchronicle.utilities.PermissionUtils;
 import com.afoodchronicle.utilities.PreferenceUtils;
 
+import static com.afoodchronicle.utilities.Static.EMAIL_BIRTHDAY;
+import static com.afoodchronicle.utilities.Static.EMAIL_DESCRIPTION;
+import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
+import static com.afoodchronicle.utilities.Static.EMAIL_LAST_NAME;
+import static com.afoodchronicle.utilities.Static.EMAIL_PROFILE_EDIT_PIC;
+import static com.afoodchronicle.utilities.Static.EMAIL_PROFILE_PIC;
+import static com.afoodchronicle.utilities.Static.EMAIL_USERS;
+import static com.afoodchronicle.utilities.Static.EXTRA;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_BIRTHDAY;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_DESCRIPTION;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_FIRST_NAME;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_LAST_NAME;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_EDIT_PIC;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
+import static com.afoodchronicle.utilities.Static.FB_USERS;
+import static com.afoodchronicle.utilities.Static.PROFILE_PIC_PNG;
+import static com.afoodchronicle.utilities.Static.REQUIRED;
+
 public class ProfileDetailsActivity extends FacebookUtils implements View.OnClickListener {
 
     //Views
@@ -78,20 +96,12 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
     private ImageView profilePicBackground;
     private PreferenceChangeListener mPreferenceListener;
     private SharedPreferences mPrefs;
+    private String fbEditpic;
+    private String emailEditPic;
+    private String fbPic;
 
     //Preferences
-    public static final String FACEBOOK_FIRST_NAME = "FACEBOOK_FIRST_NAME";
-    public static final String FACEBOOK_LAST_NAME = "FACEBOOK_LAST_NAME";
-    public static final String FACEBOOK_PROFILE_PIC = "FACEBOOK_PROFILE_PIC";
-    public static final String EMAIL_FIRST_NAME = "EMAIL_FIRST_NAME";
-    public static final String EMAIL_LAST_NAME ="EMAIL_LAST_NAME";
-    public static final String EMAIL_PROFILE_PIC = "EMAIL_PROFILE_PIC";
-    public static final String FACEBOOK_PROFILE_EDIT_PIC = "FACEBOOK_PROFILE_EDIT_PIC";
-    public static final String EMAIL_PROFILE_EDIT_PIC = "EMAIL_PROFILE_EDIT_PIC";
-    public static final String FACEBOOK_BIRTHDAY = "FACEBOOK_BIRTHDAY";
-    public static final String FACEBOOK_DESCRIPTION = "FACEBOOK_DESCRIPTION";
-    public static final String EMAIL_BIRTHDAY = "EMAIL_BIRTHDAY";
-    public static final String EMAIL_DESCRIPTION = "EMAIL_DESCRIPTION";
+
 
 
     @Override
@@ -161,11 +171,6 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         lastNameEt = findViewById(R.id.etLastName);
         facebookLastName = findViewById(R.id.tvFacebookLastName);
 
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-        mPrefs.registerOnSharedPreferenceChangeListener((SharedPreferences.
-                OnSharedPreferenceChangeListener) mPreferenceListener);
-
         birthdayEt = findViewById(R.id.etBirthday);
 
         descriptionEt = findViewById(R.id.etDescription);
@@ -212,7 +217,10 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
                         //Email
 
                     } else {
-
+                        firstNameEt.setText(PreferenceUtils.getPreferences(EMAIL_FIRST_NAME,
+                                ProfileDetailsActivity.this));
+                        lastNameEt.setText(PreferenceUtils.getPreferences(EMAIL_LAST_NAME,
+                                ProfileDetailsActivity.this));
                         Picasso.with(ProfileDetailsActivity.this).load(PreferenceUtils.getPreferences
                                 (EMAIL_PROFILE_EDIT_PIC,
                                         ProfileDetailsActivity.this)).into(profilePic);
@@ -267,6 +275,12 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         validateForm();
         uploadImage();
 
+        fbEditpic = PreferenceUtils.getPreferences
+                (FACEBOOK_PROFILE_EDIT_PIC,
+                        ProfileDetailsActivity.this);
+        emailEditPic = PreferenceUtils.getPreferences
+                (EMAIL_PROFILE_EDIT_PIC,
+                        ProfileDetailsActivity.this);
         firstNameEmail = firstNameEt.getText().toString().trim();
         firstNameFacebook = facebookFirstName.getText().toString().trim();
 
@@ -277,44 +291,36 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         description = descriptionEt.getText().toString().trim();
         // Facebook
         if (FacebookUtils.isLoggedIn()) {
-            writeExtraInfoToDatabaseFacebook(birthday, description);
-            PreferenceUtils.setPreferences(FACEBOOK_PROFILE_PIC,PreferenceUtils.getPreferences
-                            (FACEBOOK_PROFILE_EDIT_PIC,
-                                    ProfileDetailsActivity.this),
+            PreferenceUtils.setPreferences(FACEBOOK_PROFILE_PIC, fbEditpic,
                     ProfileDetailsActivity.this);
+
+            writeExtraInfoToDatabaseFacebook(birthday, description, fbEditpic);
+
         }
         // Email
         else {
-            writeBasicInfoToDatabaseEmail(firstNameEmail, lastNameEmail, emailPhotoUrl, mAuth.getUid());
-            writeExtraInfoToDatabaseEmail(birthday, description);
-            PreferenceUtils.setPreferences(EMAIL_PROFILE_PIC,PreferenceUtils.getPreferences
-                            (EMAIL_PROFILE_EDIT_PIC,
-                                    ProfileDetailsActivity.this),
+            PreferenceUtils.setPreferences(EMAIL_PROFILE_PIC, emailEditPic,
                     ProfileDetailsActivity.this);
+            writeExtraInfoToDatabaseEmail(birthday, description, emailEditPic);
+
         }
 
 
 
     }
 
-    private void writeExtraInfoToDatabaseFacebook(String birthday, String description) {
-        User userExtraInfo = new User(birthday, description);
+    private void writeExtraInfoToDatabaseFacebook(String birthday, String description, String photoUrl) {
+        User userExtraInfo = new User(birthday, description, photoUrl);
         PreferenceUtils.setPreferences(FACEBOOK_BIRTHDAY, birthday, ProfileDetailsActivity.this);
         PreferenceUtils.setPreferences(FACEBOOK_DESCRIPTION, description, ProfileDetailsActivity.this);
-        mDatabase.child("fb_users").child(Profile.getCurrentProfile().getId()).child("extra").setValue(userExtraInfo);
+        mDatabase.child(FB_USERS).child(Profile.getCurrentProfile().getId()).child(EXTRA).setValue(userExtraInfo);
     }
 
-    private void writeBasicInfoToDatabaseEmail(String firstName, String lastName, String photoUrl, String id) {
-        User userBasicInfo = new User(firstName, lastName, photoUrl, id);
-        PreferenceUtils.setPreferences(EMAIL_FIRST_NAME, firstName, ProfileDetailsActivity.this);
-        PreferenceUtils.setPreferences(EMAIL_LAST_NAME, lastName, ProfileDetailsActivity.this);
-        mDatabase.child("email_users").child(mAuth.getUid()).setValue(userBasicInfo);
-    }
-    private void writeExtraInfoToDatabaseEmail(String birthday, String description) {
-        User userExtraInfo = new User(birthday, description);
+    private void writeExtraInfoToDatabaseEmail(String birthday, String description, String photoUrl) {
+        User userExtraInfo = new User(birthday, description, photoUrl);
         PreferenceUtils.setPreferences(EMAIL_BIRTHDAY, birthday, ProfileDetailsActivity.this);
         PreferenceUtils.setPreferences(EMAIL_DESCRIPTION, description, ProfileDetailsActivity.this);
-        mDatabase.child("email_users").child(mAuth.getUid()).child("extra").setValue(userExtraInfo);
+        mDatabase.child(EMAIL_USERS).child(mAuth.getUid()).child(EXTRA).setValue(userExtraInfo);
     }
     private void chooseImage() {
         Intent intent = new Intent();
@@ -328,7 +334,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
 
         if(filePath != null)
         {
-            final StorageReference ref = storageReference.child("images/"+mAuth.getUid()+"/"+ "profilePicture.png");
+            final StorageReference ref = storageReference.child("images/"+mAuth.getUid()+"/"+ PROFILE_PIC_PNG);
             ref.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -404,7 +410,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
 
             String fName = firstNameEt.getText().toString();
             if (TextUtils.isEmpty(fName)) {
-                firstNameEt.setError("Required.");
+                firstNameEt.setError(REQUIRED);
                 valid = false;
             } else {
                 firstNameEt.setError(null);
@@ -413,7 +419,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
 
             String lName = lastNameEt.getText().toString();
             if (TextUtils.isEmpty(lName)) {
-                lastNameEt.setError("Required.");
+                lastNameEt.setError(REQUIRED);
                 valid = false;
             } else {
                 lastNameEt.setError(null);
@@ -423,7 +429,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
 
         String birthday = birthdayEt.getText().toString();
         if (TextUtils.isEmpty(birthday)) {
-            birthdayEt.setError("Required.");
+            birthdayEt.setError(REQUIRED);
             valid = false;
         } else {
             birthdayEt.setError(null);

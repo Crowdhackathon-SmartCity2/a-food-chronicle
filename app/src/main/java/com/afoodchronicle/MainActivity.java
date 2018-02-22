@@ -50,6 +50,19 @@ import com.afoodchronicle.utilities.FacebookUtils;
 import com.afoodchronicle.utilities.PermissionUtils;
 import com.afoodchronicle.utilities.PreferenceUtils;
 
+import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
+import static com.afoodchronicle.utilities.Static.EMAIL_LAST_NAME;
+import static com.afoodchronicle.utilities.Static.EMAIL_PROFILE_PIC;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_FIRST_NAME;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_LAST_NAME;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
+import static com.afoodchronicle.utilities.Static.LOCATION_PERMISSION_REQUEST_CODE;
+import static com.afoodchronicle.utilities.Static.MARKER_NAME;
+import static com.afoodchronicle.utilities.Static.mPantopoleio;
+import static com.afoodchronicle.utilities.Static.mPnyka;
+import static com.afoodchronicle.utilities.Static.mVorria;
+import static com.afoodchronicle.utilities.Static.mYoleni;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
@@ -59,15 +72,12 @@ public class MainActivity extends AppCompatActivity
 
 
     // Markers
-    public static final String MARKER_NAME = "MARKER_NAME";
+
     HashMap<String, String> markerMap = new HashMap<String, String>();
-    private static final LatLng mYoleni = new LatLng(37.9776514, 23.7388241);
-    private static final LatLng mVorria = new LatLng(37.9797024, 23.7281983);
-    private static final LatLng mPnyka = new LatLng(37.9685393, 23.7478882);
-    private static final LatLng mPantopoleio = new LatLng(38.0056227, 23.7826411);
+
 
     // Maps
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
     private boolean mPermissionDenied = false;
     SupportMapFragment sMapFragment;
     GoogleMap mMap;
@@ -90,13 +100,7 @@ public class MainActivity extends AppCompatActivity
     //Firebase
     private StorageReference storageReference;
 
-    //Preferences
-    public static final String FACEBOOK_FIRST_NAME = "FACEBOOK_FIRST_NAME";
-    public static final String FACEBOOK_LAST_NAME = "FACEBOOK_LAST_NAME";
-    public static final String FACEBOOK_PROFILE_PIC = "FACEBOOK_PROFILE_PIC";
-    public static final String EMAIL_FIRST_NAME = "EMAIL_FIRST_NAME";
-    public static final String EMAIL_LAST_NAME ="EMAIL_LAST_NAME";
-    public static final String EMAIL_PROFILE_PIC = "EMAIL_PROFILE_PIC";
+
 
 
     @Override

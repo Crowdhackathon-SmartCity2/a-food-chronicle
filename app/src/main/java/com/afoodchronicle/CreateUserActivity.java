@@ -19,6 +19,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.afoodchronicle.utilities.FacebookUtils;
 import com.afoodchronicle.utilities.PermissionUtils;
 import com.afoodchronicle.utilities.PreferenceUtils;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
+import static com.afoodchronicle.utilities.Static.EMAIL_LAST_NAME;
+import static com.afoodchronicle.utilities.Static.EMAIL_USERS;
+import static com.afoodchronicle.utilities.Static.PASSWORD_DONT_MATCH;
+import static com.afoodchronicle.utilities.Static.REQUIRED;
 
 public class CreateUserActivity extends FacebookUtils implements View.OnClickListener {
 
@@ -29,6 +37,9 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
     private EditText mConfirmPasswordField;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private LoginManager mAuthFacebook;
+    private EditText mFirstName;
+    private EditText mLastName;
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +49,8 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
         // Views
         mEmailField = findViewById(R.id.etEmail);
         mPasswordField = findViewById(R.id.etPassword);
+        mFirstName = findViewById(R.id.etFirstName);
+        mLastName = findViewById(R.id.etLastName);
         mConfirmPasswordField = findViewById(R.id.etConfirmPassword);
 
         // Buttons
@@ -51,8 +64,16 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
 
         createAuthStateListener();
 
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
     }
 
+    private void writeBasicInfoToDatabaseEmail(String firstName, String lastName, String id) {
+        User userBasicInfo = new User(firstName, lastName, 1, 2);
+        PreferenceUtils.setPreferences(EMAIL_FIRST_NAME, firstName, CreateUserActivity.this);
+        PreferenceUtils.setPreferences(EMAIL_LAST_NAME, lastName, CreateUserActivity.this);
+        mDatabase.child(EMAIL_USERS).child(id).setValue(userBasicInfo);
+    }
     private void createAccount(String email, String password)
     {
         Log.d(TAG, "createAccount:" + email);
@@ -106,9 +127,26 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
     private boolean validateForm() {
         boolean valid = true;
 
+        String fName = mFirstName.getText().toString();
+        if (TextUtils.isEmpty(fName)) {
+            mFirstName.setError(REQUIRED);
+            mFirstName.requestFocus();
+            valid = false;
+        } else {
+            mFirstName.setError(null);
+        }
+        String lName = mLastName.getText().toString();
+        if (TextUtils.isEmpty(lName)) {
+            mLastName.setError(REQUIRED);
+            mLastName.requestFocus();
+            valid = false;
+        } else {
+            mLastName.setError(null);
+        }
         String email = mEmailField.getText().toString();
         if (TextUtils.isEmpty(email)) {
-            mEmailField.setError("Required.");
+            mEmailField.setError(REQUIRED);
+            mLastName.requestFocus();
             valid = false;
         } else {
             mEmailField.setError(null);
@@ -116,7 +154,8 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
 
         String password = mPasswordField.getText().toString();
         if (TextUtils.isEmpty(password)) {
-            mPasswordField.setError("Required.");
+            mPasswordField.setError(REQUIRED);
+            mLastName.requestFocus();
             valid = false;
         } else {
             mPasswordField.setError(null);
@@ -125,8 +164,9 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
         String confirmPassword = mConfirmPasswordField.getText().toString();
         if (password.equals(confirmPassword)) {
             mPasswordField.setError(null);
+            mLastName.requestFocus();
         } else {
-            mPasswordField.setError("Passwords don't match");
+            mPasswordField.setError(PASSWORD_DONT_MATCH);
             valid = false;
         }
 
@@ -160,6 +200,7 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
     private void updateUI(FirebaseUser user) {
         hideProgressDialog();
         if (user != null) {
+            writeBasicInfoToDatabaseEmail(mFirstName.getText().toString(), mLastName.getText().toString(), mAuth.getUid());
             Intent listIntent = new Intent(CreateUserActivity.this, ProfileDetailsActivity.class);
             sendEmailVerification();
             startActivity(listIntent);

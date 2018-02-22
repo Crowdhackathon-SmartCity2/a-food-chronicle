@@ -9,35 +9,40 @@ public class User {
     private String birthday;
     private String description;
     private String text;
+    private int nothing;
+    private int dull;
+    private String name;
+
 
     public User(String birthday, String description) {
         this.birthday = birthday;
         this.description = description;
     }
 
-    public User(String firstName, String lastName, String photoUrl, String birthday, String description) {
+
+    public User(String firstName, String lastName, int dull , int nothing) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.photoUrl = photoUrl;
-        this.birthday = birthday;
-        this.description = description;
+        this.dull = dull;
+        this.nothing = nothing;
     }
 
-    public User(String text, String lastName, String photoUrl) {
-        this.lastName = lastName;
+    public User(String text, String name, String photoUrl) {
+        this.name = name;
         this.photoUrl = photoUrl;
         this.text = text;
+    }
+
+    public User(String birthday, String description, String photoUrl, int nothing) {
+        this.birthday = birthday;
+        this.description = description;
+        this.nothing = nothing;
+        this.photoUrl = photoUrl;
     }
 
     public User() {
     }
 
-    public User(String firstName, String lastName, String photoUrl, String id) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.photoUrl = photoUrl;
-        this.id = id;
-    }
 
     public String getBirthday() {
         return birthday;
@@ -93,4 +98,5 @@ public class User {
     public void setText(String text){
         this.text = text;
     }
+
 }
