@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afoodchronicle.chat.ChatActivity;
+import com.afoodchronicle.chat.ChattempFragment;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,14 +42,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.StorageReference;
-import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.prefs.PreferenceChangeListener;
 
 import com.afoodchronicle.utilities.FacebookUtils;
 import com.afoodchronicle.utilities.PermissionUtils;
-import com.afoodchronicle.utilities.PreferenceUtils;
+import com.afoodchronicle.utilities.Utils;
+import com.squareup.picasso.Picasso;
 
 import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.EMAIL_LAST_NAME;
@@ -174,12 +175,12 @@ public class MainActivity extends AppCompatActivity
                     if (FacebookUtils.isLoggedIn()) {
 
 
-                        String firstName = PreferenceUtils.getPreferences(FACEBOOK_FIRST_NAME, MainActivity.this);
-                        String lastName = PreferenceUtils.getPreferences(FACEBOOK_LAST_NAME, MainActivity.this);
+                        String firstName = Utils.getPreferences(FACEBOOK_FIRST_NAME, MainActivity.this);
+                        String lastName = Utils.getPreferences(FACEBOOK_LAST_NAME, MainActivity.this);
                         profileName.setText(firstName+" "+lastName);
-                        String profileImageLink = PreferenceUtils.getPreferences(FACEBOOK_PROFILE_PIC, MainActivity.this);
+                        String profileImageLink = Utils.getPreferences(FACEBOOK_PROFILE_PIC, MainActivity.this);
                         Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
-//
+
                         logIn.setVisibility(View.GONE);
                         profileName.setVisibility(View.VISIBLE);
 
@@ -199,36 +200,12 @@ public class MainActivity extends AppCompatActivity
                     else {
 
 
-                        String firstName = PreferenceUtils.getPreferences(EMAIL_FIRST_NAME, MainActivity.this);
-                        String lastName = PreferenceUtils.getPreferences(EMAIL_LAST_NAME, MainActivity.this);
-                        String profileImageLink = PreferenceUtils.getPreferences(EMAIL_PROFILE_PIC, MainActivity.this);
+                        String firstName = Utils.getPreferences(EMAIL_FIRST_NAME, MainActivity.this);
+                        String lastName = Utils.getPreferences(EMAIL_LAST_NAME, MainActivity.this);
                         profileName.setText(firstName + " " + lastName);
+                        String profileImageLink = Utils.getPreferences(EMAIL_PROFILE_PIC, MainActivity.this);
                         Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
 
-//                        DatabaseReference facebookRef = FirebaseDatabase.getInstance().getReference("email_users");
-//                        facebookRef.addValueEventListener(new ValueEventListener()
-//
-//                        {
-//                            @Override
-//                            public void onDataChange(DataSnapshot dataSnapshot) {
-//
-//                                for(DataSnapshot ds : dataSnapshot.getChildren())
-//
-//                                {
-//                                    String firstName = ds.child("firstName").getValue(String.class);
-//                                    String lastName = ds.child("lastName").getValue(String.class);
-//                                    String profileImageLink = ds.child("photoUrl").getValue(String.class);
-//                                    profileName.setText(firstName + " " + lastName);
-//                                    Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
-//
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(DatabaseError databaseError) {
-//
-//                            }
-//                        });
                     }
                         logIn.setVisibility(View.GONE);
                         profileName.setVisibility(View.VISIBLE);

@@ -16,22 +16,12 @@
     android:focusableInTouchMode="true"
     android:clickable="true">
 
-    <android.support.v7.widget.CardView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:elevation="12dp"
-        android:id="@+id/view2"
-        app:cardCornerRadius="40dp"
-        android:innerRadius="0dp"
-        android:shape="ring"
-        android:thicknessRatio="1.9">
-    <ImageView
-        android:id="@+id/profile_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:srcCompat="@mipmap/ic_user"
-        android:scaleType="fitCenter"/>
-    </android.support.v7.widget.CardView>
+        android:src="@drawable/default_profile"
+        android:id="@+id/profile_image"/>
+
     <TextView
         android:id="@+id/logIn"
         android:layout_width="match_parent"

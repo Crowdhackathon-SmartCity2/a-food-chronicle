@@ -33,11 +33,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import static com.afoodchronicle.utilities.Static.FACEBOOK_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_LAST_NAME;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
+import static com.afoodchronicle.utilities.Static.PHOTO;
+import static com.afoodchronicle.utilities.Static.USERS;
 
 public class FacebookUtils extends AppCompatActivity {
     private static final String TAG = "Facebook";
@@ -66,7 +67,7 @@ public class FacebookUtils extends AppCompatActivity {
                             String lastName = currentProfile.getLastName();
                             String userId = currentProfile.getId();
                             String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
-                            writeBasicInfoToDatabaseFacebook(parentActivity, firstName, lastName, userId);
+                            writeBasicInfoToDatabaseFacebook(parentActivity, firstName, lastName);
                             mProfileTracker.stopTracking();
                         }
                     };
@@ -79,7 +80,8 @@ public class FacebookUtils extends AppCompatActivity {
                     String lastName = mProfile.getLastName();
                     String userId = mProfile.getId();
                     String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
-                    writeBasicInfoToDatabaseFacebook(parentActivity, firstName, lastName, userId);
+                    writeBasicInfoToDatabaseFacebook(parentActivity, firstName, lastName);
+                    writePhotoToDatabaseFacebook(parentActivity, profileImageUrl);
 
                 }
                     handleFacebookAccessToken(loginResult.getAccessToken(), parentActivity);
@@ -108,11 +110,14 @@ public class FacebookUtils extends AppCompatActivity {
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void writeBasicInfoToDatabaseFacebook(Context parentActivity, String firstName, String lastName, String id) {
-        User user = new User(firstName, lastName, id);
-        PreferenceUtils.setPreferences(FACEBOOK_FIRST_NAME, firstName, parentActivity);
-        PreferenceUtils.setPreferences(FACEBOOK_LAST_NAME, lastName, parentActivity);
-        mDatabase.child("fb_users").child(id).setValue(user);
+    public void writeBasicInfoToDatabaseFacebook(Context parentActivity, String firstName, String lastName) {
+        User user = new User(firstName, lastName, 1);
+        Utils.setPreferences(FACEBOOK_FIRST_NAME, firstName, parentActivity);
+        Utils.setPreferences(FACEBOOK_LAST_NAME, lastName, parentActivity);
+    }
+    public void writePhotoToDatabaseFacebook(Context parentActivity, String photoUrl) {
+        User user = new User(photoUrl);
+        Utils.setPreferences(FACEBOOK_PROFILE_PIC, photoUrl, parentActivity);
     }
     public void handleFacebookAccessToken(AccessToken token, final Context parentActivity) {
         Log.d(TAG, "handleFacebookAccessToken:" + token);

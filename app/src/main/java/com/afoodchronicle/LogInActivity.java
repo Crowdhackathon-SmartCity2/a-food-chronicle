@@ -24,8 +24,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import com.afoodchronicle.utilities.FacebookUtils;
-import com.afoodchronicle.utilities.PermissionUtils;
-import com.afoodchronicle.utilities.PreferenceUtils;
 
 public class LogInActivity extends FacebookUtils implements
         View.OnClickListener {

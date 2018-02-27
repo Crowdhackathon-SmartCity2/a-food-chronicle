@@ -42,8 +42,9 @@ dependencies {
     // Facebook
     implementation 'com.facebook.android:facebook-login:4.30.0'
 
-    compile 'com.squareup.picasso:picasso:2.5.2'
-
-    compile 'com.yarolegovich:lovely-dialog:1.0.4'
+    //Images
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'de.hdodenhof:circleimageview:2.2.0'
+    implementation 'com.theartofdev.edmodo:android-image-cropper:2.6.+'
 }
 apply plugin: 'com.google.gms.google-services'

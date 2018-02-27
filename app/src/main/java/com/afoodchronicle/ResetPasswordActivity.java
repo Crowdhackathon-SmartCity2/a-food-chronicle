@@ -12,8 +12,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.afoodchronicle.utilities.FacebookUtils;
-import com.afoodchronicle.utilities.PermissionUtils;
-import com.afoodchronicle.utilities.PreferenceUtils;
 
 public class ResetPasswordActivity extends FacebookUtils implements View.OnClickListener {
 

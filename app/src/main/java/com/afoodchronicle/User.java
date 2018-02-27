@@ -10,7 +10,6 @@ public class User {
     private String description;
     private String text;
     private int nothing;
-    private int dull;
     private String name;
 
 
@@ -20,24 +19,20 @@ public class User {
     }
 
 
-    public User(String firstName, String lastName, int dull , int nothing) {
+    public User(String firstName, String lastName, int nothing) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.dull = dull;
         this.nothing = nothing;
+    }
+
+    public User(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
     public User(String text, String name, String photoUrl) {
         this.name = name;
         this.photoUrl = photoUrl;
         this.text = text;
-    }
-
-    public User(String birthday, String description, String photoUrl, int nothing) {
-        this.birthday = birthday;
-        this.description = description;
-        this.nothing = nothing;
-        this.photoUrl = photoUrl;
     }
 
     public User() {

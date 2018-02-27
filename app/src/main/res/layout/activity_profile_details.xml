@@ -15,115 +15,71 @@
         android:layout_height="0dp"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:layout_weight="3">
+        android:layout_weight="3"
+        android:background="@drawable/side_nav_bar">
 
-    <ImageView
-         android:id="@+id/profile_pic_background"
-         android:layout_width="match_parent"
-         android:layout_height="match_parent"
-         android:scaleType="centerCrop"
-         android:background="@drawable/side_nav_bar"/>
-
-        <FrameLayout
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|bottom"
-            >
-            <ImageView
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_gravity="end|bottom"
-                app:srcCompat="@mipmap/ic_edit_round"
-                android:elevation="5dp"
-                android:id="@+id/btnChoose"
-                />
+            android:orientation="vertical"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp">
 
-            <android.support.v7.widget.CardView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:elevation="4dp"
-                android:id="@+id/view2"
-                app:cardCornerRadius="60dp"
-                android:innerRadius="0dp"
-                android:shape="ring"
-                android:thicknessRatio="1.9"
-                android:layout_gravity="bottom|center_horizontal">
-                <ImageView
-                    android:id="@+id/profile_pic_details"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="visible" />
-            </android.support.v7.widget.CardView>
+             <ImageView
+               android:id="@+id/profile_pic_background"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:scaleType="centerCrop"
+               />
+
+             <FrameLayout
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_gravity="center_horizontal|bottom">
+
+                    <ImageView
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:layout_gravity="end|bottom"
+                        app:srcCompat="@mipmap/ic_edit_round"
+                        android:elevation="5dp"
+                        android:id="@+id/btnChoose"/>
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:src="@drawable/default_profile"
+                        android:id="@+id/profile_pic_details"/>
+
+                </FrameLayout>
 
 
-        </FrameLayout>
-
+               <TextView
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:text="Name"
+                     android:layout_gravity="center_horizontal"
+                     android:textSize="20sp"
+                     android:textColor="@color/colorAccent"
+                     android:id="@+id/full_name"/>
+        </LinearLayout>
     </FrameLayout>
+
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="7"
-        android:windowSoftInputMode="adjustPan">
+        android:windowSoftInputMode="adjustPan"
+        android:layout_gravity="center_vertical">
+
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal"
         >
-
-    <EditText
-        android:id="@+id/etFirstName"
-        android:layout_width="250dp"
-        android:layout_height="40dp"
-        android:layout_margin="20dp"
-        android:background="#11000000"
-        android:ems="10"
-        android:hint="@string/first_name"
-        android:inputType="textPersonName"
-        android:textColorHint="@android:color/darker_gray"
-        android:textSize="16sp"
-        android:visibility="visible"/>
-
-    <TextView
-        android:id="@+id/tvFacebookFirstName"
-        android:layout_width="250dp"
-        android:layout_height="40dp"
-        android:layout_margin="20dp"
-        android:background="#11000000"
-        android:ems="10"
-        android:hint="@string/first_name"
-        android:textColorHint="@android:color/darker_gray"
-        android:textSize="16sp"
-        android:visibility="gone"/>
-
-    <EditText
-        android:id="@+id/etLastName"
-        android:layout_width="250dp"
-        android:layout_height="40dp"
-        android:layout_margin="20dp"
-        android:background="#11000000"
-        android:ems="10"
-        android:hint="@string/last_name"
-        android:inputType="textPersonName"
-        android:textColorHint="@android:color/darker_gray"
-        android:textSize="16sp"
-        tools:ignore="HardcodedText"
-        android:visibility="visible"/>
-
-    <TextView
-        android:id="@+id/tvFacebookLastName"
-        android:layout_width="250dp"
-        android:layout_height="40dp"
-        android:layout_margin="20dp"
-        android:background="#11000000"
-        android:ems="10"
-        android:hint="@string/last_name"
-        android:textColorHint="@android:color/darker_gray"
-        android:textSize="16sp"
-        android:visibility="gone"/>
 
     <EditText
         android:id="@+id/etBirthday"

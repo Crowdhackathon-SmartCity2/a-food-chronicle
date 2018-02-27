@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.afoodchronicle.R;
 import com.afoodchronicle.User;
 import com.afoodchronicle.utilities.FacebookUtils;
-import com.afoodchronicle.utilities.PreferenceUtils;
+import com.afoodchronicle.utilities.Utils;
 
 import java.util.List;
 
@@ -52,14 +52,14 @@ class MessageAdapter extends ArrayAdapter<User> {
         if(FacebookUtils.isLoggedIn()){
 
             TextView fbTextView = convertView.findViewById(R.id.username);
-            fbTextView.setText(PreferenceUtils.getPreferences(FACEBOOK_FIRST_NAME, getContext()) + " "
-                    + PreferenceUtils.getPreferences(FACEBOOK_LAST_NAME, getContext()) );
+            fbTextView.setText(Utils.getPreferences(FACEBOOK_FIRST_NAME, getContext()) + " "
+                    + Utils.getPreferences(FACEBOOK_LAST_NAME, getContext()) );
         }
         else {
 
             TextView emailTextView = convertView.findViewById(R.id.username);
-            emailTextView.setText(PreferenceUtils.getPreferences(EMAIL_FIRST_NAME, getContext()) + " "
-                    + PreferenceUtils.getPreferences(EMAIL_LAST_NAME, getContext()));
+            emailTextView.setText(Utils.getPreferences(EMAIL_FIRST_NAME, getContext()) + " "
+                    + Utils.getPreferences(EMAIL_LAST_NAME, getContext()));
         }
         return convertView;
     }
