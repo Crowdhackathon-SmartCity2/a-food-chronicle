@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.afoodchronicle">
 
-    <uses-sdk android:minSdkVersion="24" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -78,6 +77,10 @@
         <activity
             android:name=".chat.ChatActivity"
             android:label="Chat"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".chat.AllUsersActivity"
+            android:label="All users"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".LogInActivity"

@@ -14,7 +14,6 @@ import android.widget.Toast;
 import com.afoodchronicle.MainActivity;
 import com.afoodchronicle.ProfileDetailsActivity;
 import com.afoodchronicle.R;
-import com.afoodchronicle.User;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -37,8 +36,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_LAST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
-import static com.afoodchronicle.utilities.Static.PHOTO;
-import static com.afoodchronicle.utilities.Static.USERS;
 
 public class FacebookUtils extends AppCompatActivity {
     private static final String TAG = "Facebook";
@@ -67,7 +64,7 @@ public class FacebookUtils extends AppCompatActivity {
                             String lastName = currentProfile.getLastName();
                             String userId = currentProfile.getId();
                             String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
-                            writeBasicInfoToDatabaseFacebook(parentActivity, firstName, lastName);
+                            writeInfoToPreferencesFacebook(parentActivity, firstName, lastName);
                             mProfileTracker.stopTracking();
                         }
                     };
@@ -80,7 +77,7 @@ public class FacebookUtils extends AppCompatActivity {
                     String lastName = mProfile.getLastName();
                     String userId = mProfile.getId();
                     String profileImageUrl = "https://graph.facebook.com/" + userId + "/picture?height=500";
-                    writeBasicInfoToDatabaseFacebook(parentActivity, firstName, lastName);
+                    writeInfoToPreferencesFacebook(parentActivity, firstName, lastName);
                     writePhotoToDatabaseFacebook(parentActivity, profileImageUrl);
 
                 }
@@ -110,13 +107,11 @@ public class FacebookUtils extends AppCompatActivity {
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void writeBasicInfoToDatabaseFacebook(Context parentActivity, String firstName, String lastName) {
-        User user = new User(firstName, lastName, 1);
+    public void writeInfoToPreferencesFacebook(Context parentActivity, String firstName, String lastName) {
         Utils.setPreferences(FACEBOOK_FIRST_NAME, firstName, parentActivity);
         Utils.setPreferences(FACEBOOK_LAST_NAME, lastName, parentActivity);
     }
     public void writePhotoToDatabaseFacebook(Context parentActivity, String photoUrl) {
-        User user = new User(photoUrl);
         Utils.setPreferences(FACEBOOK_PROFILE_PIC, photoUrl, parentActivity);
     }
     public void handleFacebookAccessToken(AccessToken token, final Context parentActivity) {

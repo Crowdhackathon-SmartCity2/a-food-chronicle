@@ -18,47 +18,50 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.Profile;
+import com.afoodchronicle.utilities.FacebookUtils;
+import com.afoodchronicle.utilities.ImageLoadedCallback;
+import com.afoodchronicle.utilities.Utils;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.IOException;
 import java.util.Locale;
 import java.util.prefs.PreferenceChangeListener;
 
-import com.afoodchronicle.utilities.FacebookUtils;
-import com.afoodchronicle.utilities.Utils;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
-
+import static com.afoodchronicle.utilities.Static.EMAIL_AGE;
 import static com.afoodchronicle.utilities.Static.EMAIL_BIRTHDAY;
 import static com.afoodchronicle.utilities.Static.EMAIL_DESCRIPTION;
 import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.EMAIL_LAST_NAME;
-import static com.afoodchronicle.utilities.Static.EMAIL_PROFILE_EDIT_PIC;
 import static com.afoodchronicle.utilities.Static.EMAIL_PROFILE_PIC;
-import static com.afoodchronicle.utilities.Static.EXTRA;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_AGE;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_BIRTHDAY;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_DESCRIPTION;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_LAST_NAME;
-import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_EDIT_PIC;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.IMAGES;
 import static com.afoodchronicle.utilities.Static.JPG;
-import static com.afoodchronicle.utilities.Static.PHOTO;
+import static com.afoodchronicle.utilities.Static.PHOTO_URL;
 import static com.afoodchronicle.utilities.Static.REQUIRED;
 import static com.afoodchronicle.utilities.Static.UPLOAD;
 import static com.afoodchronicle.utilities.Static.UPLOAD_ERROR;
@@ -70,7 +73,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
     private TextView fullName;
     private TextView birthdayEt;
     private TextView descriptionEt;
-    private ImageView profilePic;
+    private ImageView profileImage;
 
     //Networking
     private FirebaseAuth mAuth;
@@ -91,11 +94,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
     private ImageView profilePicBackground;
     private PreferenceChangeListener mPreferenceListener;
     private SharedPreferences mPrefs;
-    private String fbEditpic;
-    private String emailEditPic;
-
-    //Preferences
-
+    private String profileImageLink;
 
 
     @Override
@@ -119,45 +118,52 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         findViewById(R.id.etBirthday).setOnClickListener(this);
         findViewById(R.id.btnCancel).setOnClickListener(this);
 
-        profilePic = findViewById(R.id.profile_pic_details);
+        profileImage = findViewById(R.id.profile_pic_details);
         profilePicBackground = findViewById(R.id.profile_pic_background);
         fullName = findViewById(R.id.full_name);
 
         birthdayEt = findViewById(R.id.etBirthday);
 
         descriptionEt = findViewById(R.id.etDescription);
+        ProgressBar progressBar = null;
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
 
         // Firebase Database
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        if(FacebookUtils.isLoggedIn())
-        {
-            if (Utils.getPreferences(FACEBOOK_PROFILE_PIC, ProfileDetailsActivity.this) != null)
-            {
-                Picasso.with(ProfileDetailsActivity.this).load(Utils.getPreferences
-                        (FACEBOOK_PROFILE_PIC,
-                                ProfileDetailsActivity.this)).into(profilePic);
-            }
-        }
-        else
-        {
-            if (Utils.getPreferences(EMAIL_PROFILE_PIC, ProfileDetailsActivity.this) != null)
-            {
-                Picasso.with(ProfileDetailsActivity.this).load(Utils.getPreferences
-                        (EMAIL_PROFILE_PIC,
-                                ProfileDetailsActivity.this)).into(profilePic);
-            }
-        }
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
         // [START initialize_auth]
         initializeAuth();
-        if (FacebookUtils.isLoggedIn())
-        {
-            writeBasicInfoToDatabaseFacebook();
-        }
+
+        final ProgressBar finalProgressBar = progressBar;
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(PHOTO_URL).getValue().toString();
+
+                if (!profileImageLink.equals("default_profile")) {
+                    Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).into(profileImage,
+                            new ImageLoadedCallback(finalProgressBar) {
+                                @Override
+                                public void onSuccess() {
+                                    if (this.progressBar != null) {
+                                        this.progressBar.setVisibility(View.GONE);
+                                    }
+                                }
+                            });
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
+
 
 
     private void initializeAuth(){
@@ -206,6 +212,16 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
                 myCalendar.set(Calendar.YEAR, year);
                 myCalendar.set(Calendar.MONTH, monthOfYear);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                if(FacebookUtils.isLoggedIn())
+                {
+                    Utils.setPreferences(FACEBOOK_AGE,  Utils.getAge(year,monthOfYear, dayOfMonth),
+                            ProfileDetailsActivity.this);
+                }
+                else
+                {
+                    Utils.setPreferences(EMAIL_AGE,  Utils.getAge(year,monthOfYear, dayOfMonth),
+                        ProfileDetailsActivity.this);
+                }
                 String myFormat = "dd/MM/yy"; //In which you need put here
                 SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.GERMAN);
 
@@ -236,46 +252,44 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         // Facebook
         if (FacebookUtils.isLoggedIn())
         {
-            writeExtraInfoToDatabaseFacebook(birthday, description);
+            writeInfoToDatabaseFacebook(birthday, description);
         }
 
         // Email
         else
         {
-            writeExtraInfoToDatabaseEmail(birthday, description);
+            writeInfoToDatabaseEmail(birthday, description);
         }
     }
 
-    public void writeBasicInfoToDatabaseFacebook() {
-        User user = new User(Utils.getPreferences(FACEBOOK_FIRST_NAME, ProfileDetailsActivity.this),
-                Utils.getPreferences(FACEBOOK_LAST_NAME, ProfileDetailsActivity.this),
-                1);
-        mDatabase.child(USERS).child(mAuth.getUid()).setValue(user);
-    }
-    private void writeExtraInfoToDatabaseFacebook(String birthday, String description) {
-        User userExtraInfo = new User(birthday, description);
+    private void writeInfoToDatabaseFacebook(String birthday, String description) {
+        String firstName = Utils.getPreferences(FACEBOOK_FIRST_NAME, ProfileDetailsActivity.this);
+        String lastName = Utils.getPreferences(FACEBOOK_LAST_NAME, ProfileDetailsActivity.this);
+        String photoUrl = Utils.getPreferences(FACEBOOK_PROFILE_PIC, ProfileDetailsActivity.this);
+        String age = Utils.getPreferences(FACEBOOK_AGE, ProfileDetailsActivity.this);
         Utils.setPreferences(FACEBOOK_BIRTHDAY, birthday, ProfileDetailsActivity.this);
         Utils.setPreferences(FACEBOOK_DESCRIPTION, description, ProfileDetailsActivity.this);
-        mDatabase.child(USERS).child(mAuth.getUid()).child(EXTRA).setValue(userExtraInfo);
+        User user = new User(firstName,lastName, photoUrl, birthday, description, age);
+        mDatabase.child(USERS).child(mAuth.getUid()).setValue(user);
     }
 
-    private void writeExtraInfoToDatabaseEmail(String birthday, String description) {
-        User userExtraInfo = new User(birthday, description);
+    private void writeInfoToDatabaseEmail(String birthday, String description) {
+        String firstName = Utils.getPreferences(EMAIL_FIRST_NAME, ProfileDetailsActivity.this);
+        String lastName = Utils.getPreferences(EMAIL_LAST_NAME, ProfileDetailsActivity.this);
+        String photoUrl = Utils.getPreferences(EMAIL_PROFILE_PIC, ProfileDetailsActivity.this);
+        String age = Utils.getPreferences(EMAIL_AGE, ProfileDetailsActivity.this);
         Utils.setPreferences(EMAIL_BIRTHDAY, birthday, ProfileDetailsActivity.this);
         Utils.setPreferences(EMAIL_DESCRIPTION, description, ProfileDetailsActivity.this);
-        mDatabase.child(USERS).child(mAuth.getUid()).child(EXTRA).setValue(userExtraInfo);
+        User user = new User(firstName,lastName, photoUrl, birthday, description, age);
+        mDatabase.child(USERS).child(mAuth.getUid()).setValue(user);
     }
 
-    public void writePhotoToDatabaseFacebook(String photoUrl, String id) {
-        User user = new User(photoUrl);
+    public void writePhotoToPreferencesFacebook(String photoUrl) {
         Utils.setPreferences(FACEBOOK_PROFILE_PIC, photoUrl, ProfileDetailsActivity.this);
-        mDatabase.child(USERS).child(id).child(PHOTO).setValue(user);
     }
 
-    public void writePhotoToDatabaseEmail(String photoUrl, String id) {
-        User user = new User(photoUrl);
+    public void writePhotoToDatabaseEmail(String photoUrl) {
         Utils.setPreferences(EMAIL_PROFILE_PIC, photoUrl, ProfileDetailsActivity.this);
-        mDatabase.child(USERS).child(id).child(PHOTO).setValue(user);
     }
     private void chooseImage() {
         Intent intent = new Intent();
@@ -307,7 +321,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
                             Picasso.with(ProfileDetailsActivity.this)
                                 .load(Utils.getImageUri(ProfileDetailsActivity.this, bitmap))
-                                .into(profilePic);
+                                .into(profileImage);
 
 
                             final StorageReference ref = storageReference.child
@@ -327,11 +341,11 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
                                         String downloadUrl = task.getResult().getDownloadUrl().toString();
                                         if (FacebookUtils.isLoggedIn())
                                         {
-                                            writePhotoToDatabaseFacebook(downloadUrl, mAuth.getUid());
+                                            writePhotoToPreferencesFacebook(downloadUrl);
                                         }
                                         else
                                         {
-                                            writePhotoToDatabaseEmail(downloadUrl, mAuth.getUid());
+                                            writePhotoToDatabaseEmail(downloadUrl);
                                         }
                                     }
 
@@ -451,6 +465,5 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
             startActivity(intent);
         }
     }
-
 //
 }

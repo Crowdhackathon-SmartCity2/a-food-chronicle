@@ -9,35 +9,28 @@ public class User {
     private String birthday;
     private String description;
     private String text;
-    private int nothing;
-    private String name;
+    private String age;
 
 
-    public User(String birthday, String description) {
-        this.birthday = birthday;
-        this.description = description;
-    }
-
-
-    public User(String firstName, String lastName, int nothing) {
+    public User(String firstName, String lastName, String photoUrl, String birthday, String description, String age) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.nothing = nothing;
-    }
-
-    public User(String photoUrl) {
         this.photoUrl = photoUrl;
-    }
-
-    public User(String text, String name, String photoUrl) {
-        this.name = name;
-        this.photoUrl = photoUrl;
-        this.text = text;
+        this.birthday = birthday;
+        this.description = description;
+        this.age = age;
     }
 
     public User() {
     }
 
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
+    }
 
     public String getBirthday() {
         return birthday;

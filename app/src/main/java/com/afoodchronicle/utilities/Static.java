@@ -1,5 +1,6 @@
 package com.afoodchronicle.utilities;
 
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 public class Static {
@@ -10,19 +11,22 @@ public class Static {
     public static final String EMAIL_FIRST_NAME = "EMAIL_FIRST_NAME";
     public static final String EMAIL_LAST_NAME ="EMAIL_LAST_NAME";
     public static final String EMAIL_PROFILE_PIC = "EMAIL_PROFILE_PIC";
-    public static final String FACEBOOK_PROFILE_EDIT_PIC = "FACEBOOK_PROFILE_EDIT_PIC";
-    public static final String EMAIL_PROFILE_EDIT_PIC = "EMAIL_PROFILE_EDIT_PIC";
     public static final String FACEBOOK_BIRTHDAY = "FACEBOOK_BIRTHDAY";
     public static final String FACEBOOK_DESCRIPTION = "FACEBOOK_DESCRIPTION";
     public static final String EMAIL_BIRTHDAY = "EMAIL_BIRTHDAY";
     public static final String EMAIL_DESCRIPTION = "EMAIL_DESCRIPTION";
-    public static final String USERS = "users";
-    public static final String EXTRA = "extra";
-    public static final String PHOTO = "photo";
+    public static final String FACEBOOK_AGE = "FACEBOOK_AGE";
+    public static final String EMAIL_AGE = "EMAIL_AGE";
 
     //Firebase
     public static final String JPG = ".jpg";
     public static final String IMAGES = "images/";
+    public static final String FIRST_NAME = "firstName";
+    public static final String LAST_NAME = "lastName";
+    public static final String PHOTO_URL = "photoUrl";
+    public static final String USERS = "users";
+    public static final String PHOTO = "photo";
+
 
     //Toast
     public static final String UPLOAD = "Uploading your picture...";
@@ -38,6 +42,10 @@ public class Static {
     public static final LatLng mPnyka = new LatLng(37.9685393, 23.7478882);
     public static final LatLng mPantopoleio = new LatLng(38.0056227, 23.7826411);
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    public static final CameraPosition ATHENS = CameraPosition.builder()
+            .target(new LatLng(37.9838096, 23.7275388))
+            .zoom(15)
+            .build();
 
     // Chat
     public static final String FRAGMENT_TITLE_REQUESTS   = "Requests";

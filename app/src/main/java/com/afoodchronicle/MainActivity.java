@@ -13,9 +13,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -23,12 +22,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afoodchronicle.chat.AllUsersActivity;
 import com.afoodchronicle.chat.ChatActivity;
-import com.afoodchronicle.chat.ChattempFragment;
+import com.afoodchronicle.utilities.FacebookUtils;
+import com.afoodchronicle.utilities.ImageLoadedCallback;
+import com.afoodchronicle.utilities.PermissionUtils;
+import com.afoodchronicle.utilities.Utils;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,16 +46,18 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.prefs.PreferenceChangeListener;
 
-import com.afoodchronicle.utilities.FacebookUtils;
-import com.afoodchronicle.utilities.PermissionUtils;
-import com.afoodchronicle.utilities.Utils;
-import com.squareup.picasso.Picasso;
-
+import static com.afoodchronicle.utilities.Static.ATHENS;
 import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.EMAIL_LAST_NAME;
 import static com.afoodchronicle.utilities.Static.EMAIL_PROFILE_PIC;
@@ -59,6 +66,8 @@ import static com.afoodchronicle.utilities.Static.FACEBOOK_LAST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.LOCATION_PERMISSION_REQUEST_CODE;
 import static com.afoodchronicle.utilities.Static.MARKER_NAME;
+import static com.afoodchronicle.utilities.Static.PHOTO_URL;
+import static com.afoodchronicle.utilities.Static.USERS;
 import static com.afoodchronicle.utilities.Static.mPantopoleio;
 import static com.afoodchronicle.utilities.Static.mPnyka;
 import static com.afoodchronicle.utilities.Static.mVorria;
@@ -83,10 +92,7 @@ public class MainActivity extends AppCompatActivity
     SupportMapFragment sMapFragment;
     GoogleMap mMap;
     boolean mapReady=false;
-    static final CameraPosition ATHENS = CameraPosition.builder()
-            .target(new LatLng(37.9838096, 23.7275388))
-            .zoom(15)
-            .build();
+
 
     // Views
     private TextView logIn;
@@ -95,13 +101,10 @@ public class MainActivity extends AppCompatActivity
     private TextView editProfile;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private SharedPreferences mPrefs;
-    private PreferenceChangeListener mPreferenceListener;
 
     //Firebase
-    private StorageReference storageReference;
-
-
+    private DatabaseReference mDatabase;
+    private String profileImageLink;
 
 
     @Override
@@ -157,10 +160,12 @@ public class MainActivity extends AppCompatActivity
         profileImage = parentView.findViewById(R.id.profile_image);
         profileName = parentView.findViewById(R.id.profile_name);
         editProfile = parentView.findViewById(R.id.edit_profile);
+        ProgressBar progressBar = null;
+        progressBar = parentView.findViewById(R.id.progressBar);
 
-
-
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
+        final ProgressBar finalProgressBar = progressBar;
         mAuthListener = new FirebaseAuth.AuthStateListener() {
 
 
@@ -170,16 +175,36 @@ public class MainActivity extends AppCompatActivity
 
                 if (user != null) {
 
+                    finalProgressBar.setVisibility(View.VISIBLE);
+                    final ProgressBar finalProgressBar1 = finalProgressBar;
                     ///Facebook
-
                     if (FacebookUtils.isLoggedIn()) {
-
 
                         String firstName = Utils.getPreferences(FACEBOOK_FIRST_NAME, MainActivity.this);
                         String lastName = Utils.getPreferences(FACEBOOK_LAST_NAME, MainActivity.this);
-                        profileName.setText(firstName+" "+lastName);
-                        String profileImageLink = Utils.getPreferences(FACEBOOK_PROFILE_PIC, MainActivity.this);
-                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
+                        profileName.setText(firstName + " " + lastName);
+
+                        mDatabase.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(PHOTO_URL).getValue().toString();
+                                Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
+                                        new ImageLoadedCallback(finalProgressBar1) {
+                                            @Override
+                                            public void onSuccess() {
+                                                if (this.progressBar != null) {
+                                                    this.progressBar.setVisibility(View.GONE);
+                                                }
+                                            }
+                                        });
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
 
                         logIn.setVisibility(View.GONE);
                         profileName.setVisibility(View.VISIBLE);
@@ -195,18 +220,34 @@ public class MainActivity extends AppCompatActivity
                             }
                         });
 
-                        }
-                ///Email
+                    }
+                    ///Email
                     else {
 
 
                         String firstName = Utils.getPreferences(EMAIL_FIRST_NAME, MainActivity.this);
                         String lastName = Utils.getPreferences(EMAIL_LAST_NAME, MainActivity.this);
                         profileName.setText(firstName + " " + lastName);
-                        String profileImageLink = Utils.getPreferences(EMAIL_PROFILE_PIC, MainActivity.this);
-                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage);
+                        mDatabase.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(PHOTO_URL).getValue().toString();
+                                Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
+                                        new ImageLoadedCallback(finalProgressBar1) {
+                                            @Override
+                                            public void onSuccess() {
+                                                if (this.progressBar != null) {
+                                                    this.progressBar.setVisibility(View.GONE);
+                                                }
+                                            }
+                                        });
+                            }
 
-                    }
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
                         logIn.setVisibility(View.GONE);
                         profileName.setVisibility(View.VISIBLE);
 
@@ -220,10 +261,10 @@ public class MainActivity extends AppCompatActivity
                                 startActivity(listIntent);
                             }
                         });
+                    }
                 }
                 //User signed out
-                else
-                    {
+                else {
                     logIn.setVisibility(View.VISIBLE);
                     profileName.setVisibility(View.GONE);
                     editProfile.setVisibility(View.GONE);
@@ -304,6 +345,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
+            Intent listIntent = new Intent(MainActivity.this, AllUsersActivity.class);
+
+            startActivity(listIntent);
 
         }
 

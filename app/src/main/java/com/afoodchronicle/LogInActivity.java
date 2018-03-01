@@ -10,6 +10,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afoodchronicle.utilities.FacebookUtils;
+import com.afoodchronicle.utilities.Utils;
 import com.facebook.CallbackManager;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -20,10 +22,20 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import com.afoodchronicle.utilities.FacebookUtils;
+import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
+import static com.afoodchronicle.utilities.Static.EMAIL_LAST_NAME;
+import static com.afoodchronicle.utilities.Static.EMAIL_PROFILE_PIC;
+import static com.afoodchronicle.utilities.Static.FIRST_NAME;
+import static com.afoodchronicle.utilities.Static.LAST_NAME;
+import static com.afoodchronicle.utilities.Static.PHOTO;
+import static com.afoodchronicle.utilities.Static.PHOTO_URL;
+import static com.afoodchronicle.utilities.Static.USERS;
 
 public class LogInActivity extends FacebookUtils implements
         View.OnClickListener {
@@ -47,6 +59,9 @@ public class LogInActivity extends FacebookUtils implements
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private DatabaseReference getFirstNameDatabaseReference;
+    private DatabaseReference getLastNameDatabaseReference;
+    private DatabaseReference getNameFromDatabaseReference;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +82,7 @@ public class LogInActivity extends FacebookUtils implements
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
         mAuthFacebook = LoginManager.getInstance();
+
         // [END initialize_auth]
 
         // [START auth_state_listener] ,this method execute as soon as there is a change in Auth status , such as user sign in or sign out.
@@ -132,6 +148,7 @@ public class LogInActivity extends FacebookUtils implements
                         //  If sign in succeeds i.e if task.isSuccessful(); returns true then the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         // If sign in fails, display a message to the user.
+                        downloadUserDataFromDatabaseToPreferences(mAuth.getUid());
                         if (!task.isSuccessful()) {
                             try {
                                 throw task.getException();
@@ -157,6 +174,40 @@ public class LogInActivity extends FacebookUtils implements
 
                 }});
     }
+
+    private void downloadUserDataFromDatabaseToPreferences(final String id){
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+
+                if (user != null) {
+
+                    getNameFromDatabaseReference = FirebaseDatabase.getInstance().getReference().child(USERS).child(id);
+                    getNameFromDatabaseReference.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            String firstName = dataSnapshot.child(FIRST_NAME).getValue().toString();
+                            String lastName = dataSnapshot.child(LAST_NAME).getValue().toString();
+                            String photoUrl = dataSnapshot.child(PHOTO).getValue().toString();
+                            Utils.setPreferences(EMAIL_FIRST_NAME, firstName, LogInActivity.this);
+                            Utils.setPreferences(EMAIL_LAST_NAME, lastName, LogInActivity.this);
+                            Utils.setPreferences(EMAIL_PROFILE_PIC, photoUrl, LogInActivity.this);
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                }
+
+
+            }
+        };
+    }
+
 
     private boolean validateForm() {
         boolean valid = true;

@@ -1,6 +1,5 @@
 package com.afoodchronicle;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,25 +9,21 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.afoodchronicle.utilities.FacebookUtils;
+import com.afoodchronicle.utilities.Utils;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import com.afoodchronicle.utilities.FacebookUtils;
-import com.afoodchronicle.utilities.Utils;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.EMAIL_LAST_NAME;
-import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.PASSWORD_DONT_MATCH;
-import static com.afoodchronicle.utilities.Static.PHOTO;
 import static com.afoodchronicle.utilities.Static.REQUIRED;
-import static com.afoodchronicle.utilities.Static.USERS;
 
 public class CreateUserActivity extends FacebookUtils implements View.OnClickListener {
 
@@ -70,11 +65,9 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
 
     }
 
-    private void writeBasicInfoToDatabaseEmail(String firstName, String lastName, String id) {
-        User userBasicInfo = new User(firstName, lastName,1);
+    private void writeBasicInfoToPreferencesEmail(String firstName, String lastName, String id) {
         Utils.setPreferences(EMAIL_FIRST_NAME, firstName, CreateUserActivity.this);
         Utils.setPreferences(EMAIL_LAST_NAME, lastName, CreateUserActivity.this);
-        mDatabase.child(USERS).child(id).setValue(userBasicInfo);
     }
 
     private void createAccount(String email, String password)
@@ -203,7 +196,7 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
     private void updateUI(FirebaseUser user) {
         hideProgressDialog();
         if (user != null) {
-            writeBasicInfoToDatabaseEmail(mFirstName.getText().toString(), mLastName.getText().toString(), mAuth.getUid());
+            writeBasicInfoToPreferencesEmail(mFirstName.getText().toString(), mLastName.getText().toString(), mAuth.getUid());
             Intent listIntent = new Intent(CreateUserActivity.this, ProfileDetailsActivity.class);
             sendEmailVerification();
             startActivity(listIntent);
