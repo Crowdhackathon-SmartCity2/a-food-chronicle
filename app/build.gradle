@@ -49,9 +49,10 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-database:2.3.0'
     // Facebook
     implementation 'com.facebook.android:facebook-login:4.30.0'
-    //Images
+    // Images
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.6.+'
+    implementation 'id.zelory:compressor:2.1.0'
 }
 apply plugin: 'com.google.gms.google-services'

@@ -83,6 +83,10 @@
             android:label="All users"
             android:windowSoftInputMode="stateHidden" />
         <activity
+            android:name=".chat.UserDetailsActivity"
+            android:label="User Details"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
             android:name=".LogInActivity"
             android:label="Log In"
             android:windowSoftInputMode="stateHidden" />

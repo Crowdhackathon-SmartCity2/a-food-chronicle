@@ -1,6 +1,7 @@
 package com.afoodchronicle.chat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,6 +20,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import com.afoodchronicle.User;
 
 import static com.afoodchronicle.utilities.Static.USERS;
+import static com.afoodchronicle.utilities.Static.VISIT_USER_ID;
 
 
 public class AllUsersActivity extends AppCompatActivity {
@@ -52,12 +54,23 @@ public class AllUsersActivity extends AppCompatActivity {
 
                 ) {
             @Override
-            protected void populateViewHolder(AllUsersViewHolder viewHolder, User model, int position)
+            protected void populateViewHolder(AllUsersViewHolder viewHolder, User model, final int position)
             {
                 viewHolder.setUser_name(model.getFirstName()+ " " + model.getLastName());
                 viewHolder.setUser_description(model.getDescription());
-                viewHolder.setUser_image(getApplicationContext(), model.getPhotoUrl());
+                viewHolder.setUser_thumbImage(getApplicationContext(), model.getThumbPhotoUrl());
                 viewHolder.setUser_age("Age: " + model.getAge());
+
+                viewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v)
+                    {
+                        String visitUserId = getRef(position).getKey();
+                        Intent userDetailsIntent = new Intent (AllUsersActivity.this, UserDetailsActivity.class);
+                        userDetailsIntent.putExtra(VISIT_USER_ID, visitUserId);
+                        startActivity(userDetailsIntent);
+                    }
+                });
             }
         };
         allUsersList.setAdapter(firebaseRecyclerAdapter);
@@ -86,10 +99,10 @@ public class AllUsersActivity extends AppCompatActivity {
             description.setText(user_description);
         }
 
-        public void setUser_image(Context context, String user_image)
+        public void setUser_thumbImage(Context context, String user_thumb_image)
         {
             image = mView.findViewById(R.id.all_users_profile_image);
-            Picasso.with(context).load(user_image).into(image);
+            Picasso.with(context).load(user_thumb_image).into(image);
 
         }
         public void setUser_age(String user_age)

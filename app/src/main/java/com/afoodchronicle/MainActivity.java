@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -67,6 +68,7 @@ import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.LOCATION_PERMISSION_REQUEST_CODE;
 import static com.afoodchronicle.utilities.Static.MARKER_NAME;
 import static com.afoodchronicle.utilities.Static.PHOTO_URL;
+import static com.afoodchronicle.utilities.Static.THUMB_PHOTO_URL;
 import static com.afoodchronicle.utilities.Static.USERS;
 import static com.afoodchronicle.utilities.Static.mPantopoleio;
 import static com.afoodchronicle.utilities.Static.mPnyka;
@@ -187,18 +189,36 @@ public class MainActivity extends AppCompatActivity
                         mDatabase.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(PHOTO_URL).getValue().toString();
-                                Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
-                                        new ImageLoadedCallback(finalProgressBar1) {
-                                            @Override
-                                            public void onSuccess() {
-                                                if (this.progressBar != null) {
-                                                    this.progressBar.setVisibility(View.GONE);
-                                                }
-                                            }
-                                        });
-                            }
+                                if (dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).exists()) {
+                                    profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
+                                    if (!profileImageLink.equals("default_profile")) {
+                                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
+                                                new ImageLoadedCallback(finalProgressBar) {
+                                                    @Override
+                                                    public void onSuccess() {
+                                                        if (this.progressBar != null) {
+                                                            this.progressBar.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                });
 
+                                    }
+                                }
+                                else
+                                {
+
+                                        profileImageLink= Utils.getPreferences(FACEBOOK_PROFILE_PIC, MainActivity.this);
+                                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
+                                            new ImageLoadedCallback(finalProgressBar) {
+                                                @Override
+                                                public void onSuccess() {
+                                                    if (this.progressBar != null) {
+                                                        this.progressBar.setVisibility(View.GONE);
+                                                    }
+                                                }
+                                            });
+                                }
+                            }
                             @Override
                             public void onCancelled(DatabaseError databaseError) {
 
@@ -231,23 +251,58 @@ public class MainActivity extends AppCompatActivity
                         mDatabase.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(PHOTO_URL).getValue().toString();
-                                Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
-                                        new ImageLoadedCallback(finalProgressBar1) {
-                                            @Override
-                                            public void onSuccess() {
-                                                if (this.progressBar != null) {
-                                                    this.progressBar.setVisibility(View.GONE);
-                                                }
-                                            }
-                                        });
+                                if (dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).exists()) {
+                                    profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
+                                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
+                                                new ImageLoadedCallback(finalProgressBar) {
+                                                    @Override
+                                                    public void onSuccess() {
+                                                        if (this.progressBar != null) {
+                                                            this.progressBar.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                });
+
+
+                                }
+                                else
+                                {
+
+                                    profileImageLink = Utils.getPreferences(EMAIL_PROFILE_PIC, MainActivity.this);
+                                    if (profileImageLink.equals(""))
+                                    {
+                                        Picasso.with(MainActivity.this).load(R.drawable.default_profile).into(profileImage,
+                                                new ImageLoadedCallback(finalProgressBar) {
+                                                    @Override
+                                                    public void onSuccess() {
+                                                        if (this.progressBar != null) {
+                                                            this.progressBar.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                    else
+                                    {
+                                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
+                                                new ImageLoadedCallback(finalProgressBar) {
+                                                    @Override
+                                                    public void onSuccess() {
+                                                        if (this.progressBar != null) {
+                                                            this.progressBar.setVisibility(View.GONE);
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                }
                             }
+
 
                             @Override
                             public void onCancelled(DatabaseError databaseError) {
 
                             }
                         });
+
                         logIn.setVisibility(View.GONE);
                         profileName.setVisibility(View.VISIBLE);
 

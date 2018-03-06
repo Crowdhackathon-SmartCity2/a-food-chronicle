@@ -8,9 +8,11 @@ public class Static {
     public static final String FACEBOOK_FIRST_NAME = "FACEBOOK_FIRST_NAME";
     public static final String FACEBOOK_LAST_NAME = "FACEBOOK_LAST_NAME";
     public static final String FACEBOOK_PROFILE_PIC = "FACEBOOK_PROFILE_PIC";
+    public static final String FACEBOOK_THUMB_PROFILE_PIC = "FACEBOOK_THUMB_PROFILE_PIC";
     public static final String EMAIL_FIRST_NAME = "EMAIL_FIRST_NAME";
     public static final String EMAIL_LAST_NAME ="EMAIL_LAST_NAME";
     public static final String EMAIL_PROFILE_PIC = "EMAIL_PROFILE_PIC";
+    public static final String EMAIL_THUMB_PROFILE_PIC = "EMAIL_THUMB_PROFILE_PIC";
     public static final String FACEBOOK_BIRTHDAY = "FACEBOOK_BIRTHDAY";
     public static final String FACEBOOK_DESCRIPTION = "FACEBOOK_DESCRIPTION";
     public static final String EMAIL_BIRTHDAY = "EMAIL_BIRTHDAY";
@@ -21,11 +23,15 @@ public class Static {
     //Firebase
     public static final String JPG = ".jpg";
     public static final String IMAGES = "images/";
+    public static final String THUMB_IMAGES = "thumb_images/";
     public static final String FIRST_NAME = "firstName";
     public static final String LAST_NAME = "lastName";
     public static final String PHOTO_URL = "photoUrl";
+    public static final String THUMB_PHOTO_URL = "thumbPhotoUrl";
     public static final String USERS = "users";
     public static final String PHOTO = "photo";
+    public static final String DESCRIPTION = "description";
+    public static final String AGE = "age";
 
 
     //Toast
@@ -51,5 +57,6 @@ public class Static {
     public static final String FRAGMENT_TITLE_REQUESTS   = "Requests";
     public static final String FRAGMENT_TITLE_CHATS   = "Chats";
     public static final String FRAGMENT_TITLE_FRIENDS   = "Friends";
+    public static final String VISIT_USER_ID = "visit_user_id";
 
 }

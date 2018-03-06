@@ -10,18 +10,28 @@ public class User {
     private String description;
     private String text;
     private String age;
+    private String thumbPhotoUrl;
 
 
-    public User(String firstName, String lastName, String photoUrl, String birthday, String description, String age) {
+    public User(String firstName, String lastName, String photoUrl, String thumbPhotoUrl, String birthday, String description, String age) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.photoUrl = photoUrl;
         this.birthday = birthday;
         this.description = description;
         this.age = age;
+        this.thumbPhotoUrl = thumbPhotoUrl;
     }
 
     public User() {
+    }
+
+    public String getThumbPhotoUrl() {
+        return thumbPhotoUrl;
+    }
+
+    public void setThumbPhotoUrl(String thumbPhotoUrl) {
+        this.thumbPhotoUrl = thumbPhotoUrl;
     }
 
     public String getAge() {

@@ -38,14 +38,17 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.prefs.PreferenceChangeListener;
+
+import id.zelory.compressor.Compressor;
 
 import static com.afoodchronicle.utilities.Static.EMAIL_AGE;
 import static com.afoodchronicle.utilities.Static.EMAIL_BIRTHDAY;
@@ -53,16 +56,20 @@ import static com.afoodchronicle.utilities.Static.EMAIL_DESCRIPTION;
 import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.EMAIL_LAST_NAME;
 import static com.afoodchronicle.utilities.Static.EMAIL_PROFILE_PIC;
+import static com.afoodchronicle.utilities.Static.EMAIL_THUMB_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_AGE;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_BIRTHDAY;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_DESCRIPTION;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_LAST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_THUMB_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.IMAGES;
 import static com.afoodchronicle.utilities.Static.JPG;
 import static com.afoodchronicle.utilities.Static.PHOTO_URL;
 import static com.afoodchronicle.utilities.Static.REQUIRED;
+import static com.afoodchronicle.utilities.Static.THUMB_IMAGES;
+import static com.afoodchronicle.utilities.Static.THUMB_PHOTO_URL;
 import static com.afoodchronicle.utilities.Static.UPLOAD;
 import static com.afoodchronicle.utilities.Static.UPLOAD_ERROR;
 import static com.afoodchronicle.utilities.Static.USERS;
@@ -95,6 +102,9 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
     private PreferenceChangeListener mPreferenceListener;
     private SharedPreferences mPrefs;
     private String profileImageLink;
+    private Bitmap thumb_bitmap;
+    private StorageReference photoUrlReference;
+    private StorageReference thumbPhotoUrlReference;
 
 
     @Override
@@ -141,20 +151,65 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(PHOTO_URL).getValue().toString();
-
-                if (!profileImageLink.equals("default_profile")) {
+                if (dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).exists()) {
+                    profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
                     Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).into(profileImage,
-                            new ImageLoadedCallback(finalProgressBar) {
-                                @Override
-                                public void onSuccess() {
-                                    if (this.progressBar != null) {
-                                        this.progressBar.setVisibility(View.GONE);
+                                new ImageLoadedCallback(finalProgressBar) {
+                                    @Override
+                                    public void onSuccess() {
+                                        if (this.progressBar != null) {
+                                            this.progressBar.setVisibility(View.GONE);
+                                        }
                                     }
-                                }
-                            });
-
+                                });
                 }
+                else
+                    {
+                        if (FacebookUtils.isLoggedIn())
+                        {
+                         profileImageLink= Utils.getPreferences(FACEBOOK_PROFILE_PIC, ProfileDetailsActivity.this);
+                            Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).into(profileImage,
+                                    new ImageLoadedCallback(finalProgressBar) {
+                                        @Override
+                                        public void onSuccess() {
+                                            if (this.progressBar != null) {
+                                                this.progressBar.setVisibility(View.GONE);
+                                            }
+                                        }
+                                    });
+                        }
+
+                        else
+                        {
+                            profileImageLink = Utils.getPreferences(EMAIL_PROFILE_PIC, ProfileDetailsActivity.this);
+                            if (profileImageLink.equals(""))
+                            {
+                                Picasso.with(ProfileDetailsActivity.this).load(R.drawable.default_profile).into(profileImage,
+                                        new ImageLoadedCallback(finalProgressBar) {
+                                            @Override
+                                            public void onSuccess() {
+                                                if (this.progressBar != null) {
+                                                    this.progressBar.setVisibility(View.GONE);
+                                                }
+                                            }
+                                        });
+                            }
+                            else
+                            {
+                                Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).into(profileImage,
+                                        new ImageLoadedCallback(finalProgressBar) {
+                                            @Override
+                                            public void onSuccess() {
+                                                if (this.progressBar != null) {
+                                                    this.progressBar.setVisibility(View.GONE);
+                                                }
+                                            }
+                                        });
+                            }
+                        }
+
+
+                    }
             }
 
             @Override
@@ -266,10 +321,11 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         String firstName = Utils.getPreferences(FACEBOOK_FIRST_NAME, ProfileDetailsActivity.this);
         String lastName = Utils.getPreferences(FACEBOOK_LAST_NAME, ProfileDetailsActivity.this);
         String photoUrl = Utils.getPreferences(FACEBOOK_PROFILE_PIC, ProfileDetailsActivity.this);
+        String thumbPhotoUrl = Utils.getPreferences(FACEBOOK_THUMB_PROFILE_PIC, ProfileDetailsActivity.this);
         String age = Utils.getPreferences(FACEBOOK_AGE, ProfileDetailsActivity.this);
         Utils.setPreferences(FACEBOOK_BIRTHDAY, birthday, ProfileDetailsActivity.this);
         Utils.setPreferences(FACEBOOK_DESCRIPTION, description, ProfileDetailsActivity.this);
-        User user = new User(firstName,lastName, photoUrl, birthday, description, age);
+        User user = new User(firstName,lastName, photoUrl, thumbPhotoUrl, birthday, description, age);
         mDatabase.child(USERS).child(mAuth.getUid()).setValue(user);
     }
 
@@ -277,10 +333,11 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         String firstName = Utils.getPreferences(EMAIL_FIRST_NAME, ProfileDetailsActivity.this);
         String lastName = Utils.getPreferences(EMAIL_LAST_NAME, ProfileDetailsActivity.this);
         String photoUrl = Utils.getPreferences(EMAIL_PROFILE_PIC, ProfileDetailsActivity.this);
+        String thumbPhotoUrl = Utils.getPreferences(EMAIL_THUMB_PROFILE_PIC, ProfileDetailsActivity.this);
         String age = Utils.getPreferences(EMAIL_AGE, ProfileDetailsActivity.this);
         Utils.setPreferences(EMAIL_BIRTHDAY, birthday, ProfileDetailsActivity.this);
         Utils.setPreferences(EMAIL_DESCRIPTION, description, ProfileDetailsActivity.this);
-        User user = new User(firstName,lastName, photoUrl, birthday, description, age);
+        User user = new User(firstName,lastName, photoUrl, thumbPhotoUrl, birthday, description, age);
         mDatabase.child(USERS).child(mAuth.getUid()).setValue(user);
     }
 
@@ -316,56 +373,91 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
 
                 {
                     Uri resultUri = result.getUri();
+                    final File thumb_filePathUri = new File(resultUri.getPath());
                     try {
+
+                            thumb_bitmap = new Compressor(this)
+                                    .setMaxWidth(200)
+                                    .setMaxHeight(200)
+                                    .setQuality(50)
+                                    .compressToBitmap(thumb_filePathUri);
 
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
                             Picasso.with(ProfileDetailsActivity.this)
                                 .load(Utils.getImageUri(ProfileDetailsActivity.this, bitmap))
                                 .into(profileImage);
 
+                            showProgressDialog();
 
-                            final StorageReference ref = storageReference.child
-                                    (IMAGES + mAuth.getUid()+ JPG);
-                            ref.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                    if(task.isSuccessful())
-                                    {
-                                        Context context = getApplicationContext();
-                                        CharSequence text = UPLOAD;
-                                        int duration = Toast.LENGTH_SHORT;
-
-                                        Toast toast = Toast.makeText(context, text, duration);
-                                        toast.show();
-
-                                        String downloadUrl = task.getResult().getDownloadUrl().toString();
-                                        if (FacebookUtils.isLoggedIn())
-                                        {
-                                            writePhotoToPreferencesFacebook(downloadUrl);
-                                        }
-                                        else
-                                        {
-                                            writePhotoToDatabaseEmail(downloadUrl);
-                                        }
-                                    }
-
-                                    else
-                                    {
-                                        Context context = getApplicationContext();
-                                        CharSequence text = UPLOAD_ERROR;
-                                        int duration = Toast.LENGTH_SHORT;
-
-                                        Toast toast = Toast.makeText(context, text, duration);
-                                        toast.show();
-                                    }
-                                }
-                            });
                         }
 
                     catch (IOException e)
                     {
                         e.printStackTrace();
                     }
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
+                    final byte[] thumb_byte = byteArrayOutputStream.toByteArray();
+
+
+                    photoUrlReference = storageReference.child
+                            (IMAGES + mAuth.getUid()+ JPG);
+                    thumbPhotoUrlReference = storageReference.child
+                            (THUMB_IMAGES + mAuth.getUid()+ JPG);
+
+                    photoUrlReference.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull final Task<UploadTask.TaskSnapshot> task) {
+                            if(task.isSuccessful())
+                            {
+                                UploadTask uploadTask = thumbPhotoUrlReference.putBytes(thumb_byte);
+                                uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> thumb_task) {
+                                        String thumb_downloadUrl = thumb_task.getResult().getDownloadUrl().toString();
+                                        if (task.isSuccessful())
+                                        {
+                                            if (FacebookUtils.isLoggedIn())
+                                            {
+                                                Utils.setPreferences(FACEBOOK_THUMB_PROFILE_PIC, thumb_downloadUrl, ProfileDetailsActivity.this);
+                                            }
+                                            else
+                                            {
+                                                Utils.setPreferences(EMAIL_THUMB_PROFILE_PIC, thumb_downloadUrl, ProfileDetailsActivity.this);
+                                            }
+                                        }
+                                    }
+                                });
+                                Context context = getApplicationContext();
+                                CharSequence text = UPLOAD;
+                                int duration = Toast.LENGTH_SHORT;
+
+                                Toast toast = Toast.makeText(context, text, duration);
+                                toast.show();
+
+                                String downloadUrl = task.getResult().getDownloadUrl().toString();
+                                if (FacebookUtils.isLoggedIn())
+                                {
+                                    writePhotoToPreferencesFacebook(downloadUrl);
+                                }
+                                else
+                                {
+                                    writePhotoToDatabaseEmail(downloadUrl);
+                                }
+                            }
+
+                            else
+                            {
+                                Context context = getApplicationContext();
+                                CharSequence text = UPLOAD_ERROR;
+                                int duration = Toast.LENGTH_SHORT;
+
+                                Toast toast = Toast.makeText(context, text, duration);
+                                toast.show();
+                            }
+                            hideProgressDialog();
+                        }
+                    });
                }
                else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE)
                {
@@ -443,6 +535,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         {
             mAuth.signOut();
             mAuthFacebook.logOut();
+            Utils.setPreferences(EMAIL_PROFILE_PIC, "", ProfileDetailsActivity.this);
+            Utils.setPreferences(FACEBOOK_PROFILE_PIC, "", ProfileDetailsActivity.this);
             Intent intent = new Intent(ProfileDetailsActivity.this, MainActivity.class);
             startActivity(intent);
         }
