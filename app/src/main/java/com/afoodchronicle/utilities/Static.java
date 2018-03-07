@@ -37,6 +37,7 @@ public class Static {
     //Toast
     public static final String UPLOAD = "Uploading your picture...";
     public static final String UPLOAD_ERROR = "Failed to upload your picture.";
+
     //Error
     public static final String REQUIRED = "Required. ";
     public static final String PASSWORD_DONT_MATCH = "Passwords don't match";
@@ -58,5 +59,20 @@ public class Static {
     public static final String FRAGMENT_TITLE_CHATS   = "Chats";
     public static final String FRAGMENT_TITLE_FRIENDS   = "Friends";
     public static final String VISIT_USER_ID = "visit_user_id";
+    public static final String NOT_FRIENDS = "not_friends";
+    public static final String REQUEST_SENT = "request_sent";
+    public static final String FRIEND_REQUEST = "friendRequest";
+    public static final String REQUEST_TYPE = "requestType";
+    public static final String SENT = "sent";
+    public static final String RECEIVED = "received";
+    public static final String CANCEL_FRIEND_REQUEST = "Cancel friend request";
+    public static final String SEND_FRIEND_REQUEST = "Send friend request";
+    public static final String REQUEST_RECEIVED = "request_received";
+    public static final String FRIENDS = "friends";
+    public static final String UNFRIEND = "Unfriend this person";
+    public static final String ACCEPT_FRIEND_REQUEST = "Accept friend request";
+
+    // Images
+    public static final int PICK_IMAGE_REQUEST = 71;
 
 }

@@ -1,16 +1,15 @@
 package com.afoodchronicle;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -46,7 +45,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.prefs.PreferenceChangeListener;
 
 import id.zelory.compressor.Compressor;
 
@@ -66,7 +64,7 @@ import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_THUMB_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.IMAGES;
 import static com.afoodchronicle.utilities.Static.JPG;
-import static com.afoodchronicle.utilities.Static.PHOTO_URL;
+import static com.afoodchronicle.utilities.Static.PICK_IMAGE_REQUEST;
 import static com.afoodchronicle.utilities.Static.REQUIRED;
 import static com.afoodchronicle.utilities.Static.THUMB_IMAGES;
 import static com.afoodchronicle.utilities.Static.THUMB_PHOTO_URL;
@@ -86,24 +84,14 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private LoginManager mAuthFacebook;
-    private Uri filePath;
 
-    //Strings
-    private final int PICK_IMAGE_REQUEST = 71;
-    private String birthday;
-    private String description;
-    private String emailPhotoUrl;
 
     //Firebase
     FirebaseStorage storage;
     StorageReference storageReference;
     private DatabaseReference mDatabase;
-    private ImageView profilePicBackground;
-    private PreferenceChangeListener mPreferenceListener;
-    private SharedPreferences mPrefs;
     private String profileImageLink;
     private Bitmap thumb_bitmap;
-    private StorageReference photoUrlReference;
     private StorageReference thumbPhotoUrlReference;
 
 
@@ -129,7 +117,6 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         findViewById(R.id.btnCancel).setOnClickListener(this);
 
         profileImage = findViewById(R.id.profile_pic_details);
-        profilePicBackground = findViewById(R.id.profile_pic_background);
         fullName = findViewById(R.id.full_name);
 
         birthdayEt = findViewById(R.id.etBirthday);
@@ -224,6 +211,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
     private void initializeAuth(){
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
@@ -301,8 +289,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
 
         validateForm();
 
-        birthday = birthdayEt.getText().toString().trim();
-        description = descriptionEt.getText().toString().trim();
+        String birthday = birthdayEt.getText().toString().trim();
+        String description = descriptionEt.getText().toString().trim();
 
         // Facebook
         if (FacebookUtils.isLoggedIn())
@@ -359,7 +347,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
                 && data != null && data.getData() != null ) {
-            filePath = data.getData();
+            Uri filePath = data.getData();
 
             CropImage.activity(filePath)
                     .setGuidelines(CropImageView.Guidelines.ON)
@@ -382,9 +370,9 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
                                     .setQuality(50)
                                     .compressToBitmap(thumb_filePathUri);
 
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
+        //                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), resultUri);
                             Picasso.with(ProfileDetailsActivity.this)
-                                .load(Utils.getImageUri(ProfileDetailsActivity.this, bitmap))
+                                .load(Utils.getImageUri(ProfileDetailsActivity.this, thumb_bitmap))
                                 .into(profileImage);
 
                             showProgressDialog();
@@ -400,8 +388,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
                     final byte[] thumb_byte = byteArrayOutputStream.toByteArray();
 
 
-                    photoUrlReference = storageReference.child
-                            (IMAGES + mAuth.getUid()+ JPG);
+                    StorageReference photoUrlReference = storageReference.child
+                            (IMAGES + mAuth.getUid() + JPG);
                     thumbPhotoUrlReference = storageReference.child
                             (THUMB_IMAGES + mAuth.getUid()+ JPG);
 
