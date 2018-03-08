@@ -113,7 +113,6 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 27 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="com.android.support:multidex-1.0.2" level="project" />
     <orderEntry type="library" name="com.android.support:appcompat-v7-27.1.0" level="project" />
     <orderEntry type="library" name="com.google.android.gms:play-services-auth-11.8.0" level="project" />
     <orderEntry type="library" name="com.android.support:design-27.1.0" level="project" />
@@ -122,6 +121,7 @@
     <orderEntry type="library" name="com.google.android.gms:play-services-base-license-11.8.0" level="project" />
     <orderEntry type="library" name="com.android.support:transition-27.1.0" level="project" />
     <orderEntry type="library" name="io.reactivex.rxjava2:rxjava:2.1.0@jar" level="project" />
+    <orderEntry type="library" name="com.firebaseui:firebase-ui-database-3.2.2" level="project" />
     <orderEntry type="library" scope="TEST" name="com.squareup:javawriter:2.1.1@jar" level="project" />
     <orderEntry type="library" name="com.google.firebase:firebase-auth-license-11.8.0" level="project" />
     <orderEntry type="library" name="com.android.support:recyclerview-v7-27.1.0" level="project" />
@@ -131,6 +131,7 @@
     <orderEntry type="library" name="com.firebaseui:firebase-ui-auth-3.2.2" level="project" />
     <orderEntry type="library" name="id.zelory:compressor-2.1.0" level="project" />
     <orderEntry type="library" scope="TEST" name="com.android.support.test:runner-1.0.1" level="project" />
+    <orderEntry type="library" name="com.firebaseui:firebase-ui-common-3.2.2" level="project" />
     <orderEntry type="library" scope="TEST" name="com.google.code.findbugs:jsr305:2.0.1@jar" level="project" />
     <orderEntry type="library" name="com.facebook.android:facebook-login-4.30.0" level="project" />
     <orderEntry type="library" scope="TEST" name="com.android.support.test.espresso:espresso-idling-resource-3.0.1" level="project" />
@@ -148,12 +149,13 @@
     <orderEntry type="library" scope="TEST" name="net.sf.kxml:kxml2:2.3.0@jar" level="project" />
     <orderEntry type="library" name="com.squareup.picasso:picasso:2.5.2@jar" level="project" />
     <orderEntry type="library" name="com.google.firebase:firebase-database-connection-license-11.8.0" level="project" />
-    <orderEntry type="library" name="com.firebaseui:firebase-ui-database-2.3.0" level="project" />
     <orderEntry type="library" name="com.google.android.gms:play-services-auth-api-phone-license-11.8.0" level="project" />
     <orderEntry type="library" name="com.google.firebase:firebase-auth-11.8.0" level="project" />
     <orderEntry type="library" name="com.google.android.gms:play-services-base-11.8.0" level="project" />
+    <orderEntry type="library" name="com.squareup.okhttp:okhttp:2.7.2@jar" level="project" />
     <orderEntry type="library" name="com.android.support.constraint:constraint-layout-solver:1.1.0-beta5@jar" level="project" />
     <orderEntry type="library" name="com.google.firebase:firebase-analytics-impl-11.8.0" level="project" />
+    <orderEntry type="library" name="com.android.support:multidex-1.0.3" level="project" />
     <orderEntry type="library" name="com.android.support:animated-vector-drawable-27.1.0" level="project" />
     <orderEntry type="library" name="com.google.firebase:firebase-storage-11.8.0" level="project" />
     <orderEntry type="library" name="com.google.firebase:firebase-iid-license-11.8.0" level="project" />
@@ -190,6 +192,7 @@
     <orderEntry type="library" name="com.android.support:support-core-ui-27.1.0" level="project" />
     <orderEntry type="library" name="com.google.android.gms:play-services-auth-base-11.8.0" level="project" />
     <orderEntry type="library" name="com.google.android.gms:play-services-auth-base-license-11.8.0" level="project" />
+    <orderEntry type="library" name="com.squareup.okio:okio:1.6.0@jar" level="project" />
     <orderEntry type="library" name="android.arch.lifecycle:livedata-core-1.1.0" level="project" />
     <orderEntry type="library" name="com.google.firebase:firebase-storage-common-11.8.0" level="project" />
     <orderEntry type="library" name="com.google.firebase:firebase-storage-common-license-11.8.0" level="project" />

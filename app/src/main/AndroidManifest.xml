@@ -21,7 +21,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name=".utilities.OfflineUtils">
+
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id"
@@ -31,6 +33,7 @@
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name" />
+
         <activity
             android:name="com.facebook.CustomTabActivity"
             android:exported="true">
@@ -83,7 +86,7 @@
             android:label="All users"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".chat.UserDetailsActivity"
+            android:name=".chat.AllUsersDetailsActivity"
             android:label="User Details"
             android:windowSoftInputMode="stateHidden" />
         <activity

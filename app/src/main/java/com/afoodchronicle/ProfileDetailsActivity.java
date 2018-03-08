@@ -37,6 +37,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -129,6 +131,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         // Firebase Database
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.keepSynced(true);
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
         // [START initialize_auth]
@@ -140,67 +143,106 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).exists()) {
                     profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
-                    Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).into(profileImage,
-                                new ImageLoadedCallback(finalProgressBar) {
-                                    @Override
-                                    public void onSuccess() {
-                                        if (this.progressBar != null) {
-                                            this.progressBar.setVisibility(View.GONE);
-                                        }
-                                    }
-                                });
+                    Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
+                            .into(profileImage, new Callback() {
+                                @Override
+                                public void onSuccess()
+                                {
+
+                                }
+
+                                @Override
+                                public void onError()
+                                {
+                                    Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).into(profileImage,
+                                            new ImageLoadedCallback(finalProgressBar)
+                                            {
+                                                @Override
+                                                public void onSuccess()
+                                                {
+                                                    if (this.progressBar != null)
+                                                    {
+                                                        this.progressBar.setVisibility(View.GONE);
+                                                    }
+                                                }
+                                            });
+                                }
+                            });
                 }
                 else
                     {
                         if (FacebookUtils.isLoggedIn())
                         {
                          profileImageLink= Utils.getPreferences(FACEBOOK_PROFILE_PIC, ProfileDetailsActivity.this);
-                            Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).into(profileImage,
-                                    new ImageLoadedCallback(finalProgressBar) {
+                            Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
+                                    .into(profileImage, new Callback()
+                                    {
                                         @Override
-                                        public void onSuccess() {
-                                            if (this.progressBar != null) {
-                                                this.progressBar.setVisibility(View.GONE);
-                                            }
+                                        public void onSuccess()
+                                        {
+                                        }
+
+                                        @Override
+                                        public void onError() {
+                                            Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).into(profileImage,
+                                                    new ImageLoadedCallback(finalProgressBar)
+                                                    {
+                                                        @Override
+                                                        public void onSuccess()
+                                                        {
+                                                            if (this.progressBar != null)
+                                                            {
+                                                                this.progressBar.setVisibility(View.GONE);
+                                                            }
+                                                        }
+                                                    });
                                         }
                                     });
                         }
-
                         else
                         {
                             profileImageLink = Utils.getPreferences(EMAIL_PROFILE_PIC, ProfileDetailsActivity.this);
                             if (profileImageLink.equals(""))
                             {
-                                Picasso.with(ProfileDetailsActivity.this).load(R.drawable.default_profile).into(profileImage,
-                                        new ImageLoadedCallback(finalProgressBar) {
-                                            @Override
-                                            public void onSuccess() {
-                                                if (this.progressBar != null) {
-                                                    this.progressBar.setVisibility(View.GONE);
-                                                }
-                                            }
-                                        });
+                                Picasso.with(ProfileDetailsActivity.this).load(R.drawable.default_profile).into(profileImage);
+
                             }
                             else
                             {
-                                Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).into(profileImage,
-                                        new ImageLoadedCallback(finalProgressBar) {
+                                Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
+                                        .into(profileImage, new Callback()
+                                        {
                                             @Override
-                                            public void onSuccess() {
-                                                if (this.progressBar != null) {
-                                                    this.progressBar.setVisibility(View.GONE);
-                                                }
+                                            public void onSuccess()
+                                            {
+
+                                            }
+
+                                            @Override
+                                            public void onError()
+                                            {
+                                                Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).into(profileImage,
+                                                        new ImageLoadedCallback(finalProgressBar)
+                                                        {
+                                                            @Override
+                                                            public void onSuccess()
+                                                            {
+                                                                if (this.progressBar != null)
+                                                                {
+                                                                    this.progressBar.setVisibility(View.GONE);
+                                                                }
+                                                            }
+                                                        });
                                             }
                                         });
                             }
                         }
-
-
                     }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(DatabaseError databaseError)
+            {
 
             }
         });
@@ -216,20 +258,24 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                if (user != null) {
-                    if (FacebookUtils.isLoggedIn()) {
+                if (user != null)
+                {
+                    if (FacebookUtils.isLoggedIn())
+                        {
                         fullName.setText(Utils.getPreferences(FACEBOOK_FIRST_NAME,ProfileDetailsActivity.this)
                                 + " "
                                 + Utils.getPreferences(FACEBOOK_LAST_NAME,
                                 ProfileDetailsActivity.this));
                         //Email
 
-                    } else {
+                        }
+                    else
+                        {
                         fullName.setText(Utils.getPreferences(EMAIL_FIRST_NAME,ProfileDetailsActivity.this)
                                 + " "
                                 + Utils.getPreferences(EMAIL_LAST_NAME,
                                 ProfileDetailsActivity.this));
-                                           }
+                        }
                 }
                else
                 {
@@ -243,10 +289,12 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         };
 
     }
-    private void setBirthday(){
+    private void setBirthday()
+    {
         final Calendar myCalendar = Calendar.getInstance();
 
-        final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+        final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener()
+        {
 
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
@@ -285,7 +333,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         });
     }
 
-    private void saveDetails() {
+    private void saveDetails()
+    {
 
         validateForm();
 
@@ -305,7 +354,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         }
     }
 
-    private void writeInfoToDatabaseFacebook(String birthday, String description) {
+    private void writeInfoToDatabaseFacebook(String birthday, String description)
+    {
         String firstName = Utils.getPreferences(FACEBOOK_FIRST_NAME, ProfileDetailsActivity.this);
         String lastName = Utils.getPreferences(FACEBOOK_LAST_NAME, ProfileDetailsActivity.this);
         String photoUrl = Utils.getPreferences(FACEBOOK_PROFILE_PIC, ProfileDetailsActivity.this);
@@ -317,7 +367,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         mDatabase.child(USERS).child(mAuth.getUid()).setValue(user);
     }
 
-    private void writeInfoToDatabaseEmail(String birthday, String description) {
+    private void writeInfoToDatabaseEmail(String birthday, String description)
+    {
         String firstName = Utils.getPreferences(EMAIL_FIRST_NAME, ProfileDetailsActivity.this);
         String lastName = Utils.getPreferences(EMAIL_LAST_NAME, ProfileDetailsActivity.this);
         String photoUrl = Utils.getPreferences(EMAIL_PROFILE_PIC, ProfileDetailsActivity.this);
@@ -329,14 +380,17 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         mDatabase.child(USERS).child(mAuth.getUid()).setValue(user);
     }
 
-    public void writePhotoToPreferencesFacebook(String photoUrl) {
+    public void writePhotoToPreferencesFacebook(String photoUrl)
+    {
         Utils.setPreferences(FACEBOOK_PROFILE_PIC, photoUrl, ProfileDetailsActivity.this);
     }
 
-    public void writePhotoToDatabaseEmail(String photoUrl) {
+    public void writePhotoToDatabaseEmail(String photoUrl)
+    {
         Utils.setPreferences(EMAIL_PROFILE_PIC, photoUrl, ProfileDetailsActivity.this);
     }
-    private void chooseImage() {
+    private void chooseImage()
+    {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -344,9 +398,11 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-                && data != null && data.getData() != null ) {
+                && data != null && data.getData() != null )
+        {
             Uri filePath = data.getData();
 
             CropImage.activity(filePath)
@@ -354,7 +410,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
                     .setAspectRatio(1, 1)
                     .start(this);
         }
-            if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE)
+            {
                 CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
                 if (resultCode == RESULT_OK)
@@ -362,7 +419,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
                 {
                     Uri resultUri = result.getUri();
                     final File thumb_filePathUri = new File(resultUri.getPath());
-                    try {
+                    try
+                      {
 
                             thumb_bitmap = new Compressor(this)
                                     .setMaxWidth(200)
@@ -377,12 +435,12 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
 
                             showProgressDialog();
 
-                        }
+                       }
 
                     catch (IOException e)
-                    {
+                      {
                         e.printStackTrace();
-                    }
+                      }
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
                     final byte[] thumb_byte = byteArrayOutputStream.toByteArray();
@@ -454,7 +512,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
             }
     }
 
-    private boolean validateForm() {
+    private boolean validateForm()
+    {
         boolean valid = true;
 
         String birthday = birthdayEt.getText().toString();
@@ -547,5 +606,4 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
             startActivity(intent);
         }
     }
-//
 }

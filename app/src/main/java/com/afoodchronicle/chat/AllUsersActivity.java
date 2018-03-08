@@ -3,17 +3,23 @@ package com.afoodchronicle.chat;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.afoodchronicle.R;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -44,17 +50,24 @@ public class AllUsersActivity extends AppCompatActivity {
     protected void onStart(){
         super.onStart();
 
-        FirebaseRecyclerAdapter<User, AllUsersViewHolder> firebaseRecyclerAdapter
-                = new FirebaseRecyclerAdapter<User, AllUsersViewHolder>
-                (
-                        User.class,
-                        R.layout.all_users_display_layout,
-                        AllUsersViewHolder.class,
-                        allDatabaseUsersReference
+        FirebaseRecyclerOptions<User> options =
+                new FirebaseRecyclerOptions.Builder<User>()
+                        .setQuery(allDatabaseUsersReference, User.class)
+                        .build();
 
-                ) {
+        FirebaseRecyclerAdapter adapter = new FirebaseRecyclerAdapter<User, AllUsersViewHolder> (options)
+            {
+            @NonNull
             @Override
-            protected void populateViewHolder(AllUsersViewHolder viewHolder, User model, final int position)
+            public AllUsersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.all_users_display_layout, parent, false);
+
+                return new AllUsersViewHolder (view);
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull final AllUsersViewHolder viewHolder, int position, @NonNull User model)
             {
                 viewHolder.setUser_name(model.getFirstName()+ " " + model.getLastName());
                 viewHolder.setUser_description(model.getDescription());
@@ -65,15 +78,16 @@ public class AllUsersActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v)
                     {
-                        String visitUserId = getRef(position).getKey();
-                        Intent userDetailsIntent = new Intent (AllUsersActivity.this, UserDetailsActivity.class);
+                        String visitUserId = getRef(viewHolder.getAdapterPosition()).getKey();
+                        Intent userDetailsIntent = new Intent (AllUsersActivity.this, AllUsersDetailsActivity.class);
                         userDetailsIntent.putExtra(VISIT_USER_ID, visitUserId);
                         startActivity(userDetailsIntent);
                     }
                 });
             }
         };
-        allUsersList.setAdapter(firebaseRecyclerAdapter);
+        allUsersList.setAdapter(adapter);
+        adapter.startListening();
     }
 
     private static class AllUsersViewHolder extends RecyclerView.ViewHolder{
@@ -81,31 +95,43 @@ public class AllUsersActivity extends AppCompatActivity {
         private View mView;
         private TextView name;
         private TextView description;
-        private CircleImageView image;
+
         private TextView age;
 
-        public AllUsersViewHolder(View itemView) {
+        AllUsersViewHolder(View itemView) {
             super(itemView);
             mView = itemView;
         }
-        public void setUser_name(String user_name)
+        void setUser_name(String user_name)
         {
             name = mView.findViewById(R.id.all_users_username);
             name.setText(user_name);
         }
-        public void setUser_description(String user_description)
+        void setUser_description(String user_description)
         {
             description = mView.findViewById(R.id.all_users_description);
             description.setText(user_description);
         }
 
-        public void setUser_thumbImage(Context context, String user_thumb_image)
+        void setUser_thumbImage(final Context context, final String user_thumb_image)
         {
-            image = mView.findViewById(R.id.all_users_profile_image);
-            Picasso.with(context).load(user_thumb_image).into(image);
+            final CircleImageView image = mView.findViewById(R.id.all_users_profile_image);
+           //
+            Picasso.with(context).load(user_thumb_image).networkPolicy(NetworkPolicy.OFFLINE).into(image, new Callback() {
+                @Override
+                public void onSuccess() {
+
+                }
+
+                @Override
+                public void onError()
+                {
+                    Picasso.with(context).load(user_thumb_image).into(image);
+                }
+            });
 
         }
-        public void setUser_age(String user_age)
+        void setUser_age(String user_age)
         {
             age = mView.findViewById(R.id.all_users_age);
             age.setText(user_age);

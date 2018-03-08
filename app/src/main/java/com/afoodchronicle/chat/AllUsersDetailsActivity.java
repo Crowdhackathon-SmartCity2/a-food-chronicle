@@ -46,7 +46,7 @@ import static com.afoodchronicle.utilities.Static.USERS;
 import static com.afoodchronicle.utilities.Static.VISIT_USER_ID;
 
 
-public class UserDetailsActivity extends AppCompatActivity implements View.OnClickListener{
+public class AllUsersDetailsActivity extends AppCompatActivity implements View.OnClickListener{
 
     private TextView profileName;
     private TextView profileDescription;
@@ -60,35 +60,50 @@ public class UserDetailsActivity extends AppCompatActivity implements View.OnCli
     private String photoUrl;
     private String CURRENT_STATE;
     private DatabaseReference FriendRequestReference;
-    private FirebaseAuth mAuth;
     String sender_user_id;
     String receiver_user_id;
     Button sendFriendRequestBtn;
     private DatabaseReference FriendsReference;
+    private DatabaseReference userReference;
+    Button declineFriendRequestBtn;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_user_details);
+        setContentView(R.layout.activity_chat_all_users_details);
 
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         receiver_user_id = getIntent().getExtras().get(VISIT_USER_ID).toString();
         sender_user_id = mAuth.getCurrentUser().getUid();
-        DatabaseReference userReference = FirebaseDatabase.getInstance().getReference().child(USERS).child(receiver_user_id);
+        userReference = FirebaseDatabase.getInstance().getReference().child(USERS).child(receiver_user_id);
+        userReference.keepSynced(true);
         FriendRequestReference = FirebaseDatabase.getInstance().getReference().child(FRIEND_REQUEST);
         FriendsReference = FirebaseDatabase.getInstance().getReference().child(FRIENDS);
 
         CURRENT_STATE = NOT_FRIENDS;
 
+        sendFriendRequestBtn = findViewById(R.id.profile_visit_user_friend_request);
+        declineFriendRequestBtn = findViewById(R.id.profile_visit_user_decline_request);
+        declineFriendRequestBtn.setVisibility(View.GONE);
+        declineFriendRequestBtn.setEnabled(false);
 
-        findViewById(R.id.profile_visit_user_friend_request).setOnClickListener(this);
+
+        if(!sender_user_id.equals(receiver_user_id))
+        {
+            findViewById(R.id.profile_visit_user_friend_request).setOnClickListener(this);
+        }
+        else
+        {
+            sendFriendRequestBtn.setVisibility(View.GONE);
+            declineFriendRequestBtn.setVisibility(View.GONE);
+        }
+
         findViewById(R.id.profile_visit_user_decline_request).setOnClickListener(this);
+
         profileName = findViewById(R.id.profile_visit_user_name);
         profileAge = findViewById(R.id.profile_visit_user_age);
         profilePhoto = findViewById(R.id.profile_visit_user_image);
         profileDescription = findViewById(R.id.profile_visit_user_description);
-
-
 
         ProgressBar progressBar = null;
         progressBar = findViewById(R.id.progressBar);
@@ -111,7 +126,7 @@ public class UserDetailsActivity extends AppCompatActivity implements View.OnCli
                 profileName.setText(name);
                 profileAge.setText(age);
                 profileDescription.setText(description);
-                    Picasso.with(UserDetailsActivity.this).load(photoUrl).into(profilePhoto,
+                    Picasso.with(AllUsersDetailsActivity.this).load(photoUrl).into(profilePhoto,
                             new ImageLoadedCallback(finalProgressBar1) {
                                 @Override
                                 public void onSuccess() {
@@ -124,26 +139,64 @@ public class UserDetailsActivity extends AppCompatActivity implements View.OnCli
 
 
                 FriendRequestReference.child(sender_user_id).
-                        addListenerForSingleValueEvent(new ValueEventListener() {
+                        addListenerForSingleValueEvent(new ValueEventListener()
+                        {
                             @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
+                            public void onDataChange(DataSnapshot dataSnapshot)
+                            {
                                 if (dataSnapshot.exists()) {
-                                    if (dataSnapshot.hasChild(receiver_user_id)) {
+                                    if (dataSnapshot.hasChild(receiver_user_id))
+                                    {
                                         String req_type = dataSnapshot.child(receiver_user_id).child(REQUEST_TYPE).getValue().toString();
 
-                                        if (req_type.equals(SENT)) {
+                                        if (req_type.equals(SENT))
+                                        {
                                             CURRENT_STATE = REQUEST_SENT;
                                             sendFriendRequestBtn = findViewById(R.id.profile_visit_user_friend_request);
                                             sendFriendRequestBtn.setText(CANCEL_FRIEND_REQUEST);
 
-                                        } else if (req_type.equals(RECEIVED)) {
+                                            declineFriendRequestBtn.setVisibility(View.GONE);
+                                            declineFriendRequestBtn.setEnabled(false);
+
+                                        } else if (req_type.equals(RECEIVED))
+                                        {
                                             CURRENT_STATE = REQUEST_RECEIVED;
                                             sendFriendRequestBtn = findViewById(R.id.profile_visit_user_friend_request);
                                             sendFriendRequestBtn.setText(ACCEPT_FRIEND_REQUEST);
+
+                                            declineFriendRequestBtn.setVisibility(View.VISIBLE);
+                                            declineFriendRequestBtn.setEnabled(true);
+
                                         }
 
 
                                     }
+                                }
+                                else
+                                {
+                                    FriendsReference.child(sender_user_id)
+                                            .addListenerForSingleValueEvent(new ValueEventListener()
+                                            {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot)
+                                                {
+                                                    if (dataSnapshot.hasChild(receiver_user_id))
+                                                    {
+                                                        CURRENT_STATE = FRIENDS;
+                                                        sendFriendRequestBtn = findViewById(R.id.profile_visit_user_friend_request);
+                                                        sendFriendRequestBtn.setText(UNFRIEND);
+
+                                                        declineFriendRequestBtn.setVisibility(View.GONE);
+                                                        declineFriendRequestBtn.setEnabled(false);
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError)
+                                                {
+
+                                                }
+                                            });
                                 }
                             }
 
@@ -172,25 +225,88 @@ public class UserDetailsActivity extends AppCompatActivity implements View.OnCli
         int i = v.getId();
         if (i == R.id.profile_visit_user_friend_request)
         {
-            sendFriendRequestBtn = findViewById(R.id.profile_visit_user_friend_request);
-            sendFriendRequestBtn.setEnabled(false);
+                sendFriendRequestBtn.setEnabled(false);
 
-            if(CURRENT_STATE.equals(NOT_FRIENDS))
-            {
-                sendFriendRequestToAPerson();
-            }
-            if (CURRENT_STATE.equals(REQUEST_SENT))
-            {
-                cancelFriendRequest();
-            }
-            if (CURRENT_STATE.equals(REQUEST_RECEIVED))
-            {
-                acceptFriendRequest();
-            }
+                if(CURRENT_STATE.equals(NOT_FRIENDS))
+                {
+                    sendFriendRequestToAPerson();
+                }
+                if (CURRENT_STATE.equals(REQUEST_SENT))
+                {
+                    cancelFriendRequest();
+                }
+                if (CURRENT_STATE.equals(REQUEST_RECEIVED))
+                {
+                    acceptFriendRequest();
+                }
+                if (CURRENT_STATE.equals(FRIENDS))
+                {
+                    removeFriend();
+                }
         }
         else if(i == R.id.profile_visit_user_decline_request)
         {
+            declineFriendRequest();
         }
+    }
+
+    private void declineFriendRequest()
+    {
+        FriendRequestReference.child(sender_user_id).child(receiver_user_id).removeValue()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        FriendRequestReference.child(receiver_user_id).child(sender_user_id).removeValue()
+                                .addOnCompleteListener(new OnCompleteListener<Void>()
+                                {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task)
+                                    {
+                                        if(task.isSuccessful())
+                                        {
+                                            sendFriendRequestBtn.setEnabled(true);
+                                            CURRENT_STATE= NOT_FRIENDS;
+                                            sendFriendRequestBtn.setText(SEND_FRIEND_REQUEST);
+
+                                            declineFriendRequestBtn.setVisibility(View.GONE);
+                                            declineFriendRequestBtn.setEnabled(false);
+                                        }
+                                    }
+                                });
+                    }
+                });
+    }
+
+    private void removeFriend()
+    {
+        FriendsReference.child(sender_user_id).child(receiver_user_id).removeValue()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task)
+            {
+                if(task.isSuccessful())
+                {
+                    FriendsReference.child(receiver_user_id).child(sender_user_id).removeValue()
+                            .addOnCompleteListener(new OnCompleteListener<Void>()
+                            {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task)
+                                {
+                                    if(task.isSuccessful())
+                                    {
+                                        sendFriendRequestBtn = findViewById(R.id.profile_visit_user_friend_request);
+                                        sendFriendRequestBtn.setEnabled(true);
+                                        CURRENT_STATE= NOT_FRIENDS;
+                                        sendFriendRequestBtn.setText(SEND_FRIEND_REQUEST);
+
+                                        declineFriendRequestBtn.setVisibility(View.GONE);
+                                        declineFriendRequestBtn.setEnabled(false);
+                                    }
+                                }
+                            });
+                }
+            }
+        });
     }
 
     private void acceptFriendRequest()
@@ -252,6 +368,9 @@ public class UserDetailsActivity extends AppCompatActivity implements View.OnCli
                                             sendFriendRequestBtn.setEnabled(true);
                                             CURRENT_STATE= NOT_FRIENDS;
                                             sendFriendRequestBtn.setText(SEND_FRIEND_REQUEST);
+
+                                            declineFriendRequestBtn.setVisibility(View.GONE);
+                                            declineFriendRequestBtn.setEnabled(false);
                                         }
                                     }
                                 });

@@ -53,6 +53,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.StorageReference;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
@@ -166,6 +168,7 @@ public class MainActivity extends AppCompatActivity
         progressBar = parentView.findViewById(R.id.progressBar);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.keepSynced(true);
         mAuth = FirebaseAuth.getInstance();
         final ProgressBar finalProgressBar = progressBar;
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -178,7 +181,6 @@ public class MainActivity extends AppCompatActivity
                 if (user != null) {
 
                     finalProgressBar.setVisibility(View.VISIBLE);
-                    final ProgressBar finalProgressBar1 = finalProgressBar;
                     ///Facebook
                     if (FacebookUtils.isLoggedIn()) {
 
@@ -191,30 +193,49 @@ public class MainActivity extends AppCompatActivity
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if (dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).exists()) {
                                     profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
-                                    if (!profileImageLink.equals("default_profile")) {
-                                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
-                                                new ImageLoadedCallback(finalProgressBar) {
+                                    Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
+                                                .into(profileImage, new Callback() {
                                                     @Override
                                                     public void onSuccess() {
-                                                        if (this.progressBar != null) {
-                                                            this.progressBar.setVisibility(View.GONE);
+
+                                                    }
+
+                                                    @Override
+                                                    public void onError() {
+                                                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
+                                                        new ImageLoadedCallback(finalProgressBar) {
+                                                             @Override
+                                                             public void onSuccess() {
+                                                                     if (this.progressBar != null) {
+                                                                     this.progressBar.setVisibility(View.GONE);
                                                         }
                                                     }
                                                 });
-
-                                    }
+                                                    }
+                                                });
                                 }
                                 else
                                 {
 
                                         profileImageLink= Utils.getPreferences(FACEBOOK_PROFILE_PIC, MainActivity.this);
-                                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
-                                            new ImageLoadedCallback(finalProgressBar) {
+                                        Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
+                                            .into(profileImage, new Callback() {
                                                 @Override
                                                 public void onSuccess() {
-                                                    if (this.progressBar != null) {
-                                                        this.progressBar.setVisibility(View.GONE);
-                                                    }
+
+                                                }
+
+                                                @Override
+                                                public void onError() {
+                                                    Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
+                                                            new ImageLoadedCallback(finalProgressBar) {
+                                                                @Override
+                                                                public void onSuccess() {
+                                                                    if (this.progressBar != null) {
+                                                                        this.progressBar.setVisibility(View.GONE);
+                                                                    }
+                                                                }
+                                                            });
                                                 }
                                             });
                                 }
@@ -253,43 +274,50 @@ public class MainActivity extends AppCompatActivity
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if (dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).exists()) {
                                     profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
-                                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
-                                                new ImageLoadedCallback(finalProgressBar) {
-                                                    @Override
-                                                    public void onSuccess() {
-                                                        if (this.progressBar != null) {
-                                                            this.progressBar.setVisibility(View.GONE);
-                                                        }
-                                                    }
-                                                });
+                                    Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
+                                            .into(profileImage, new Callback() {
+                                                @Override
+                                                public void onSuccess() {
 
+                                                }
 
-                                }
-                                else
-                                {
+                                                @Override
+                                                public void onError() {
+                                                    Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
+                                                            new ImageLoadedCallback(finalProgressBar) {
+                                                                @Override
+                                                                public void onSuccess() {
+                                                                    if (this.progressBar != null) {
+                                                                        this.progressBar.setVisibility(View.GONE);
+                                                                    }
+                                                                }
+                                                            });
+                                                }
+                                            });
+                                } else {
 
                                     profileImageLink = Utils.getPreferences(EMAIL_PROFILE_PIC, MainActivity.this);
-                                    if (profileImageLink.equals(""))
-                                    {
-                                        Picasso.with(MainActivity.this).load(R.drawable.default_profile).into(profileImage,
-                                                new ImageLoadedCallback(finalProgressBar) {
+                                    if (profileImageLink.equals("")) {
+                                        Picasso.with(MainActivity.this).load(R.drawable.default_profile).into(profileImage);
+                                    } else {
+                                        Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
+                                                .into(profileImage, new Callback() {
                                                     @Override
                                                     public void onSuccess() {
-                                                        if (this.progressBar != null) {
-                                                            this.progressBar.setVisibility(View.GONE);
-                                                        }
+
                                                     }
-                                                });
-                                    }
-                                    else
-                                    {
-                                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
-                                                new ImageLoadedCallback(finalProgressBar) {
+
                                                     @Override
-                                                    public void onSuccess() {
-                                                        if (this.progressBar != null) {
-                                                            this.progressBar.setVisibility(View.GONE);
-                                                        }
+                                                    public void onError() {
+                                                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
+                                                                new ImageLoadedCallback(finalProgressBar) {
+                                                                    @Override
+                                                                    public void onSuccess() {
+                                                                        if (this.progressBar != null) {
+                                                                            this.progressBar.setVisibility(View.GONE);
+                                                                        }
+                                                                    }
+                                                                });
                                                     }
                                                 });
                                     }
@@ -297,8 +325,10 @@ public class MainActivity extends AppCompatActivity
                             }
 
 
+
                             @Override
-                            public void onCancelled(DatabaseError databaseError) {
+                            public void onCancelled(DatabaseError databaseError)
+                            {
 
                             }
                         });
@@ -329,19 +359,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStart() {
+    protected void onStart()
+    {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume()
+    {
         super.onResume();
 
     }
     @Override
-    protected void onStop() {
-        if (mAuthListener != null) {
+    protected void onStop()
+    {
+        if (mAuthListener != null)
+        {
             mAuth.removeAuthStateListener(mAuthListener);
         }
 
@@ -349,31 +383,38 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onBackPressed() {
+    public void onBackPressed()
+    {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
+        if (drawer.isDrawerOpen(GravityCompat.START))
+        {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        }
+        else
+        {
             super.onBackPressed();
         }
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_logout) {
+        if (id == R.id.action_logout)
+        {
 
         }
 
@@ -382,24 +423,31 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(MenuItem item)
+    {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.chat) {
+        if (id == R.id.chat)
+        {
             Intent listIntent = new Intent(MainActivity.this, ChatActivity.class);
 
             startActivity(listIntent);
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_gallery)
+        {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_slideshow)
+        {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_manage)
+        {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_share)
+        {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_send)
+        {
             Intent listIntent = new Intent(MainActivity.this, AllUsersActivity.class);
 
             startActivity(listIntent);
@@ -415,7 +463,8 @@ public class MainActivity extends AppCompatActivity
     ////////   MAPS
 
 
-    public void initializeMaps(){
+    public void initializeMaps()
+    {
 
         sMapFragment = SupportMapFragment.newInstance();
         sMapFragment.getMapAsync(this);
@@ -428,7 +477,8 @@ public class MainActivity extends AppCompatActivity
 
     }
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(GoogleMap googleMap)
+    {
 
         mapReady = true;
 
@@ -451,7 +501,8 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void enableMyLocation() {
+    private void enableMyLocation()
+    {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission to access the location is missing.
@@ -463,7 +514,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void addMarkersToMap() {
+    private void addMarkersToMap()
+    {
 
         String id = null;
 
@@ -506,14 +558,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onMyLocationClick(@NonNull Location location) {
+    public void onMyLocationClick(@NonNull Location location)
+    {
     }
 
     @Override
-    public void onInfoWindowClick(Marker marker) {
+    public void onInfoWindowClick(Marker marker)
+    {
         String m = markerMap.get(marker.getId());
 
-        if (m.equals("yoleni")){
+        if (m.equals("yoleni"))
+        {
             Intent i = new Intent(MainActivity.this, InfoWindowDetails.class);
             i.putExtra(MARKER_NAME,m);
             startActivity(i);
@@ -531,32 +586,40 @@ public class MainActivity extends AppCompatActivity
 
     //// MISC
 
-    public Bitmap resizeBitmap(String drawableName,int width, int height){
+    public Bitmap resizeBitmap(String drawableName,int width, int height)
+    {
         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(drawableName, "drawable", getPackageName()));
         return Bitmap.createScaledBitmap(imageBitmap, width, height, false);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+                                           @NonNull int[] grantResults)
+    {
+        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE)
+        {
             return;
         }
 
         if (PermissionUtils.isPermissionGranted(permissions, grantResults,
-                Manifest.permission.ACCESS_FINE_LOCATION)) {
+                Manifest.permission.ACCESS_FINE_LOCATION))
+        {
             // Enable the my location layer if the permission has been granted.
             enableMyLocation();
-        } else {
+        }
+        else
+        {
             // Display the missing permission error dialog when the fragments resume.
             mPermissionDenied = true;
         }
     }
 
     @Override
-    protected void onResumeFragments() {
+    protected void onResumeFragments()
+    {
         super.onResumeFragments();
-        if (mPermissionDenied) {
+        if (mPermissionDenied)
+        {
             // Permission was not granted, display error dialog.
             showMissingPermissionError();
             mPermissionDenied = false;
@@ -566,7 +629,8 @@ public class MainActivity extends AppCompatActivity
     /**
      * Displays a dialog with error message explaining that the location permission is missing.
      */
-    private void showMissingPermissionError() {
+    private void showMissingPermissionError()
+    {
         PermissionUtils.PermissionDeniedDialog
                 .newInstance(true).show(getSupportFragmentManager(), "dialog");
     }

@@ -59,10 +59,9 @@
         android:id="@+id/profile_visit_user_decline_request"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/profile_visit_user_description"
+        android:layout_below="@+id/profile_visit_user_friend_request"
         android:layout_centerHorizontal="true"
-        android:text="Decline friend request"
-        android:visibility="gone"/>
+        android:text="Decline friend request"/>
 
 
 </RelativeLayout>
