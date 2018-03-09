@@ -25,6 +25,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
+
 import static com.afoodchronicle.utilities.Static.ACCEPT_FRIEND_REQUEST;
 import static com.afoodchronicle.utilities.Static.AGE;
 import static com.afoodchronicle.utilities.Static.CANCEL_FRIEND_REQUEST;
@@ -32,15 +34,19 @@ import static com.afoodchronicle.utilities.Static.DESCRIPTION;
 import static com.afoodchronicle.utilities.Static.FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.FRIENDS;
 import static com.afoodchronicle.utilities.Static.FRIEND_REQUEST;
+import static com.afoodchronicle.utilities.Static.FROM;
 import static com.afoodchronicle.utilities.Static.LAST_NAME;
+import static com.afoodchronicle.utilities.Static.NOTIFICATIONS;
 import static com.afoodchronicle.utilities.Static.NOT_FRIENDS;
 import static com.afoodchronicle.utilities.Static.PHOTO_URL;
 import static com.afoodchronicle.utilities.Static.RECEIVED;
+import static com.afoodchronicle.utilities.Static.REQUEST;
 import static com.afoodchronicle.utilities.Static.REQUEST_RECEIVED;
 import static com.afoodchronicle.utilities.Static.REQUEST_SENT;
 import static com.afoodchronicle.utilities.Static.REQUEST_TYPE;
 import static com.afoodchronicle.utilities.Static.SEND_FRIEND_REQUEST;
 import static com.afoodchronicle.utilities.Static.SENT;
+import static com.afoodchronicle.utilities.Static.TYPE;
 import static com.afoodchronicle.utilities.Static.UNFRIEND;
 import static com.afoodchronicle.utilities.Static.USERS;
 import static com.afoodchronicle.utilities.Static.VISIT_USER_ID;
@@ -59,12 +65,13 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
     private String age;
     private String photoUrl;
     private String CURRENT_STATE;
-    private DatabaseReference FriendRequestReference;
+    private DatabaseReference friendRequestReference;
     String sender_user_id;
     String receiver_user_id;
     Button sendFriendRequestBtn;
-    private DatabaseReference FriendsReference;
+    private DatabaseReference friendsReference;
     private DatabaseReference userReference;
+    private DatabaseReference notificationsReference;
     Button declineFriendRequestBtn;
 
     @Override
@@ -77,8 +84,12 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
         sender_user_id = mAuth.getCurrentUser().getUid();
         userReference = FirebaseDatabase.getInstance().getReference().child(USERS).child(receiver_user_id);
         userReference.keepSynced(true);
-        FriendRequestReference = FirebaseDatabase.getInstance().getReference().child(FRIEND_REQUEST);
-        FriendsReference = FirebaseDatabase.getInstance().getReference().child(FRIENDS);
+        friendRequestReference = FirebaseDatabase.getInstance().getReference().child(FRIEND_REQUEST);
+        friendRequestReference.keepSynced(true);
+        friendsReference = FirebaseDatabase.getInstance().getReference().child(FRIENDS);
+        friendsReference.keepSynced(true);
+        notificationsReference = FirebaseDatabase.getInstance().getReference().child(NOTIFICATIONS);
+        notificationsReference.keepSynced(true);
 
         CURRENT_STATE = NOT_FRIENDS;
 
@@ -138,7 +149,7 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
 
 
 
-                FriendRequestReference.child(sender_user_id).
+                friendRequestReference.child(sender_user_id).
                         addListenerForSingleValueEvent(new ValueEventListener()
                         {
                             @Override
@@ -174,7 +185,7 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
                                 }
                                 else
                                 {
-                                    FriendsReference.child(sender_user_id)
+                                    friendsReference.child(sender_user_id)
                                             .addListenerForSingleValueEvent(new ValueEventListener()
                                             {
                                                 @Override
@@ -229,7 +240,7 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
 
                 if(CURRENT_STATE.equals(NOT_FRIENDS))
                 {
-                    sendFriendRequestToAPerson();
+                    sendFriendRequest();
                 }
                 if (CURRENT_STATE.equals(REQUEST_SENT))
                 {
@@ -252,11 +263,11 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
 
     private void declineFriendRequest()
     {
-        FriendRequestReference.child(sender_user_id).child(receiver_user_id).removeValue()
+        friendRequestReference.child(sender_user_id).child(receiver_user_id).removeValue()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        FriendRequestReference.child(receiver_user_id).child(sender_user_id).removeValue()
+                        friendRequestReference.child(receiver_user_id).child(sender_user_id).removeValue()
                                 .addOnCompleteListener(new OnCompleteListener<Void>()
                                 {
                                     @Override
@@ -279,14 +290,14 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
 
     private void removeFriend()
     {
-        FriendsReference.child(sender_user_id).child(receiver_user_id).removeValue()
+        friendsReference.child(sender_user_id).child(receiver_user_id).removeValue()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task)
             {
                 if(task.isSuccessful())
                 {
-                    FriendsReference.child(receiver_user_id).child(sender_user_id).removeValue()
+                    friendsReference.child(receiver_user_id).child(sender_user_id).removeValue()
                             .addOnCompleteListener(new OnCompleteListener<Void>()
                             {
                                 @Override
@@ -315,21 +326,21 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
         SimpleDateFormat currentDate = new SimpleDateFormat("dd-MM-YYYY");
         final String saveCurrentDate = currentDate.format(cal.getTime());
 
-        FriendsReference.child(sender_user_id).child(receiver_user_id).setValue(saveCurrentDate)
+        friendsReference.child(sender_user_id).child(receiver_user_id).setValue(saveCurrentDate)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid)
                     {
-                        FriendsReference.child(receiver_user_id).child(sender_user_id).setValue(saveCurrentDate)
+                        friendsReference.child(receiver_user_id).child(sender_user_id).setValue(saveCurrentDate)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid)
                                     {
-                                        FriendRequestReference.child(sender_user_id).child(receiver_user_id).removeValue()
+                                        friendRequestReference.child(sender_user_id).child(receiver_user_id).removeValue()
                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
-                                                        FriendRequestReference.child(receiver_user_id).child(sender_user_id).removeValue()
+                                                        friendRequestReference.child(receiver_user_id).child(sender_user_id).removeValue()
                                                                 .addOnCompleteListener(new OnCompleteListener<Void>()
                                                                 {
                                                                     @Override
@@ -340,6 +351,9 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
                                                                             sendFriendRequestBtn.setEnabled(true);
                                                                             CURRENT_STATE= FRIENDS;
                                                                             sendFriendRequestBtn.setText(UNFRIEND);
+
+                                                                            declineFriendRequestBtn.setVisibility(View.GONE);
+                                                                            declineFriendRequestBtn.setEnabled(false);
                                                                         }
                                                                     }
                                                                 });
@@ -353,11 +367,11 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
 
     private void cancelFriendRequest()
     {
-        FriendRequestReference.child(sender_user_id).child(receiver_user_id).removeValue()
+        friendRequestReference.child(sender_user_id).child(receiver_user_id).removeValue()
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        FriendRequestReference.child(receiver_user_id).child(sender_user_id).removeValue()
+                        friendRequestReference.child(receiver_user_id).child(sender_user_id).removeValue()
                                 .addOnCompleteListener(new OnCompleteListener<Void>()
                                 {
                                     @Override
@@ -378,25 +392,43 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
                 });
     }
 
-    private void sendFriendRequestToAPerson()
+    private void sendFriendRequest()
     {
-        FriendRequestReference.child(sender_user_id).child(receiver_user_id).child(REQUEST_TYPE).setValue(SENT)
+        friendRequestReference.child(sender_user_id).child(receiver_user_id).child(REQUEST_TYPE).setValue(SENT)
         .addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task)
             {
             if (task.isSuccessful())
              {
-                FriendRequestReference.child(receiver_user_id).child(sender_user_id).child(REQUEST_TYPE).setValue(RECEIVED)
+                friendRequestReference.child(receiver_user_id).child(sender_user_id).child(REQUEST_TYPE).setValue(RECEIVED)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task)
                             {
                                 if(task.isSuccessful())
                                 {
-                                    sendFriendRequestBtn.setEnabled(true);
-                                    CURRENT_STATE = REQUEST_SENT;
-                                    sendFriendRequestBtn.setText(CANCEL_FRIEND_REQUEST);
+                                    HashMap <String, String> notificationsData = new HashMap <>();
+                                    notificationsData.put(FROM, sender_user_id);
+                                    notificationsData.put(TYPE, REQUEST);
+
+                                    notificationsReference.child(receiver_user_id).push().setValue(notificationsData)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>()
+                                            {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task)
+                                                {
+                                                    if(task.isSuccessful())
+                                                    {
+                                                        sendFriendRequestBtn.setEnabled(true);
+                                                        CURRENT_STATE = REQUEST_SENT;
+                                                        sendFriendRequestBtn.setText(CANCEL_FRIEND_REQUEST);
+
+                                                        declineFriendRequestBtn.setVisibility(View.GONE);
+                                                        declineFriendRequestBtn.setEnabled(false);
+                                                    }
+                                                }
+                                            });
                                 }
                             }
                         });

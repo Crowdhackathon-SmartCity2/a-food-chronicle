@@ -11,9 +11,10 @@ public class User {
     private String text;
     private String age;
     private String thumbPhotoUrl;
+    private String deviceToken;
 
 
-    public User(String firstName, String lastName, String photoUrl, String thumbPhotoUrl, String birthday, String description, String age) {
+    public User(String firstName, String lastName, String photoUrl, String thumbPhotoUrl, String birthday, String description, String age, String deviceToken) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.photoUrl = photoUrl;
@@ -21,9 +22,18 @@ public class User {
         this.description = description;
         this.age = age;
         this.thumbPhotoUrl = thumbPhotoUrl;
+        this.deviceToken = deviceToken;
     }
 
     public User() {
+    }
+
+    public String getDeviceToken() {
+        return deviceToken;
+    }
+
+    public void setDeviceToken(String deviceToken) {
+        this.deviceToken = deviceToken;
     }
 
     public String getThumbPhotoUrl() {

@@ -24,6 +24,13 @@
         android:theme="@style/AppTheme"
         android:name=".utilities.OfflineUtils">
 
+        <service
+            android:name=".chat.FirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id"

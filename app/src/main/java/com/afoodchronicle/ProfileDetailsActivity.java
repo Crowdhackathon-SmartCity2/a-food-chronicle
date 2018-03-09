@@ -53,6 +53,7 @@ import id.zelory.compressor.Compressor;
 import static com.afoodchronicle.utilities.Static.EMAIL_AGE;
 import static com.afoodchronicle.utilities.Static.EMAIL_BIRTHDAY;
 import static com.afoodchronicle.utilities.Static.EMAIL_DESCRIPTION;
+import static com.afoodchronicle.utilities.Static.EMAIL_DEVICE_TOKEN;
 import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.EMAIL_LAST_NAME;
 import static com.afoodchronicle.utilities.Static.EMAIL_PROFILE_PIC;
@@ -60,6 +61,7 @@ import static com.afoodchronicle.utilities.Static.EMAIL_THUMB_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_AGE;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_BIRTHDAY;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_DESCRIPTION;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_DEVICE_TOKEN;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_LAST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
@@ -361,9 +363,10 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         String photoUrl = Utils.getPreferences(FACEBOOK_PROFILE_PIC, ProfileDetailsActivity.this);
         String thumbPhotoUrl = Utils.getPreferences(FACEBOOK_THUMB_PROFILE_PIC, ProfileDetailsActivity.this);
         String age = Utils.getPreferences(FACEBOOK_AGE, ProfileDetailsActivity.this);
+        String deviceToken = Utils.getPreferences(FACEBOOK_DEVICE_TOKEN, ProfileDetailsActivity.this);
         Utils.setPreferences(FACEBOOK_BIRTHDAY, birthday, ProfileDetailsActivity.this);
         Utils.setPreferences(FACEBOOK_DESCRIPTION, description, ProfileDetailsActivity.this);
-        User user = new User(firstName,lastName, photoUrl, thumbPhotoUrl, birthday, description, age);
+        User user = new User(firstName,lastName, photoUrl, thumbPhotoUrl, birthday, description, age, deviceToken);
         mDatabase.child(USERS).child(mAuth.getUid()).setValue(user);
     }
 
@@ -373,10 +376,11 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         String lastName = Utils.getPreferences(EMAIL_LAST_NAME, ProfileDetailsActivity.this);
         String photoUrl = Utils.getPreferences(EMAIL_PROFILE_PIC, ProfileDetailsActivity.this);
         String thumbPhotoUrl = Utils.getPreferences(EMAIL_THUMB_PROFILE_PIC, ProfileDetailsActivity.this);
+        String deviceToken = Utils.getPreferences(EMAIL_DEVICE_TOKEN, ProfileDetailsActivity.this);
         String age = Utils.getPreferences(EMAIL_AGE, ProfileDetailsActivity.this);
         Utils.setPreferences(EMAIL_BIRTHDAY, birthday, ProfileDetailsActivity.this);
         Utils.setPreferences(EMAIL_DESCRIPTION, description, ProfileDetailsActivity.this);
-        User user = new User(firstName,lastName, photoUrl, thumbPhotoUrl, birthday, description, age);
+        User user = new User(firstName,lastName, photoUrl, thumbPhotoUrl, birthday, description, age, deviceToken);
         mDatabase.child(USERS).child(mAuth.getUid()).setValue(user);
     }
 

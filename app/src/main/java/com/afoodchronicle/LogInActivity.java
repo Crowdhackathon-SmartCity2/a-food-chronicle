@@ -15,6 +15,7 @@ import com.afoodchronicle.utilities.Utils;
 import com.facebook.CallbackManager;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.AuthResult;
@@ -27,7 +28,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
+import static com.afoodchronicle.utilities.Static.DEVICE_TOKEN;
+import static com.afoodchronicle.utilities.Static.EMAIL_DEVICE_TOKEN;
 import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.EMAIL_LAST_NAME;
 import static com.afoodchronicle.utilities.Static.EMAIL_PROFILE_PIC;
@@ -59,9 +63,8 @@ public class LogInActivity extends FacebookUtils implements
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private DatabaseReference getFirstNameDatabaseReference;
-    private DatabaseReference getLastNameDatabaseReference;
     private DatabaseReference getNameFromDatabaseReference;
+    private DatabaseReference userReference;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,6 +85,7 @@ public class LogInActivity extends FacebookUtils implements
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
         mAuthFacebook = LoginManager.getInstance();
+        userReference = FirebaseDatabase.getInstance().getReference().child(USERS);
 
         // [END initialize_auth]
 
@@ -140,16 +144,20 @@ public class LogInActivity extends FacebookUtils implements
 
         // [START sign_in_with_email]
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
+                {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task)
                     {
-                        Log.d(LOG_TAG, " Verification : signIn With Email:onComplete:" + task.isSuccessful());
-                        //  If sign in succeeds i.e if task.isSuccessful(); returns true then the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        // If sign in fails, display a message to the user.
-                        downloadUserDataFromDatabaseToPreferences(mAuth.getUid());
-                        if (!task.isSuccessful()) {
+                        if(task.isSuccessful())
+                        {
+                            downloadUserDataFromDatabaseToPreferences(mAuth.getUid());
+                            String deviceToken = FirebaseInstanceId.getInstance().getToken();
+                            Utils.setPreferences(EMAIL_DEVICE_TOKEN, deviceToken, LogInActivity.this);
+
+                        }
+                        else
+                        {
                             try {
                                 throw task.getException();
                             } catch (FirebaseAuthInvalidUserException e) {

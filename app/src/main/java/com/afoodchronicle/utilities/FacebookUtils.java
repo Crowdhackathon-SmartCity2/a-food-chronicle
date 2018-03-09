@@ -33,7 +33,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
+import static com.afoodchronicle.utilities.Static.DEVICE_TOKEN;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_DEVICE_TOKEN;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_LAST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
@@ -141,6 +144,8 @@ public class FacebookUtils extends AppCompatActivity {
                         }
                         else{
 
+                            String deviceToken = FirebaseInstanceId.getInstance().getToken();
+                            Utils.setPreferences(FACEBOOK_DEVICE_TOKEN, deviceToken, parentActivity);
                             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(parentActivity);
                             if (!prefs.getBoolean("firstTime", false)) {
                                 Intent facebookIntent = new Intent(parentActivity, ProfileDetailsActivity.class);

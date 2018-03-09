@@ -19,6 +19,8 @@ public class Static {
     public static final String EMAIL_DESCRIPTION = "EMAIL_DESCRIPTION";
     public static final String FACEBOOK_AGE = "FACEBOOK_AGE";
     public static final String EMAIL_AGE = "EMAIL_AGE";
+    public static final String EMAIL_DEVICE_TOKEN = "EMAIL_DEVICE_TOKEN";
+    public static final String FACEBOOK_DEVICE_TOKEN = "FACEBOOK_DEVICE_TOKEN";
 
     //Firebase
     public static final String JPG = ".jpg";
@@ -32,6 +34,7 @@ public class Static {
     public static final String PHOTO = "photo";
     public static final String DESCRIPTION = "description";
     public static final String AGE = "age";
+    public static final String DEVICE_TOKEN = "device_token";
 
 
     //Toast
@@ -71,6 +74,11 @@ public class Static {
     public static final String FRIENDS = "friends";
     public static final String UNFRIEND = "Unfriend this person";
     public static final String ACCEPT_FRIEND_REQUEST = "Accept friend request";
+    public static final String NOTIFICATIONS = "notifications";
+    public static final String FROM = "from";
+    public static final String TYPE = "type";
+    public static final String REQUEST = "request";
+
 
     // Images
     public static final int PICK_IMAGE_REQUEST = 71;

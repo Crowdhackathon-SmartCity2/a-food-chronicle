@@ -19,11 +19,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
+import static com.afoodchronicle.utilities.Static.DEVICE_TOKEN;
+import static com.afoodchronicle.utilities.Static.EMAIL_DEVICE_TOKEN;
 import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.EMAIL_LAST_NAME;
 import static com.afoodchronicle.utilities.Static.PASSWORD_DONT_MATCH;
 import static com.afoodchronicle.utilities.Static.REQUIRED;
+import static com.afoodchronicle.utilities.Static.USERS;
 
 public class CreateUserActivity extends FacebookUtils implements View.OnClickListener {
 
@@ -37,6 +41,7 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
     private EditText mFirstName;
     private EditText mLastName;
     private DatabaseReference mDatabase;
+    private DatabaseReference userReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +61,7 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
 
         mAuthFacebook = LoginManager.getInstance();
         mAuth = FirebaseAuth.getInstance();
+        userReference = FirebaseDatabase.getInstance().getReference().child(USERS);
 
         initializeFacebookLogin(CreateUserActivity.this);
 
@@ -88,7 +94,8 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
 
                         if (task.isSuccessful())
                         {
-                            Log.d(TAG, "createUserWithEmail:success");
+                            String deviceToken = FirebaseInstanceId.getInstance().getToken();
+                            Utils.setPreferences(EMAIL_DEVICE_TOKEN, deviceToken, CreateUserActivity.this);
                             FirebaseUser user = mAuth.getCurrentUser();
                             updateUI(user);
                         }
