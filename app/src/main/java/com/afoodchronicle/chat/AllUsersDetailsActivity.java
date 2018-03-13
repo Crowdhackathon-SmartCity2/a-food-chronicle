@@ -30,6 +30,7 @@ import java.util.HashMap;
 import static com.afoodchronicle.utilities.Static.ACCEPT_FRIEND_REQUEST;
 import static com.afoodchronicle.utilities.Static.AGE;
 import static com.afoodchronicle.utilities.Static.CANCEL_FRIEND_REQUEST;
+import static com.afoodchronicle.utilities.Static.DATE;
 import static com.afoodchronicle.utilities.Static.DESCRIPTION;
 import static com.afoodchronicle.utilities.Static.FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.FRIENDS;
@@ -155,7 +156,6 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot)
                             {
-                                if (dataSnapshot.exists()) {
                                     if (dataSnapshot.hasChild(receiver_user_id))
                                     {
                                         String req_type = dataSnapshot.child(receiver_user_id).child(REQUEST_TYPE).getValue().toString();
@@ -182,9 +182,9 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
 
 
                                     }
-                                }
-                                else
-                                {
+
+                                    else
+                                    {
                                     friendsReference.child(sender_user_id)
                                             .addListenerForSingleValueEvent(new ValueEventListener()
                                             {
@@ -208,7 +208,7 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
 
                                                 }
                                             });
-                                }
+                                    }
                             }
 
                             @Override
@@ -326,12 +326,12 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
         SimpleDateFormat currentDate = new SimpleDateFormat("dd-MM-YYYY");
         final String saveCurrentDate = currentDate.format(cal.getTime());
 
-        friendsReference.child(sender_user_id).child(receiver_user_id).setValue(saveCurrentDate)
+        friendsReference.child(sender_user_id).child(receiver_user_id).child(DATE).setValue(saveCurrentDate)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid)
                     {
-                        friendsReference.child(receiver_user_id).child(sender_user_id).setValue(saveCurrentDate)
+                        friendsReference.child(receiver_user_id).child(sender_user_id).child(DATE).setValue(saveCurrentDate)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid)

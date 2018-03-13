@@ -35,6 +35,7 @@ import com.afoodchronicle.utilities.FacebookUtils;
 import com.afoodchronicle.utilities.ImageLoadedCallback;
 import com.afoodchronicle.utilities.PermissionUtils;
 import com.afoodchronicle.utilities.Utils;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -69,6 +70,7 @@ import static com.afoodchronicle.utilities.Static.FACEBOOK_LAST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.LOCATION_PERMISSION_REQUEST_CODE;
 import static com.afoodchronicle.utilities.Static.MARKER_NAME;
+import static com.afoodchronicle.utilities.Static.ONLINE;
 import static com.afoodchronicle.utilities.Static.PHOTO_URL;
 import static com.afoodchronicle.utilities.Static.THUMB_PHOTO_URL;
 import static com.afoodchronicle.utilities.Static.USERS;
@@ -109,6 +111,8 @@ public class MainActivity extends AppCompatActivity
     //Firebase
     private DatabaseReference mDatabase;
     private String profileImageLink;
+    private DatabaseReference userReference;
+    private LoginManager mAuthFacebook;
 
 
     @Override
@@ -167,9 +171,10 @@ public class MainActivity extends AppCompatActivity
         ProgressBar progressBar = null;
         progressBar = parentView.findViewById(R.id.progressBar);
 
+        mAuthFacebook = LoginManager.getInstance();
+        mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.keepSynced(true);
-        mAuth = FirebaseAuth.getInstance();
         final ProgressBar finalProgressBar = progressBar;
         mAuthListener = new FirebaseAuth.AuthStateListener() {
 
@@ -178,7 +183,11 @@ public class MainActivity extends AppCompatActivity
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
+
                 if (user != null) {
+                    String online_user_id = user.getUid();
+                    userReference = mDatabase.child(USERS).child(online_user_id);
+                    userReference.child(ONLINE).setValue(true);
 
                     finalProgressBar.setVisibility(View.VISIBLE);
                     ///Facebook
@@ -191,7 +200,7 @@ public class MainActivity extends AppCompatActivity
                         mDatabase.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).exists()) {
+                                if (dataSnapshot.child(USERS).hasChildren() && mAuth.getUid() != null) {
                                     profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
                                     Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
                                                 .into(profileImage, new Callback() {
@@ -216,28 +225,30 @@ public class MainActivity extends AppCompatActivity
                                 }
                                 else
                                 {
-
+                                    if (mAuth.getUid() != null)
+                                    {
                                         profileImageLink= Utils.getPreferences(FACEBOOK_PROFILE_PIC, MainActivity.this);
                                         Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
-                                            .into(profileImage, new Callback() {
-                                                @Override
-                                                public void onSuccess() {
+                                                .into(profileImage, new Callback() {
+                                                    @Override
+                                                    public void onSuccess() {
 
-                                                }
+                                                    }
 
-                                                @Override
-                                                public void onError() {
-                                                    Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
-                                                            new ImageLoadedCallback(finalProgressBar) {
-                                                                @Override
-                                                                public void onSuccess() {
-                                                                    if (this.progressBar != null) {
-                                                                        this.progressBar.setVisibility(View.GONE);
+                                                    @Override
+                                                    public void onError() {
+                                                        Picasso.with(MainActivity.this).load(profileImageLink).into(profileImage,
+                                                                new ImageLoadedCallback(finalProgressBar) {
+                                                                    @Override
+                                                                    public void onSuccess() {
+                                                                        if (this.progressBar != null) {
+                                                                            this.progressBar.setVisibility(View.GONE);
+                                                                        }
                                                                     }
-                                                                }
-                                                            });
-                                                }
-                                            });
+                                                                });
+                                                    }
+                                                });
+                                    }
                                 }
                             }
                             @Override
@@ -272,7 +283,7 @@ public class MainActivity extends AppCompatActivity
                         mDatabase.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).exists()) {
+                                if (dataSnapshot.child(USERS).hasChildren() && mAuth.getUid() != null) {
                                     profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
                                     Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
                                             .into(profileImage, new Callback() {
@@ -374,6 +385,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop()
     {
+        if(mAuth.getUid() != null)
+        {
+            userReference.child(ONLINE).setValue(false);
+        }
         if (mAuthListener != null)
         {
             mAuth.removeAuthStateListener(mAuthListener);
@@ -415,10 +430,27 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout)
         {
-
+         logOutUser();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void logOutUser()
+    {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+
+        if (user != null)
+        {
+//            String online_user_id = user.getUid();
+//            userReference = mDatabase.child(USERS).child(online_user_id);
+            userReference.child(ONLINE).setValue(false);
+            mAuth.signOut();
+            mAuthFacebook.logOut();
+            Utils.setPreferences(EMAIL_PROFILE_PIC, "", MainActivity.this);
+            Utils.setPreferences(FACEBOOK_PROFILE_PIC, "", MainActivity.this);
+        }
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

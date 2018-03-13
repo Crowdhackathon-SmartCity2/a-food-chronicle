@@ -88,16 +88,13 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private LoginManager mAuthFacebook;
-
-
-    //Firebase
     FirebaseStorage storage;
     StorageReference storageReference;
     private DatabaseReference mDatabase;
     private String profileImageLink;
     private Bitmap thumb_bitmap;
     private StorageReference thumbPhotoUrlReference;
-
+    
 
     @Override
     public void onBackPressed() {
@@ -143,7 +140,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).exists()) {
+                if (dataSnapshot.child(USERS).hasChildren() && mAuth.getUid() != null) {
                     profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
                     Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
                             .into(profileImage, new Callback() {

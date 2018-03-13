@@ -95,7 +95,15 @@
         <activity
             android:name=".chat.AllUsersDetailsActivity"
             android:label="User Details"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden">
+
+            <intent-filter>
+                <action android:name ="com.afoodchronicle_TARGET_NOTIFICATION"> </action>
+                <category android:name = "android.intent.category.DEFAULT"></category>
+
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".LogInActivity"
             android:label="Log In"
