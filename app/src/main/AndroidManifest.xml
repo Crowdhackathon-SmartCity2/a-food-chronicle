@@ -85,7 +85,7 @@
             android:label="Profile Details"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".chat.ChatActivity"
+            android:name=".chat.ChatFragmentsListActivity"
             android:label="Chat"
             android:windowSoftInputMode="stateHidden" />
         <activity
@@ -107,6 +107,10 @@
         <activity
             android:name=".LogInActivity"
             android:label="Log In"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".chat.ChatActivity"
+            android:label="Chat"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".CreateUserActivity"

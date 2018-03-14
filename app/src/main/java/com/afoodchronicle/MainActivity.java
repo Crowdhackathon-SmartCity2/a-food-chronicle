@@ -4,11 +4,9 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -30,7 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afoodchronicle.chat.AllUsersActivity;
-import com.afoodchronicle.chat.ChatActivity;
+import com.afoodchronicle.chat.ChatFragmentsListActivity;
 import com.afoodchronicle.utilities.FacebookUtils;
 import com.afoodchronicle.utilities.ImageLoadedCallback;
 import com.afoodchronicle.utilities.PermissionUtils;
@@ -42,7 +40,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -53,13 +50,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
-import java.util.prefs.PreferenceChangeListener;
 
 import static com.afoodchronicle.utilities.Static.ATHENS;
 import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
@@ -71,7 +66,6 @@ import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.LOCATION_PERMISSION_REQUEST_CODE;
 import static com.afoodchronicle.utilities.Static.MARKER_NAME;
 import static com.afoodchronicle.utilities.Static.ONLINE;
-import static com.afoodchronicle.utilities.Static.PHOTO_URL;
 import static com.afoodchronicle.utilities.Static.THUMB_PHOTO_URL;
 import static com.afoodchronicle.utilities.Static.USERS;
 import static com.afoodchronicle.utilities.Static.mPantopoleio;
@@ -200,7 +194,7 @@ public class MainActivity extends AppCompatActivity
                         mDatabase.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.child(USERS).hasChildren() && mAuth.getUid() != null) {
+                                if (dataSnapshot.child(USERS).child(THUMB_PHOTO_URL).exists() && mAuth.getUid() != null) {
                                     profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
                                     Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
                                                 .into(profileImage, new Callback() {
@@ -228,6 +222,13 @@ public class MainActivity extends AppCompatActivity
                                     if (mAuth.getUid() != null)
                                     {
                                         profileImageLink= Utils.getPreferences(FACEBOOK_PROFILE_PIC, MainActivity.this);
+                                        if (profileImageLink.equals(""))
+                                        {
+                                            Picasso.with(MainActivity.this).load(R.drawable.default_profile).into(profileImage);
+
+                                        }
+                                        else
+                                        {
                                         Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
                                                 .into(profileImage, new Callback() {
                                                     @Override
@@ -248,6 +249,7 @@ public class MainActivity extends AppCompatActivity
                                                                 });
                                                     }
                                                 });
+                                        }
                                     }
                                 }
                             }
@@ -283,7 +285,7 @@ public class MainActivity extends AppCompatActivity
                         mDatabase.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.child(USERS).hasChildren() && mAuth.getUid() != null) {
+                                if (dataSnapshot.child(USERS).child(THUMB_PHOTO_URL).exists() && mAuth.getUid() != null) {
                                     profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
                                     Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
                                             .into(profileImage, new Callback() {
@@ -385,6 +387,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop()
     {
+        super.onStop();
         if(mAuth.getUid() != null)
         {
             userReference.child(ONLINE).setValue(false);
@@ -394,7 +397,7 @@ public class MainActivity extends AppCompatActivity
             mAuth.removeAuthStateListener(mAuthListener);
         }
 
-        super.onStop();
+
     }
 
     @Override
@@ -462,7 +465,7 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.chat)
         {
-            Intent listIntent = new Intent(MainActivity.this, ChatActivity.class);
+            Intent listIntent = new Intent(MainActivity.this, ChatFragmentsListActivity.class);
 
             startActivity(listIntent);
             // Handle the camera action

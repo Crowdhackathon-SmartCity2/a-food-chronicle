@@ -1,6 +1,8 @@
 package com.afoodchronicle.chat;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,10 +16,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afoodchronicle.LogInActivity;
 import com.afoodchronicle.R;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,6 +37,7 @@ import static com.afoodchronicle.utilities.Static.AGE;
 import static com.afoodchronicle.utilities.Static.FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.FRIENDS;
 import static com.afoodchronicle.utilities.Static.FRIENDS_SINCE;
+import static com.afoodchronicle.utilities.Static.FULL_NAME;
 import static com.afoodchronicle.utilities.Static.LAST_NAME;
 import static com.afoodchronicle.utilities.Static.ONLINE;
 import static com.afoodchronicle.utilities.Static.THUMB_PHOTO_URL;
@@ -97,15 +102,15 @@ public class FriendsFragment extends Fragment {
             {
                viewHolder.setFriend_date(FRIENDS_SINCE + model.getDate());
 
-               String list_user_id = getRef(position).getKey();
+               final String list_user_id = getRef(position).getKey();
 
                userReference.child(list_user_id).addValueEventListener(new ValueEventListener()
                {
                    @Override
                    public void onDataChange(DataSnapshot dataSnapshot)
                    {
-                       String fName =dataSnapshot.child(FIRST_NAME).getValue().toString();
-                       String lName =dataSnapshot.child(LAST_NAME).getValue().toString();
+                       final String fName =dataSnapshot.child(FIRST_NAME).getValue().toString();
+                       final String lName =dataSnapshot.child(LAST_NAME).getValue().toString();
                        String thumbImage =dataSnapshot.child(THUMB_PHOTO_URL).getValue().toString();
                        String age =dataSnapshot.child(AGE).getValue().toString();
                        if(dataSnapshot.hasChild(ONLINE))
@@ -117,6 +122,52 @@ public class FriendsFragment extends Fragment {
                        viewHolder.setFriend_age(age);
                        viewHolder.setFriend_name(fName + " " + lName);
                        viewHolder.setFriend_thumbImage(thumbImage, getContext());
+
+                       viewHolder.mView.setOnClickListener(new View.OnClickListener()
+                       {
+                           @Override
+                           public void onClick(View v)
+                           {
+                               AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                               builder.setTitle("Choose an action");
+
+                               // add the buttons
+                               builder.setPositiveButton(fName + "'s Profile" , new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialog, int which) {
+
+                                       Intent profileIntent = new Intent(getContext(), AllUsersDetailsActivity.class);
+                                       profileIntent.putExtra(VISIT_USER_ID, list_user_id);
+                                       startActivity(profileIntent);
+
+                                   }
+                               });
+                               builder.setNeutralButton("Send message", new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialog, int which) {
+
+                                       Intent chatIntent = new Intent(getContext(), ChatActivity.class);
+                                       chatIntent.putExtra(VISIT_USER_ID, list_user_id);
+                                       chatIntent.putExtra(FULL_NAME, fName + " " + lName);
+                                       startActivity(chatIntent);
+
+                                   }
+                               });
+                               builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                   @Override
+                                   public void onClick(DialogInterface dialog, int which) {
+
+                                       // do something like...
+
+                                   }
+                               });
+
+                               // create and show the alert dialog
+                               AlertDialog dialog = builder.create();
+                               dialog.show();
+
+                           }
+                       });
                    }
 
                    @Override
@@ -128,6 +179,12 @@ public class FriendsFragment extends Fragment {
         };
         myFriendsList.setAdapter(adapter);
         adapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event

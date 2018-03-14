@@ -140,7 +140,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child(USERS).hasChildren() && mAuth.getUid() != null) {
+                if (dataSnapshot.child(USERS).child(THUMB_PHOTO_URL).exists() && mAuth.getUid() != null) {
                     profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
                     Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
                             .into(profileImage, new Callback() {

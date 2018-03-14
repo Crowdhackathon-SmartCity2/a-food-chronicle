@@ -82,6 +82,7 @@ public class Static {
     public static final String REQUEST = "request";
     public static final String DATE = "date";
     public static final String FRIENDS_SINCE = "Friends since: ";
+    public static final String FULL_NAME = "full_name";
 
 
 
