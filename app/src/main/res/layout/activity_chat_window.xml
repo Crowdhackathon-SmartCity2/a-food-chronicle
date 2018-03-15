@@ -5,24 +5,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:fitsSystemWindows="true"
     android:id="@+id/activity_chat_window">
 
-    <include layout="@layout/chat_custom_bar">
+
+    <include layout="@layout/chat_custom_bar"
+        >
 
     </include>
-    <ListView
-        android:id="@+id/messageListView"
+
+<LinearLayout
+    android:layout_marginTop="?attr/actionBarSize"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/linearLayout"
-        android:stackFromBottom="true"
-        android:divider="@android:color/transparent"
-        android:transcriptMode="alwaysScroll"
-        tools:listitem="@layout/item_message"/>
+        android:layout_alignParentTop="true"
+        android:id="@+id/recycler_view_messages"
+        android:layout_weight="1"/>
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -30,38 +35,37 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_weight="0.1"
+        >
 
 
-        <ImageView
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="0.10"
-            app:srcCompat="@drawable/add_photo" />
+            app:srcCompat="@drawable/add_photo"
+            android:id="@+id/add_photo"/>
 
         <EditText
-            android:id="@+id/messageEditText"
+            android:id="@+id/messageEt"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:imeOptions="actionSend"/>
 
-        <Button
-            android:id="@+id/sendButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:enabled="false"
-            android:text="@string/send_button_label"/>
+        <ImageButton
+            android:id="@+id/send_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.30"
+            android:text="@string/send_button_label"
+            android:src="@drawable/ic_menu_send"/>
 
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"/>
+
+</LinearLayout>
+
 </RelativeLayout>

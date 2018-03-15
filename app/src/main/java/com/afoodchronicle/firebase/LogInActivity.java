@@ -1,4 +1,4 @@
-package com.afoodchronicle;
+package com.afoodchronicle.firebase;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,12 +10,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afoodchronicle.MainActivity;
+import com.afoodchronicle.R;
 import com.afoodchronicle.utilities.FacebookUtils;
 import com.afoodchronicle.utilities.Utils;
 import com.facebook.CallbackManager;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.AuthResult;
@@ -30,7 +31,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
-import static com.afoodchronicle.utilities.Static.DEVICE_TOKEN;
 import static com.afoodchronicle.utilities.Static.EMAIL_DEVICE_TOKEN;
 import static com.afoodchronicle.utilities.Static.EMAIL_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.EMAIL_LAST_NAME;
@@ -38,7 +38,6 @@ import static com.afoodchronicle.utilities.Static.EMAIL_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.LAST_NAME;
 import static com.afoodchronicle.utilities.Static.PHOTO;
-import static com.afoodchronicle.utilities.Static.PHOTO_URL;
 import static com.afoodchronicle.utilities.Static.USERS;
 
 public class LogInActivity extends FacebookUtils implements

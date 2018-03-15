@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.afoodchronicle.R;
+import com.afoodchronicle.firebase.FirebaseUser;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,7 +24,6 @@ import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import com.afoodchronicle.User;
 
 import static com.afoodchronicle.utilities.Static.USERS;
 import static com.afoodchronicle.utilities.Static.VISIT_USER_ID;
@@ -50,12 +50,12 @@ public class AllUsersActivity extends AppCompatActivity {
     protected void onStart(){
         super.onStart();
 
-        FirebaseRecyclerOptions<User> options =
-                new FirebaseRecyclerOptions.Builder<User>()
-                        .setQuery(allDatabaseUsersReference, User.class)
+        FirebaseRecyclerOptions<FirebaseUser> options =
+                new FirebaseRecyclerOptions.Builder<FirebaseUser>()
+                        .setQuery(allDatabaseUsersReference, FirebaseUser.class)
                         .build();
 
-        FirebaseRecyclerAdapter adapter = new FirebaseRecyclerAdapter<User, AllUsersViewHolder> (options)
+        FirebaseRecyclerAdapter adapter = new FirebaseRecyclerAdapter<FirebaseUser, AllUsersViewHolder> (options)
             {
             @NonNull
             @Override
@@ -67,7 +67,7 @@ public class AllUsersActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onBindViewHolder(@NonNull final AllUsersViewHolder viewHolder, int position, @NonNull User model)
+            protected void onBindViewHolder(@NonNull final AllUsersViewHolder viewHolder, int position, @NonNull FirebaseUser model)
             {
                 viewHolder.setUser_name(model.getFirstName()+ " " + model.getLastName());
                 viewHolder.setUser_description(model.getDescription());

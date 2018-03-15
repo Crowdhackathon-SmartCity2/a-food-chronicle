@@ -78,10 +78,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".InfoWindowDetails"
+            android:name=".maps.InfoWindowDetails"
             android:label="Details" />
         <activity
-            android:name=".ProfileDetailsActivity"
+            android:name=".firebase.ProfileDetailsActivity"
             android:label="Profile Details"
             android:windowSoftInputMode="stateHidden" />
         <activity
@@ -105,7 +105,7 @@
         </activity>
 
         <activity
-            android:name=".LogInActivity"
+            android:name=".firebase.LogInActivity"
             android:label="Log In"
             android:windowSoftInputMode="stateHidden" />
         <activity
@@ -113,11 +113,11 @@
             android:label="Chat"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".CreateUserActivity"
+            android:name=".firebase.CreateUserActivity"
             android:label="Sign up"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".ResetPasswordActivity"
+            android:name=".firebase.ResetPasswordActivity"
             android:label="Reset Password"
             android:windowSoftInputMode="stateHidden" />
 

@@ -1,4 +1,4 @@
-package com.afoodchronicle;
+package com.afoodchronicle.firebase;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
@@ -21,6 +21,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afoodchronicle.MainActivity;
+import com.afoodchronicle.R;
 import com.afoodchronicle.utilities.FacebookUtils;
 import com.afoodchronicle.utilities.ImageLoadedCallback;
 import com.afoodchronicle.utilities.Utils;
@@ -28,7 +30,6 @@ import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -255,9 +256,9 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
             @SuppressLint("SetTextI18n")
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
+                com.google.firebase.auth.FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
-                if (user != null)
+                if (firebaseUser != null)
                 {
                     if (FacebookUtils.isLoggedIn())
                         {
@@ -363,8 +364,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         String deviceToken = Utils.getPreferences(FACEBOOK_DEVICE_TOKEN, ProfileDetailsActivity.this);
         Utils.setPreferences(FACEBOOK_BIRTHDAY, birthday, ProfileDetailsActivity.this);
         Utils.setPreferences(FACEBOOK_DESCRIPTION, description, ProfileDetailsActivity.this);
-        User user = new User(firstName,lastName, photoUrl, thumbPhotoUrl, birthday, description, age, deviceToken);
-        mDatabase.child(USERS).child(mAuth.getUid()).setValue(user);
+        FirebaseUser firebaseUser = new FirebaseUser(firstName,lastName, photoUrl, thumbPhotoUrl, birthday, description, age, deviceToken);
+        mDatabase.child(USERS).child(mAuth.getUid()).setValue(firebaseUser);
     }
 
     private void writeInfoToDatabaseEmail(String birthday, String description)
@@ -377,8 +378,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         String age = Utils.getPreferences(EMAIL_AGE, ProfileDetailsActivity.this);
         Utils.setPreferences(EMAIL_BIRTHDAY, birthday, ProfileDetailsActivity.this);
         Utils.setPreferences(EMAIL_DESCRIPTION, description, ProfileDetailsActivity.this);
-        User user = new User(firstName,lastName, photoUrl, thumbPhotoUrl, birthday, description, age, deviceToken);
-        mDatabase.child(USERS).child(mAuth.getUid()).setValue(user);
+        FirebaseUser firebaseUser = new FirebaseUser(firstName,lastName, photoUrl, thumbPhotoUrl, birthday, description, age, deviceToken);
+        mDatabase.child(USERS).child(mAuth.getUid()).setValue(firebaseUser);
     }
 
     public void writePhotoToPreferencesFacebook(String photoUrl)

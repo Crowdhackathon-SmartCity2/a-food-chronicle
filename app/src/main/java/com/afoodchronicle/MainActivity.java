@@ -29,6 +29,10 @@ import android.widget.Toast;
 
 import com.afoodchronicle.chat.AllUsersActivity;
 import com.afoodchronicle.chat.ChatFragmentsListActivity;
+import com.afoodchronicle.firebase.LogInActivity;
+import com.afoodchronicle.firebase.ProfileDetailsActivity;
+import com.afoodchronicle.maps.InfoWindowCustom;
+import com.afoodchronicle.maps.InfoWindowDetails;
 import com.afoodchronicle.utilities.FacebookUtils;
 import com.afoodchronicle.utilities.ImageLoadedCallback;
 import com.afoodchronicle.utilities.PermissionUtils;
@@ -49,6 +53,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
@@ -159,7 +164,7 @@ public class MainActivity extends AppCompatActivity
 
         });
 
-        profileImage = parentView.findViewById(R.id.profile_image);
+        profileImage = parentView.findViewById(R.id.custom_user_profile_image);
         profileName = parentView.findViewById(R.id.profile_name);
         editProfile = parentView.findViewById(R.id.edit_profile);
         ProgressBar progressBar = null;
@@ -361,7 +366,7 @@ public class MainActivity extends AppCompatActivity
                         });
                     }
                 }
-                //User signed out
+                //FirebaseUser signed out
                 else {
                     logIn.setVisibility(View.VISIBLE);
                     profileName.setVisibility(View.GONE);
@@ -390,7 +395,7 @@ public class MainActivity extends AppCompatActivity
         super.onStop();
         if(mAuth.getUid() != null)
         {
-            userReference.child(ONLINE).setValue(false);
+            userReference.child(ONLINE).setValue(ServerValue.TIMESTAMP);
         }
         if (mAuthListener != null)
         {
@@ -446,9 +451,7 @@ public class MainActivity extends AppCompatActivity
 
         if (user != null)
         {
-//            String online_user_id = user.getUid();
-//            userReference = mDatabase.child(USERS).child(online_user_id);
-            userReference.child(ONLINE).setValue(false);
+            userReference.child(ONLINE).setValue(ServerValue.TIMESTAMP);
             mAuth.signOut();
             mAuthFacebook.logOut();
             Utils.setPreferences(EMAIL_PROFILE_PIC, "", MainActivity.this);

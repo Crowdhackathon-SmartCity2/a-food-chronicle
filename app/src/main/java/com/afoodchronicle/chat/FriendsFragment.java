@@ -16,16 +16,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.afoodchronicle.LogInActivity;
 import com.afoodchronicle.R;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
@@ -41,6 +41,7 @@ import static com.afoodchronicle.utilities.Static.FULL_NAME;
 import static com.afoodchronicle.utilities.Static.LAST_NAME;
 import static com.afoodchronicle.utilities.Static.ONLINE;
 import static com.afoodchronicle.utilities.Static.THUMB_PHOTO_URL;
+import static com.afoodchronicle.utilities.Static.TRUE;
 import static com.afoodchronicle.utilities.Static.USERS;
 import static com.afoodchronicle.utilities.Static.VISIT_USER_ID;
 
@@ -107,7 +108,7 @@ public class FriendsFragment extends Fragment {
                userReference.child(list_user_id).addValueEventListener(new ValueEventListener()
                {
                    @Override
-                   public void onDataChange(DataSnapshot dataSnapshot)
+                   public void onDataChange(final DataSnapshot dataSnapshot)
                    {
                        final String fName =dataSnapshot.child(FIRST_NAME).getValue().toString();
                        final String lName =dataSnapshot.child(LAST_NAME).getValue().toString();
@@ -115,7 +116,7 @@ public class FriendsFragment extends Fragment {
                        String age =dataSnapshot.child(AGE).getValue().toString();
                        if(dataSnapshot.hasChild(ONLINE))
                        {
-                           Boolean online_status = (boolean) dataSnapshot.child(ONLINE).getValue();
+                           String online_status = dataSnapshot.child(ONLINE).getValue().toString();
                            viewHolder.setFriendOnline(online_status);
                        }
 
@@ -146,11 +147,27 @@ public class FriendsFragment extends Fragment {
                                    @Override
                                    public void onClick(DialogInterface dialog, int which) {
 
-                                       Intent chatIntent = new Intent(getContext(), ChatActivity.class);
-                                       chatIntent.putExtra(VISIT_USER_ID, list_user_id);
-                                       chatIntent.putExtra(FULL_NAME, fName + " " + lName);
-                                       startActivity(chatIntent);
-
+                                       if(dataSnapshot.child(ONLINE).exists())
+                                       {
+                                           Intent chatIntent = new Intent(getContext(), ChatActivity.class);
+                                           chatIntent.putExtra(VISIT_USER_ID, list_user_id);
+                                           chatIntent.putExtra(FULL_NAME, fName + " " + lName);
+                                           startActivity(chatIntent);
+                                       }
+                                       else
+                                       {
+                                           userReference.child(list_user_id).child(ONLINE)
+                                                   .setValue(ServerValue.TIMESTAMP).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                               @Override
+                                               public void onSuccess(Void aVoid)
+                                               {
+                                                   Intent chatIntent = new Intent(getContext(), ChatActivity.class);
+                                                   chatIntent.putExtra(VISIT_USER_ID, list_user_id);
+                                                   chatIntent.putExtra(FULL_NAME, fName + " " + lName);
+                                                   startActivity(chatIntent);
+                                               }
+                                           });
+                                       }
                                    }
                                });
                                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -238,24 +255,24 @@ public class FriendsFragment extends Fragment {
             final CircleImageView image = mView.findViewById(R.id.all_users_profile_image);
             //
             Picasso.with(context).load(friend_thumb_image).networkPolicy(NetworkPolicy.OFFLINE).into(image, new Callback() {
-                @Override
-                public void onSuccess() {
+            @Override
+            public void onSuccess() {
 
-                }
+            }
 
-                @Override
-                public void onError()
-                {
-                    Picasso.with(context).load(friend_thumb_image).into(image);
-                }
-            });
+            @Override
+            public void onError()
+            {
+                Picasso.with(context).load(friend_thumb_image).into(image);
+            }
+        });
         }
 
-        void setFriendOnline(Boolean online_status)
+        void setFriendOnline(String online_status)
         {
-            ImageView onlineStatusView = mView.findViewById(R.id.all_users_online_status);
-            if (online_status.equals(true))
-            {
+                {
+                    ImageView onlineStatusView = mView.findViewById(R.id.all_users_online_status);
+                    if (online_status.equals(TRUE))
                 onlineStatusView.setVisibility(View.VISIBLE);
             }
         }

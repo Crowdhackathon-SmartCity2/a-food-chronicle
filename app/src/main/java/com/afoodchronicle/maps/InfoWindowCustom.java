@@ -1,4 +1,4 @@
-package com.afoodchronicle;
+package com.afoodchronicle.maps;
 
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afoodchronicle.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 

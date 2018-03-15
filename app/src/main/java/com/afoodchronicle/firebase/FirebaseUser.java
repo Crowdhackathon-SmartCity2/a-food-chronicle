@@ -1,6 +1,6 @@
-package com.afoodchronicle;
+package com.afoodchronicle.firebase;
 
-public class User {
+public class FirebaseUser {
 
     private String id;
     private String firstName;
@@ -14,7 +14,7 @@ public class User {
     private String deviceToken;
 
 
-    public User(String firstName, String lastName, String photoUrl, String thumbPhotoUrl, String birthday, String description, String age, String deviceToken) {
+    public FirebaseUser(String firstName, String lastName, String photoUrl, String thumbPhotoUrl, String birthday, String description, String age, String deviceToken) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.photoUrl = photoUrl;
@@ -25,7 +25,7 @@ public class User {
         this.deviceToken = deviceToken;
     }
 
-    public User() {
+    public FirebaseUser() {
     }
 
     public String getDeviceToken() {

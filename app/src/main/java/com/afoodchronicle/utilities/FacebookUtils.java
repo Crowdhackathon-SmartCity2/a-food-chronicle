@@ -12,9 +12,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.afoodchronicle.MainActivity;
-import com.afoodchronicle.ProfileDetailsActivity;
+import com.afoodchronicle.firebase.ProfileDetailsActivity;
 import com.afoodchronicle.R;
-import com.afoodchronicle.User;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -35,12 +34,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 
-import static com.afoodchronicle.utilities.Static.DEVICE_TOKEN;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_DEVICE_TOKEN;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_LAST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
-import static com.afoodchronicle.utilities.Static.USERS;
 
 public class FacebookUtils extends AppCompatActivity {
     private static final String TAG = "Facebook";

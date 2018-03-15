@@ -37,6 +37,7 @@ public class Static {
     public static final String DEVICE_TOKEN = "device_token";
     public static final String FROM_SENDER_ID = "from_sender_id";
     public static final String ONLINE = "online";
+    public static final String MESSAGES = "messages";
 
 
     //Toast
@@ -83,6 +84,11 @@ public class Static {
     public static final String DATE = "date";
     public static final String FRIENDS_SINCE = "Friends since: ";
     public static final String FULL_NAME = "full_name";
+    public static final String TRUE = "true";
+    public static final String MESSAGE = "messages";
+    public static final String SEEN = "seen";
+    public static final String TEXT = "text";
+    public static final String TIME = "time";
 
 
 
