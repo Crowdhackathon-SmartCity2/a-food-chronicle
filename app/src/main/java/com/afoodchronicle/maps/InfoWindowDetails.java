@@ -10,7 +10,7 @@ import com.afoodchronicle.R;
 
 
 public class InfoWindowDetails extends AppCompatActivity{
-    public static final String markerKey = "MARKER_NAME";
+    private static final String markerKey = "MARKER_NAME";
 
     @Override
     public void onCreate (Bundle savedInstanceState) {

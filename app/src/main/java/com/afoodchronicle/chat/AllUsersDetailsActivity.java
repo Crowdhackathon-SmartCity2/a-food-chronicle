@@ -67,13 +67,12 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
     private String photoUrl;
     private String CURRENT_STATE;
     private DatabaseReference friendRequestReference;
-    String sender_user_id;
-    String receiver_user_id;
-    Button sendFriendRequestBtn;
+    private String sender_user_id;
+    private String receiver_user_id;
+    private Button sendFriendRequestBtn;
     private DatabaseReference friendsReference;
-    private DatabaseReference userReference;
     private DatabaseReference notificationsReference;
-    Button declineFriendRequestBtn;
+    private Button declineFriendRequestBtn;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,7 +82,7 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         receiver_user_id = getIntent().getExtras().get(VISIT_USER_ID).toString();
         sender_user_id = mAuth.getCurrentUser().getUid();
-        userReference = FirebaseDatabase.getInstance().getReference().child(USERS).child(receiver_user_id);
+        DatabaseReference userReference = FirebaseDatabase.getInstance().getReference().child(USERS).child(receiver_user_id);
         userReference.keepSynced(true);
         friendRequestReference = FirebaseDatabase.getInstance().getReference().child(FRIEND_REQUEST);
         friendRequestReference.keepSynced(true);
@@ -117,7 +116,7 @@ public class AllUsersDetailsActivity extends AppCompatActivity implements View.O
         profilePhoto = findViewById(R.id.profile_visit_user_image);
         profileDescription = findViewById(R.id.profile_visit_user_description);
 
-        ProgressBar progressBar = null;
+        ProgressBar progressBar;
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
 

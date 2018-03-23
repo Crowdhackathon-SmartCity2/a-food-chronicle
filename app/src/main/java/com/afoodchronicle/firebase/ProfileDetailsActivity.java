@@ -89,13 +89,14 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private LoginManager mAuthFacebook;
-    FirebaseStorage storage;
-    StorageReference storageReference;
+    private FirebaseStorage storage;
+    private StorageReference storageReference;
     private DatabaseReference mDatabase;
     private String profileImageLink;
     private Bitmap thumb_bitmap;
     private StorageReference thumbPhotoUrlReference;
-    
+    private String online_user_id;
+
 
     @Override
     public void onBackPressed() {
@@ -104,15 +105,12 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         startActivity(listIntent);
     }
 
-//
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_details);
 
         mAuthFacebook = LoginManager.getInstance();
-        findViewById(R.id.btnLog_out).setOnClickListener(this);
         findViewById(R.id.btnChoose).setOnClickListener(this);
         findViewById(R.id.btnSave).setOnClickListener(this);
         findViewById(R.id.etBirthday).setOnClickListener(this);
@@ -124,7 +122,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         birthdayEt = findViewById(R.id.etBirthday);
 
         descriptionEt = findViewById(R.id.etDescription);
-        ProgressBar progressBar = null;
+        ProgressBar progressBar;
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
 
@@ -134,46 +132,49 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         mDatabase.keepSynced(true);
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
-        // [START initialize_auth]
+        mAuth = FirebaseAuth.getInstance();
+        online_user_id = mAuth.getCurrentUser().getUid();
         initializeAuth();
 
         final ProgressBar finalProgressBar = progressBar;
-        mDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child(USERS).child(THUMB_PHOTO_URL).exists() && mAuth.getUid() != null) {
-                    profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
-                    Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
-                            .into(profileImage, new Callback() {
-                                @Override
-                                public void onSuccess()
-                                {
+        if ( online_user_id != null)
+        {
+            mDatabase.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.child(USERS).child(online_user_id).child(THUMB_PHOTO_URL).exists() ) {
+                        profileImageLink = dataSnapshot.child(USERS).child(online_user_id).child(THUMB_PHOTO_URL).getValue().toString();
+                        Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
+                                .into(profileImage, new Callback() {
+                                    @Override
+                                    public void onSuccess()
+                                    {
 
-                                }
+                                    }
 
-                                @Override
-                                public void onError()
-                                {
-                                    Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).into(profileImage,
-                                            new ImageLoadedCallback(finalProgressBar)
-                                            {
-                                                @Override
-                                                public void onSuccess()
+                                    @Override
+                                    public void onError()
+                                    {
+                                        Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).into(profileImage,
+                                                new ImageLoadedCallback(finalProgressBar)
                                                 {
-                                                    if (this.progressBar != null)
+                                                    @Override
+                                                    public void onSuccess()
                                                     {
-                                                        this.progressBar.setVisibility(View.GONE);
+                                                        if (this.progressBar != null)
+                                                        {
+                                                            this.progressBar.setVisibility(View.GONE);
+                                                        }
                                                     }
-                                                }
-                                            });
-                                }
-                            });
-                }
-                else
+                                                });
+                                    }
+                                });
+                    }
+                    else
                     {
                         if (FacebookUtils.isLoggedIn())
                         {
-                         profileImageLink= Utils.getPreferences(FACEBOOK_PROFILE_PIC, ProfileDetailsActivity.this);
+                            profileImageLink= Utils.getPreferences(FACEBOOK_PROFILE_PIC, ProfileDetailsActivity.this);
                             Picasso.with(ProfileDetailsActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
                                     .into(profileImage, new Callback()
                                     {
@@ -238,14 +239,16 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
                             }
                         }
                     }
-            }
+                }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
+                @Override
+                public void onCancelled(DatabaseError databaseError)
+                {
 
-            }
-        });
+                }
+            });
+        }
+
     }
 
 
@@ -382,12 +385,12 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         mDatabase.child(USERS).child(mAuth.getUid()).setValue(firebaseUser);
     }
 
-    public void writePhotoToPreferencesFacebook(String photoUrl)
+    private void writePhotoToPreferencesFacebook(String photoUrl)
     {
         Utils.setPreferences(FACEBOOK_PROFILE_PIC, photoUrl, ProfileDetailsActivity.this);
     }
 
-    public void writePhotoToDatabaseEmail(String photoUrl)
+    private void writePhotoToDatabaseEmail(String photoUrl)
     {
         Utils.setPreferences(EMAIL_PROFILE_PIC, photoUrl, ProfileDetailsActivity.this);
     }
@@ -477,10 +480,9 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
                                     }
                                 });
                                 Context context = getApplicationContext();
-                                CharSequence text = UPLOAD;
                                 int duration = Toast.LENGTH_SHORT;
 
-                                Toast toast = Toast.makeText(context, text, duration);
+                                Toast toast = Toast.makeText(context, UPLOAD, duration);
                                 toast.show();
 
                                 String downloadUrl = task.getResult().getDownloadUrl().toString();
@@ -497,10 +499,9 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
                             else
                             {
                                 Context context = getApplicationContext();
-                                CharSequence text = UPLOAD_ERROR;
                                 int duration = Toast.LENGTH_SHORT;
 
-                                Toast toast = Toast.makeText(context, text, duration);
+                                Toast toast = Toast.makeText(context, UPLOAD_ERROR, duration);
                                 toast.show();
                             }
                             hideProgressDialog();
@@ -514,7 +515,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
             }
     }
 
-    private boolean validateForm()
+    private void validateForm()
     {
         boolean valid = true;
 
@@ -533,7 +534,6 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         Intent i = new Intent(ProfileDetailsActivity.this, MainActivity.class);
         startActivity(i);
         }
-        return valid;
     }
     @Override
     protected void onStart()
@@ -580,16 +580,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
     {
 
         int i = view.getId();
-        if (i == R.id.btnLog_out)
-        {
-            mAuth.signOut();
-            mAuthFacebook.logOut();
-            Utils.setPreferences(EMAIL_PROFILE_PIC, "", ProfileDetailsActivity.this);
-            Utils.setPreferences(FACEBOOK_PROFILE_PIC, "", ProfileDetailsActivity.this);
-            Intent intent = new Intent(ProfileDetailsActivity.this, MainActivity.class);
-            startActivity(intent);
-        }
-        else if(i == R.id.btnChoose)
+
+        if(i == R.id.btnChoose)
         {
             chooseImage();
         }

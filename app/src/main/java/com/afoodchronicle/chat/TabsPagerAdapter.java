@@ -4,11 +4,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import com.afoodchronicle.chat.fragments.ChatsFragment;
+import com.afoodchronicle.chat.fragments.FriendsFragment;
+import com.afoodchronicle.chat.fragments.RequestsFragment;
+
 import static com.afoodchronicle.utilities.Static.FRAGMENT_TITLE_CHATS;
 import static com.afoodchronicle.utilities.Static.FRAGMENT_TITLE_FRIENDS;
 import static com.afoodchronicle.utilities.Static.FRAGMENT_TITLE_REQUESTS;
 
-class TabsPagerAdapter extends FragmentPagerAdapter {
+public class TabsPagerAdapter extends FragmentPagerAdapter {
 
     public TabsPagerAdapter(FragmentManager fm) {
         super(fm);
@@ -20,14 +24,11 @@ class TabsPagerAdapter extends FragmentPagerAdapter {
         switch (position)
         {
             case 0:
-                RequestsFragment requestsFragment = new RequestsFragment();
-                return requestsFragment;
+                return new RequestsFragment();
             case 1:
-                ChatsFragment chatsFragment = new ChatsFragment();
-                return chatsFragment;
+                return new ChatsFragment();
             case 2:
-                FriendsFragment friendsFragment = new FriendsFragment();
-                return friendsFragment;
+                return new FriendsFragment();
             default:
                 return null;
 

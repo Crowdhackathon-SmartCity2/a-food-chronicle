@@ -28,6 +28,7 @@
                android:layout_width="match_parent"
                android:layout_height="match_parent"
                android:scaleType="centerCrop"
+               android:contentDescription="@string/profile_pic_background"
                />
 
              <FrameLayout
@@ -49,7 +50,8 @@
                         android:layout_gravity="end|bottom"
                         app:srcCompat="@mipmap/ic_edit_round"
                         android:elevation="5dp"
-                        android:id="@+id/btnChoose"/>
+                        android:id="@+id/btnChoose"
+                        android:contentDescription="@string/btn_choose"/>
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:layout_width="120dp"
@@ -64,7 +66,7 @@
                <TextView
                      android:layout_width="wrap_content"
                      android:layout_height="wrap_content"
-                     android:text="Name"
+                     android:text="@string/full_name"
                      android:layout_gravity="center_horizontal"
                      android:textSize="20sp"
                      android:textColor="@color/colorAccent"
@@ -109,12 +111,6 @@
         android:textColorHint="@android:color/darker_gray"
         android:textSize="16sp"
         />
-        <Button
-            android:id="@+id/btnLog_out"
-            android:text="Log out"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp" />
 
         <LinearLayout
             android:layout_width="match_parent"

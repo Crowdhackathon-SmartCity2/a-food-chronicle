@@ -11,15 +11,14 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
 
 import com.afoodchronicle.R;
 import com.afoodchronicle.utilities.LastSeenTime;
-import com.afoodchronicle.utilities.Utils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -39,7 +38,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static android.app.PendingIntent.getActivity;
+import static com.afoodchronicle.utilities.Static.FROM;
 import static com.afoodchronicle.utilities.Static.FULL_NAME;
 import static com.afoodchronicle.utilities.Static.MESSAGE;
 import static com.afoodchronicle.utilities.Static.MESSAGES;
@@ -61,20 +60,17 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private ImageButton sendMessageButton;
     private ImageButton selectImageButton;
     private String messageSenderId;
-    private FirebaseAuth mAuth;
     private String messageReceiverId;
     private String messageReceiverName;
     private DatabaseReference rootRef;
-    private RecyclerView userMessageList;
     private final List<Messages> messagesList = new ArrayList<>();
-    private LinearLayoutManager linearLayoutManager;
     private MessagesAdapter messagesAdapter;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_window);
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         messageSenderId= mAuth.getCurrentUser().getUid();
 
         messageReceiverId = getIntent().getExtras().get(VISIT_USER_ID).toString();
@@ -83,7 +79,8 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar chatToolBar = findViewById(R.id.chat_custom_bar);
         setSupportActionBar(chatToolBar);
         LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View actionBarView  = layoutInflater.inflate(R.layout.chat_custom_bar, null);
+        final ViewGroup nullParent = null;
+        View actionBarView  = layoutInflater.inflate(R.layout.chat_custom_bar, nullParent);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setCustomView(actionBarView);
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -93,16 +90,16 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
         TextView userNameTitle = findViewById(R.id.custom_chat_username);
         userLastSeen = findViewById(R.id.custom_user_last_seen);
-        userChatProfileImage = findViewById(R.id.custom_user_profile_image);
+        userChatProfileImage = findViewById(R.id.custom_user_prof_image);
         inputMessageText = findViewById(R.id.messageEt);
         sendMessageButton = findViewById(R.id.send_button);
         selectImageButton = findViewById(R.id.add_photo);
-        userMessageList = findViewById(R.id.recycler_view_messages);
+        RecyclerView userMessageList = findViewById(R.id.recycler_view_messages);
         findViewById(R.id.send_button).setOnClickListener(this);
         findViewById(R.id.add_photo).setOnClickListener(this);
 
         messagesAdapter = new MessagesAdapter(messagesList);
-        linearLayoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         userMessageList.setHasFixedSize(true);
         userMessageList.setLayoutManager(linearLayoutManager);
         userMessageList.setAdapter(messagesAdapter);
@@ -138,7 +135,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             {
                 LastSeenTime getTime = new LastSeenTime();
                 long lastSeen = Long.parseLong(online);
-                String lastSeenDisplayTime = getTime.getTimeAgo(lastSeen, getApplicationContext()).toString();
+                String lastSeenDisplayTime = LastSeenTime.getTimeAgo(lastSeen);
                 userLastSeen.setText(lastSeenDisplayTime);
             }
             }
@@ -219,6 +216,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             messageTextBody.put(SEEN, false);
             messageTextBody.put(TYPE, TEXT);
             messageTextBody.put(TIME, ServerValue.TIMESTAMP);
+            messageTextBody.put(FROM, messageSenderId);
 
             Map messageBodyDetails = new HashMap();
             messageBodyDetails.put(messageSenderRef + "/"+ messagePushId, messageTextBody);
@@ -230,14 +228,12 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                 {
                     if (databaseError != null)
                     {
-                        Log.d("Chat Log", databaseError.getMessage().toString());
+                        Log.d("Chat Log", databaseError.getMessage());
                     }
 
                     inputMessageText.setText("");
                 }
             });
-
-
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.afoodchronicle.chat;
+package com.afoodchronicle.chat.fragments;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -7,39 +7,26 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.afoodchronicle.R;
+import com.afoodchronicle.chat.TabsPagerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
 
 public class ChatFragmentsListActivity extends AppCompatActivity implements
         ChatsFragment.OnFragmentInteractionListener,
         FriendsFragment.OnFragmentInteractionListener,
         RequestsFragment.OnFragmentInteractionListener {
 
-    private FirebaseAuth mAuth;
-    private ViewPager mViewPager;
-    private TabLayout mTabLayout;
-    private TabsPagerAdapter mTabsPagerAdapter;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    private DatabaseReference userReference;
-    private DatabaseReference mDatabase;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        mViewPager = findViewById(R.id.main_tabs_pager);
-        mTabsPagerAdapter = new TabsPagerAdapter(getSupportFragmentManager());
+        ViewPager mViewPager = findViewById(R.id.main_tabs_pager);
+        TabsPagerAdapter mTabsPagerAdapter = new TabsPagerAdapter(getSupportFragmentManager());
         mViewPager.setAdapter(mTabsPagerAdapter);
-        mTabLayout = findViewById(R.id.main_tabs);
+        TabLayout mTabLayout = findViewById(R.id.main_tabs);
         mTabLayout.setupWithViewPager(mViewPager);
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     @Override
@@ -49,14 +36,12 @@ public class ChatFragmentsListActivity extends AppCompatActivity implements
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-
+    public void onFragmentInteraction(Uri uri) {
 
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
+    public void onFragmentInteraction() {
 
     }
 }

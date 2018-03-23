@@ -15,9 +15,9 @@
         android:id="@+id/custom_chat_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Display username"
+        android:text="@string/username"
         android:textSize="20sp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         android:textStyle="bold"
         />
 
@@ -26,14 +26,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:text="Last Seen"
+        android:text="@string/last_seen"
         android:layout_below="@+id/custom_chat_username"
         android:textSize="15sp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         />
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/custom_user_profile_image"
+        android:id="@+id/custom_user_prof_image"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignBottom="@+id/custom_user_last_seen"

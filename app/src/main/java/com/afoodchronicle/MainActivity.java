@@ -28,7 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afoodchronicle.chat.AllUsersActivity;
-import com.afoodchronicle.chat.ChatFragmentsListActivity;
+import com.afoodchronicle.chat.fragments.ChatFragmentsListActivity;
 import com.afoodchronicle.firebase.LogInActivity;
 import com.afoodchronicle.firebase.ProfileDetailsActivity;
 import com.afoodchronicle.maps.InfoWindowCustom;
@@ -88,19 +88,20 @@ public class MainActivity extends AppCompatActivity
 
     // Markers
 
-    HashMap<String, String> markerMap = new HashMap<String, String>();
+    private final HashMap<String, String> markerMap = new HashMap<>();
 
 
     // Maps
 
     private boolean mPermissionDenied = false;
-    SupportMapFragment sMapFragment;
-    GoogleMap mMap;
-    boolean mapReady=false;
+    private SupportMapFragment sMapFragment;
+    private GoogleMap mMap;
 
 
-    // Views
-    private TextView logIn;
+// --Commented out by Inspection START (22.03.2018 14:17):
+//    // Views
+//    private TextView logIn;
+// --Commented out by Inspection STOP (22.03.2018 14:17)
     private ImageView profileImage;
     private TextView profileName;
     private TextView editProfile;
@@ -164,10 +165,10 @@ public class MainActivity extends AppCompatActivity
 
         });
 
-        profileImage = parentView.findViewById(R.id.custom_user_profile_image);
+        profileImage = parentView.findViewById(R.id.user_profile_image);
         profileName = parentView.findViewById(R.id.profile_name);
         editProfile = parentView.findViewById(R.id.edit_profile);
-        ProgressBar progressBar = null;
+        ProgressBar progressBar;
         progressBar = parentView.findViewById(R.id.progressBar);
 
         mAuthFacebook = LoginManager.getInstance();
@@ -178,19 +179,20 @@ public class MainActivity extends AppCompatActivity
         mAuthListener = new FirebaseAuth.AuthStateListener() {
 
 
+            @SuppressLint("SetTextI18n")
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
 
 
                 if (user != null) {
-                    String online_user_id = user.getUid();
+                    final String online_user_id = user.getUid();
                     userReference = mDatabase.child(USERS).child(online_user_id);
                     userReference.child(ONLINE).setValue(true);
 
                     finalProgressBar.setVisibility(View.VISIBLE);
                     ///Facebook
-                    if (FacebookUtils.isLoggedIn()) {
+                    if (FacebookUtils.isLoggedIn() && online_user_id != null) {
 
                         String firstName = Utils.getPreferences(FACEBOOK_FIRST_NAME, MainActivity.this);
                         String lastName = Utils.getPreferences(FACEBOOK_LAST_NAME, MainActivity.this);
@@ -199,8 +201,8 @@ public class MainActivity extends AppCompatActivity
                         mDatabase.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.child(USERS).child(THUMB_PHOTO_URL).exists() && mAuth.getUid() != null) {
-                                    profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
+                                if (dataSnapshot.child(USERS).child(online_user_id).child(THUMB_PHOTO_URL).exists() && online_user_id != null) {
+                                    profileImageLink = dataSnapshot.child(USERS).child(online_user_id).child(THUMB_PHOTO_URL).getValue().toString();
                                     Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
                                                 .into(profileImage, new Callback() {
                                                     @Override
@@ -258,6 +260,7 @@ public class MainActivity extends AppCompatActivity
                                     }
                                 }
                             }
+                            ///
                             @Override
                             public void onCancelled(DatabaseError databaseError) {
 
@@ -281,7 +284,7 @@ public class MainActivity extends AppCompatActivity
 
                     }
                     ///Email
-                    else {
+                    else if (online_user_id != null){
 
 
                         String firstName = Utils.getPreferences(EMAIL_FIRST_NAME, MainActivity.this);
@@ -290,7 +293,7 @@ public class MainActivity extends AppCompatActivity
                         mDatabase.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.child(USERS).child(THUMB_PHOTO_URL).exists() && mAuth.getUid() != null) {
+                                if (dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).exists() && mAuth.getUid() != null) {
                                     profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
                                     Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
                                             .into(profileImage, new Callback() {
@@ -384,12 +387,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onResume()
-    {
-        super.onResume();
-
-    }
-    @Override
     protected void onStop()
     {
         super.onStop();
@@ -451,7 +448,7 @@ public class MainActivity extends AppCompatActivity
 
         if (user != null)
         {
-            userReference.child(ONLINE).setValue(ServerValue.TIMESTAMP);
+            userReference.child(USERS).child(mAuth.getUid()).child(ONLINE).setValue(ServerValue.TIMESTAMP);
             mAuth.signOut();
             mAuthFacebook.logOut();
             Utils.setPreferences(EMAIL_PROFILE_PIC, "", MainActivity.this);
@@ -461,36 +458,42 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item)
+    public boolean onNavigationItemSelected(@NonNull MenuItem item)
     {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        if (id == R.id.edit_profile)
+        {
+
+        }
         if (id == R.id.chat)
         {
             Intent listIntent = new Intent(MainActivity.this, ChatFragmentsListActivity.class);
 
             startActivity(listIntent);
             // Handle the camera action
-        } else if (id == R.id.nav_gallery)
+        }
+
+         else if (id == R.id.favorites)
         {
 
-        } else if (id == R.id.nav_slideshow)
+        } else if (id == R.id.news)
         {
 
-        } else if (id == R.id.nav_manage)
-        {
-
-        } else if (id == R.id.nav_share)
-        {
-
-        } else if (id == R.id.nav_send)
+        } else if (id == R.id.settings)
         {
             Intent listIntent = new Intent(MainActivity.this, AllUsersActivity.class);
 
             startActivity(listIntent);
 
         }
+        else if (id == R.id.logout)
+        {
+            logOutUser();
+
+        }
+
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -501,7 +504,7 @@ public class MainActivity extends AppCompatActivity
     ////////   MAPS
 
 
-    public void initializeMaps()
+    private void initializeMaps()
     {
 
         sMapFragment = SupportMapFragment.newInstance();
@@ -517,8 +520,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap)
     {
-
-        mapReady = true;
 
         mMap = googleMap;
 
@@ -544,8 +545,8 @@ public class MainActivity extends AppCompatActivity
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission to access the location is missing.
-            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
-                    Manifest.permission.ACCESS_FINE_LOCATION, true);
+            PermissionUtils.requestPermission(this
+            );
         } else if (mMap != null) {
             // Access to the location has been granted to the app.
             mMap.setMyLocationEnabled(true);
@@ -555,12 +556,12 @@ public class MainActivity extends AppCompatActivity
     private void addMarkersToMap()
     {
 
-        String id = null;
+        String id;
 
         Marker yoleni = mMap.addMarker(new MarkerOptions()
                 .position(mYoleni)
                 .title(getString(R.string.yoleni))
-                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160))));
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap())));
 
         id = yoleni.getId();
         markerMap.put(id, "yoleni");
@@ -568,7 +569,7 @@ public class MainActivity extends AppCompatActivity
         Marker vorria = mMap.addMarker(new MarkerOptions()
                 .position(mVorria)
                 .title(getString(R.string.vorria))
-                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160))));
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap())));
 
         id = vorria.getId();
         markerMap.put(id, "vorria");
@@ -576,7 +577,7 @@ public class MainActivity extends AppCompatActivity
         Marker pnyka = mMap.addMarker(new MarkerOptions()
                 .position(mPnyka)
                 .title(getString(R.string.pnyka))
-                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160))));
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap())));
 
         id = pnyka.getId();
         markerMap.put(id, "pnyka");
@@ -584,7 +585,7 @@ public class MainActivity extends AppCompatActivity
         Marker pantopoleio = mMap.addMarker(new MarkerOptions()
                 .position(mPantopoleio)
                 .title(getString(R.string.pantopoleio))
-                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap("marker",160,160))));
+                .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap())));
 
         id = pantopoleio.getId();
         markerMap.put(id, "pantopoleio");
@@ -624,10 +625,10 @@ public class MainActivity extends AppCompatActivity
 
     //// MISC
 
-    public Bitmap resizeBitmap(String drawableName,int width, int height)
+    private Bitmap resizeBitmap()
     {
-        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(drawableName, "drawable", getPackageName()));
-        return Bitmap.createScaledBitmap(imageBitmap, width, height, false);
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier("marker", "drawable", getPackageName()));
+        return Bitmap.createScaledBitmap(imageBitmap, 160, 160, false);
     }
 
     @Override
@@ -639,8 +640,8 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
-        if (PermissionUtils.isPermissionGranted(permissions, grantResults,
-                Manifest.permission.ACCESS_FINE_LOCATION))
+        if (PermissionUtils.isPermissionGranted(permissions, grantResults
+        ))
         {
             // Enable the my location layer if the permission has been granted.
             enableMyLocation();
@@ -670,7 +671,7 @@ public class MainActivity extends AppCompatActivity
     private void showMissingPermissionError()
     {
         PermissionUtils.PermissionDeniedDialog
-                .newInstance(true).show(getSupportFragmentManager(), "dialog");
+                .newInstance().show(getSupportFragmentManager(), "dialog");
     }
 }
 

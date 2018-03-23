@@ -34,7 +34,6 @@ public class Static {
     public static final String PHOTO = "photo";
     public static final String DESCRIPTION = "description";
     public static final String AGE = "age";
-    public static final String DEVICE_TOKEN = "device_token";
     public static final String FROM_SENDER_ID = "from_sender_id";
     public static final String ONLINE = "online";
     public static final String MESSAGES = "messages";
@@ -89,6 +88,7 @@ public class Static {
     public static final String SEEN = "seen";
     public static final String TEXT = "text";
     public static final String TIME = "time";
+    public static final String USER_STATUS = "description";
 
 
 

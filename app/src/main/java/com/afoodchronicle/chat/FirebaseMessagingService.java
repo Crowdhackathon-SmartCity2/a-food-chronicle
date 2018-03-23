@@ -1,7 +1,6 @@
 package com.afoodchronicle.chat;
 
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -14,7 +13,6 @@ import static com.afoodchronicle.utilities.Static.FROM_SENDER_ID;
 import static com.afoodchronicle.utilities.Static.VISIT_USER_ID;
 
 public class FirebaseMessagingService extends com.google.firebase.messaging.FirebaseMessagingService {
-    private android.content.Context mContext;
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
@@ -23,7 +21,7 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         String notification_title = remoteMessage.getNotification().getTitle();
         String notification_body = remoteMessage.getNotification().getBody();
         String click_action = remoteMessage.getNotification().getClickAction();
-        String from_sender_id =remoteMessage.getData().get(FROM_SENDER_ID).toString();
+        String from_sender_id = remoteMessage.getData().get(FROM_SENDER_ID);
 
         Intent resultIntent = new Intent(click_action);
         resultIntent.putExtra(VISIT_USER_ID, from_sender_id);

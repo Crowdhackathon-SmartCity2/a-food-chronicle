@@ -1,5 +1,6 @@
 package com.afoodchronicle.utilities;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -39,16 +40,16 @@ import static com.afoodchronicle.utilities.Static.FACEBOOK_FIRST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_LAST_NAME;
 import static com.afoodchronicle.utilities.Static.FACEBOOK_PROFILE_PIC;
 
+@SuppressLint("Registered")
 public class FacebookUtils extends AppCompatActivity {
     private static final String TAG = "Facebook";
 
 
     private FirebaseAuth mAuth;
     private CallbackManager mCallbackManager;
-    private DatabaseReference mDatabase;
 
-    public void initializeFacebookLogin(final Context parentActivity){
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+    protected void initializeFacebookLogin(final Context parentActivity){
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
         mCallbackManager = CallbackManager.Factory.create();
@@ -109,14 +110,14 @@ public class FacebookUtils extends AppCompatActivity {
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void writeInfoToPreferencesFacebook(Context parentActivity, String firstName, String lastName) {
+    private void writeInfoToPreferencesFacebook(Context parentActivity, String firstName, String lastName) {
         Utils.setPreferences(FACEBOOK_FIRST_NAME, firstName, parentActivity);
         Utils.setPreferences(FACEBOOK_LAST_NAME, lastName, parentActivity);
     }
-    public void writePhotoToDatabaseFacebook(Context parentActivity, String photoUrl) {
+    private void writePhotoToDatabaseFacebook(Context parentActivity, String photoUrl) {
         Utils.setPreferences(FACEBOOK_PROFILE_PIC, photoUrl, parentActivity);
     }
-    public void handleFacebookAccessToken(AccessToken token, final Context parentActivity) {
+    private void handleFacebookAccessToken(AccessToken token, final Context parentActivity) {
         Log.d(TAG, "handleFacebookAccessToken:" + token);
         mAuth = FirebaseAuth.getInstance();
 
@@ -140,7 +141,6 @@ public class FacebookUtils extends AppCompatActivity {
                             updateUI(null, parentActivity);
                         }
                         else{
-
                             String deviceToken = FirebaseInstanceId.getInstance().getToken();
                             Utils.setPreferences(FACEBOOK_DEVICE_TOKEN, deviceToken, parentActivity);
                             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(parentActivity);
@@ -160,7 +160,7 @@ public class FacebookUtils extends AppCompatActivity {
                 });
     }
 
-    public void updateUI(FirebaseUser user, Context packageContext) {
+    protected void updateUI(FirebaseUser user, Context packageContext) {
         hideProgressDialog();
         if (user != null) {
             Intent listIntent = new Intent(packageContext, ProfileDetailsActivity.class);
@@ -169,9 +169,9 @@ public class FacebookUtils extends AppCompatActivity {
         }
     }
     @VisibleForTesting
-    public ProgressDialog mProgressDialog;
+    private ProgressDialog mProgressDialog;
 
-    public void showProgressDialog() {
+    protected void showProgressDialog() {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this);
             mProgressDialog.setMessage(getString(R.string.loading));
@@ -182,7 +182,7 @@ public class FacebookUtils extends AppCompatActivity {
     }
 
 
-    public void hideProgressDialog() {
+    protected void hideProgressDialog() {
         if (mProgressDialog != null && mProgressDialog.isShowing()) {
             mProgressDialog.dismiss();
         }

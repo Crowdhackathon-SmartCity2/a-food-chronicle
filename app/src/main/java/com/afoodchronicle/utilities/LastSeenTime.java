@@ -1,9 +1,10 @@
 package com.afoodchronicle.utilities;
 
 
+import android.annotation.SuppressLint;
 import android.app.Application;
-import android.content.Context;
 
+@SuppressLint("Registered")
 public class LastSeenTime extends Application
 {
     /*
@@ -28,7 +29,7 @@ public class LastSeenTime extends Application
     private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
 
 
-    public static String getTimeAgo(long time, Context ctx) {
+    public static String getTimeAgo(long time) {
         if (time < 1000000000000L) {
             // if timestamp given in seconds, convert to millis
             time *= 1000;

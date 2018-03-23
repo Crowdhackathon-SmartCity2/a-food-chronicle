@@ -1,32 +1,38 @@
 package com.afoodchronicle.chat;
 
-/**
- * Created by Mayke on 15.03.2018.
- */
-
 public class Messages
 {
-    private String message;
+    private String messages;
     private String type;
     private Long time;
     private Boolean seen;
+    private String from;
 
     public Messages() {
     }
 
-    public Messages(String message, String type, Long time, Boolean seen) {
-        this.message = message;
+    public Messages(String message, String type, Long time, Boolean seen, String from) {
+        this.messages = message;
         this.type = type;
         this.time = time;
         this.seen = seen;
+        this.from = from;
     }
 
-    public String getMessage() {
-        return message;
+    public String getMessages() {
+        return messages;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setMessages(String messages) {
+        this.messages = messages;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
     }
 
     public String getType() {

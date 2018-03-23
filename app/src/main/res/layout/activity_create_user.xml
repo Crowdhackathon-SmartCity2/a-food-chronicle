@@ -16,8 +16,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:text="Create Account"
-            android:textSize="30dp"
+            android:text="@string/create_account"
+            android:textSize="30sp"
             android:textStyle="bold" />
 
         <EditText
@@ -26,9 +26,9 @@
             android:layout_height="40dp"
             android:layout_marginBottom="10dp"
             android:background="#11000000"
-            android:drawableLeft="@drawable/ic_action_user"
+            android:drawableStart="@drawable/ic_action_user"
             android:ems="10"
-            android:hint="First Name"
+            android:hint="@string/first_name"
             android:inputType="textPersonName"
             android:padding="10dp"
             android:textColorHint="@android:color/darker_gray"
@@ -40,9 +40,9 @@
             android:layout_height="40dp"
             android:layout_marginBottom="10dp"
             android:background="#11000000"
-            android:drawableLeft="@drawable/ic_action_user"
+            android:drawableStart="@drawable/ic_action_user"
             android:ems="10"
-            android:hint="Last Name"
+            android:hint="@string/last_name"
             android:inputType="textPersonName"
             android:padding="10dp"
             android:textColorHint="@android:color/darker_gray"
@@ -53,10 +53,10 @@
             android:layout_height="40dp"
             android:layout_marginBottom="10dp"
             android:background="#11000000"
-            android:drawableLeft="@drawable/ic_action_user"
+            android:drawableStart="@drawable/ic_action_user"
             android:ems="10"
-            android:hint="Email"
-            android:inputType="textPersonName"
+            android:hint="@string/hint_email"
+            android:inputType="textEmailAddress"
             android:padding="10dp"
             android:textColorHint="@android:color/darker_gray"
             android:textSize="20sp" />
@@ -67,9 +67,9 @@
             android:layout_height="40dp"
             android:layout_marginBottom="10dp"
             android:background="#11000000"
-            android:drawableLeft="@drawable/ic_action_password"
+            android:drawableStart="@drawable/ic_action_password"
             android:ems="10"
-            android:hint="Password"
+            android:hint="@string/password"
             android:inputType="textPassword"
             android:padding="10dp"
             android:textColorHint="@android:color/darker_gray"
@@ -80,9 +80,9 @@
             android:layout_width="250dp"
             android:layout_height="40dp"
             android:background="#11000000"
-            android:drawableLeft="@drawable/ic_action_password"
+            android:drawableStart="@drawable/ic_action_password"
             android:ems="10"
-            android:hint="Confirm Password"
+            android:hint="@string/confirm_password"
             android:inputType="textPassword"
             android:padding="10dp"
             android:textColorHint="@android:color/darker_gray"
@@ -93,7 +93,7 @@
             android:layout_width="270dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="Sign up"
+            android:text="@string/sign_up"
             android:theme="@style/ThemeOverlay.MyDarkButton" />
 
 
@@ -101,12 +101,12 @@
             android:id="@+id/mLoginTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Already have an account? Log in here!"
+            android:text="@string/have_account"
             android:textColor="@android:color/darker_gray"/>
         <TextView
             android:id="@+id/status"
             style="@style/ThemeOverlay.MyTextDetail"
-            android:text="Or"
+            android:text="@string/or"
             android:layout_margin="15dp"
             android:textColor="@android:color/darker_gray"/>
 

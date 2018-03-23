@@ -7,11 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
@@ -22,10 +19,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:name=".utilities.OfflineUtils">
+        android:name=".utilities.OfflineUtils"
+        android:fullBackupContent="@xml/backup_descriptor">
+
 
         <service
-            android:name=".chat.FirebaseMessagingService">
+            android:name=".chat.FirebaseMessagingService"
+            android:permission="">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
@@ -85,7 +85,7 @@
             android:label="Profile Details"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".chat.ChatFragmentsListActivity"
+            android:name=".chat.fragments.ChatFragmentsListActivity"
             android:label="Chat"
             android:windowSoftInputMode="stateHidden" />
         <activity
@@ -99,7 +99,7 @@
 
             <intent-filter>
                 <action android:name ="com.afoodchronicle_TARGET_NOTIFICATION"> </action>
-                <category android:name = "android.intent.category.DEFAULT"></category>
+                <category android:name="android.intent.category.DEFAULT" />
 
             </intent-filter>
         </activity>

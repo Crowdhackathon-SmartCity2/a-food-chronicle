@@ -15,8 +15,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login"
-        android:textSize="30dp"
+        android:text="@string/login"
+        android:textSize="30sp"
         android:textStyle="bold"
         android:layout_margin="5dp"/>
 
@@ -33,10 +33,10 @@
         android:padding="10dp"
         android:layout_marginBottom="10dp"
         android:background="#11000000"
-        android:drawableLeft="@drawable/ic_action_user"
+        android:drawableStart="@drawable/ic_action_user"
         android:ems="10"
-        android:hint="Email"
-        android:inputType="textPersonName"
+        android:hint="@string/hint_email"
+        android:inputType="textEmailAddress"
         android:textColorHint="@android:color/darker_gray"
         android:textSize="20sp" />
 
@@ -46,9 +46,9 @@
         android:layout_height="40dp"
         android:padding="10dp"
         android:background="#11000000"
-        android:drawableLeft="@drawable/ic_action_password"
+        android:drawableStart="@drawable/ic_action_password"
         android:ems="10"
-        android:hint="Password"
+        android:hint="@string/password"
         android:inputType="textPassword"
         android:textColorHint="@android:color/darker_gray"
         android:textSize="20sp" />
@@ -74,7 +74,7 @@
         <Button
             android:id="@+id/email_create_account_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_weight="1"
             android:text="@string/create_account"
             android:theme="@style/ThemeOverlay.MyDarkButton" />

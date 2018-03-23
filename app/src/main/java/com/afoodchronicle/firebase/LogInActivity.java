@@ -51,19 +51,15 @@ public class LogInActivity extends FacebookUtils implements
     private EditText mEmailField;
     private EditText mPasswordField;
 
-    static final String LOG_TAG = LogInActivity.class.getSimpleName();
+    private static final String LOG_TAG = LogInActivity.class.getSimpleName();
 
 
     // Facebook
     private CallbackManager mCallbackManager;
-    private LoginManager mAuthFacebook;
 
-    //Firebase
-    private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference getNameFromDatabaseReference;
-    private DatabaseReference userReference;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,8 +79,8 @@ public class LogInActivity extends FacebookUtils implements
 
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
-        mAuthFacebook = LoginManager.getInstance();
-        userReference = FirebaseDatabase.getInstance().getReference().child(USERS);
+        LoginManager mAuthFacebook = LoginManager.getInstance();
+        DatabaseReference userReference = FirebaseDatabase.getInstance().getReference().child(USERS);
 
         // [END initialize_auth]
 
@@ -105,7 +101,7 @@ public class LogInActivity extends FacebookUtils implements
 
         // Firebase Database
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
         // Initialize Facebook Login button

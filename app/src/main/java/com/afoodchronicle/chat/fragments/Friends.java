@@ -1,10 +1,7 @@
-package com.afoodchronicle.chat;
+package com.afoodchronicle.chat.fragments;
 
-/**
- * Created by Mayke on 13.03.2018.
- */
 
-public class Friends {
+class Friends {
     private String date;
     private String age;
     private String userName;

@@ -31,17 +31,13 @@ import static com.afoodchronicle.utilities.Static.USERS;
 
 public class CreateUserActivity extends FacebookUtils implements View.OnClickListener {
 
-    public static final String TAG = CreateUserActivity.class.getSimpleName();
+    private static final String TAG = CreateUserActivity.class.getSimpleName();
     private FirebaseAuth mAuth;
     private EditText mEmailField;
     private EditText mPasswordField;
     private EditText mConfirmPasswordField;
-    private FirebaseAuth.AuthStateListener mAuthListener;
-    private LoginManager mAuthFacebook;
     private EditText mFirstName;
     private EditText mLastName;
-    private DatabaseReference mDatabase;
-    private DatabaseReference userReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,15 +55,15 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
         findViewById(R.id.sign_up_button).setOnClickListener(this);
         findViewById(R.id.mLoginTextView).setOnClickListener(this);
 
-        mAuthFacebook = LoginManager.getInstance();
+        LoginManager mAuthFacebook = LoginManager.getInstance();
         mAuth = FirebaseAuth.getInstance();
-        userReference = FirebaseDatabase.getInstance().getReference().child(USERS);
+        DatabaseReference userReference = FirebaseDatabase.getInstance().getReference().child(USERS);
 
         initializeFacebookLogin(CreateUserActivity.this);
 
         createAuthStateListener();
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
     }
 
@@ -111,7 +107,7 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
     }
 
     private void createAuthStateListener() {
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
+        FirebaseAuth.AuthStateListener mAuthListener = new FirebaseAuth.AuthStateListener() {
 
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -124,7 +120,8 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
                 }
             }
 
-        };}
+        };
+    }
 
 
     private boolean validateForm() {

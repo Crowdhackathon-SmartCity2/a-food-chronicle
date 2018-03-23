@@ -22,6 +22,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -38,15 +39,14 @@ public abstract class PermissionUtils {
      * Requests the fine location permission. If a rationale with an additional explanation should
      * be shown to the user, displays a dialog that triggers the request.
      */
-    public static void requestPermission(AppCompatActivity activity, int requestId,
-            String permission, boolean finishActivity) {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+    public static void requestPermission(AppCompatActivity activity) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION)) {
             // Display a dialog with rationale.
-            PermissionUtils.RationaleDialog.newInstance(requestId, finishActivity)
+            PermissionUtils.RationaleDialog.newInstance(Static.LOCATION_PERMISSION_REQUEST_CODE, true)
                     .show(activity.getSupportFragmentManager(), "dialog");
         } else {
             // Location permission has not been granted yet, request it.
-            ActivityCompat.requestPermissions(activity, new String[]{permission}, requestId);
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Static.LOCATION_PERMISSION_REQUEST_CODE);
 
         }
     }
@@ -58,10 +58,9 @@ public abstract class PermissionUtils {
      * @see android.support.v4.app.ActivityCompat.OnRequestPermissionsResultCallback
      */
 
-    public static boolean isPermissionGranted(String[] grantPermissions, int[] grantResults,
-            String permission) {
+    public static boolean isPermissionGranted(String[] grantPermissions, int[] grantResults) {
         for (int i = 0; i < grantPermissions.length; i++) {
-            if (permission.equals(grantPermissions[i])) {
+            if (Manifest.permission.ACCESS_FINE_LOCATION.equals(grantPermissions[i])) {
                 return grantResults[i] == PackageManager.PERMISSION_GRANTED;
             }
         }
@@ -81,15 +80,16 @@ public abstract class PermissionUtils {
          * Creates a new instance of this dialog and optionally finishes the calling Activity
          * when the 'Ok' button is clicked.
          */
-        public static PermissionDeniedDialog newInstance(boolean finishActivity) {
+        public static PermissionDeniedDialog newInstance() {
             Bundle arguments = new Bundle();
-            arguments.putBoolean(ARGUMENT_FINISH_ACTIVITY, finishActivity);
+            arguments.putBoolean(ARGUMENT_FINISH_ACTIVITY, true);
 
             PermissionDeniedDialog dialog = new PermissionDeniedDialog();
             dialog.setArguments(arguments);
             return dialog;
         }
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             mFinishActivity = getArguments().getBoolean(ARGUMENT_FINISH_ACTIVITY);
@@ -148,6 +148,7 @@ public abstract class PermissionUtils {
             return dialog;
         }
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             Bundle arguments = getArguments();

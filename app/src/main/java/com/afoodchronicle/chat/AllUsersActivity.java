@@ -33,13 +33,12 @@ public class AllUsersActivity extends AppCompatActivity {
 
     private RecyclerView allUsersList;
     private DatabaseReference allDatabaseUsersReference;
-    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_users);
-        mAuth = FirebaseAuth.getInstance();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
         allUsersList = findViewById(R.id.all_users_list);
         allUsersList.setHasFixedSize(true);
         allUsersList.setLayoutManager(new LinearLayoutManager(this));
@@ -92,7 +91,7 @@ public class AllUsersActivity extends AppCompatActivity {
 
     private static class AllUsersViewHolder extends RecyclerView.ViewHolder{
 
-        private View mView;
+        private final View mView;
         private TextView name;
         private TextView description;
 

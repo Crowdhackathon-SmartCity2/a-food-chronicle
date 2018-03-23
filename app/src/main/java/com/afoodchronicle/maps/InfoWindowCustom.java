@@ -1,9 +1,11 @@
 package com.afoodchronicle.maps;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,12 +15,13 @@ import com.google.android.gms.maps.model.Marker;
 
 import java.util.HashMap;
 
+@SuppressLint("Registered")
 public class InfoWindowCustom extends AppCompatActivity implements GoogleMap.InfoWindowAdapter  {
 
-    private HashMap<String, String> markerMap;
-    LayoutInflater inflater;
+    private final HashMap<String, String> markerMap;
+    private LayoutInflater inflater;
     private View view;
-    Context context;
+    private final Context context;
 
 
     public InfoWindowCustom(HashMap<String, String> markerMap, Context context) {
@@ -36,8 +39,9 @@ public class InfoWindowCustom extends AppCompatActivity implements GoogleMap.Inf
         if (m != null) {
             inflater = (LayoutInflater)
                     context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View view = inflater.inflate(R.layout.custom_info_contents, null);
-            if (m == "yoleni"){
+            final ViewGroup nullParent = null;
+            view = inflater.inflate(R.layout.custom_info_contents, nullParent);
+            if (m.equals("yoleni")){
                 TextView title = view.findViewById(R.id.title);
                 title.setText(m);
 

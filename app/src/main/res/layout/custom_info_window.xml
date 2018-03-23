@@ -19,7 +19,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:background="@drawable/side_nav_bar"/>
+            android:background="@drawable/side_nav_bar"
+            android:contentDescription="@string/badge_infowindow"/>
 
 
 

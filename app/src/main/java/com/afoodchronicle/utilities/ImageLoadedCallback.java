@@ -4,12 +4,9 @@ import android.widget.ProgressBar;
 
 import com.squareup.picasso.Callback;
 
-/**
- * Created by Mayke on 01.03.2018.
- */
 public class ImageLoadedCallback implements Callback {
 
-    public ProgressBar progressBar;
+    public final ProgressBar progressBar;
 
     protected ImageLoadedCallback(ProgressBar progBar){
         progressBar = progBar;

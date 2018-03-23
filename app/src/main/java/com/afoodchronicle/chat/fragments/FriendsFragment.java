@@ -1,4 +1,4 @@
-package com.afoodchronicle.chat;
+package com.afoodchronicle.chat.fragments;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afoodchronicle.R;
+import com.afoodchronicle.chat.AllUsersDetailsActivity;
+import com.afoodchronicle.chat.ChatActivity;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -50,10 +52,9 @@ public class FriendsFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private RecyclerView myFriendsList;
     private DatabaseReference friendsReference;
-    private FirebaseAuth mAuth;
-    String online_user_id;
-    private View myMainView;
+    private String online_user_id;
     private DatabaseReference userReference;
+    private FirebaseAuth mAuth;
 
     public FriendsFragment() {
         // Required empty public constructor
@@ -61,10 +62,10 @@ public class FriendsFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
-        myMainView = inflater.inflate(R.layout.fragment_friends, container, false);
+        View myMainView = inflater.inflate(R.layout.fragment_friends, container, false);
 
         myFriendsList = myMainView.findViewById(R.id.friends_list);
         mAuth = FirebaseAuth.getInstance();
@@ -72,6 +73,8 @@ public class FriendsFragment extends Fragment {
 
         friendsReference = FirebaseDatabase.getInstance().getReference().child(FRIENDS).child(online_user_id);
         userReference = FirebaseDatabase.getInstance().getReference().child(USERS);
+
+        myFriendsList.setHasFixedSize(true);
         myFriendsList.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Inflate the layout for this fragment
@@ -81,7 +84,7 @@ public class FriendsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-
+        userReference.child(online_user_id).child(ONLINE).setValue(true);
         FirebaseRecyclerOptions<Friends> options =
                 new FirebaseRecyclerOptions.Builder<Friends>()
                         .setQuery(friendsReference, Friends.class)
@@ -143,7 +146,7 @@ public class FriendsFragment extends Fragment {
 
                                    }
                                });
-                               builder.setNeutralButton("Send message", new DialogInterface.OnClickListener() {
+                               builder.setNegativeButton("Send message", new DialogInterface.OnClickListener() {
                                    @Override
                                    public void onClick(DialogInterface dialog, int which) {
 
@@ -170,7 +173,7 @@ public class FriendsFragment extends Fragment {
                                        }
                                    }
                                });
-                               builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                               builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
                                    @Override
                                    public void onClick(DialogInterface dialog, int which) {
 
@@ -198,16 +201,19 @@ public class FriendsFragment extends Fragment {
         adapter.startListening();
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-
-    }
-
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(mAuth.getUid() != null)
+        {
+            userReference.child(online_user_id).child(ONLINE).setValue(ServerValue.TIMESTAMP);
         }
     }
 
@@ -229,7 +235,7 @@ public class FriendsFragment extends Fragment {
     }
 
     private static class FriendsViewHolder extends RecyclerView.ViewHolder{
-        View mView;
+        final View mView;
 
         FriendsViewHolder(View itemView) {
             super(itemView);
@@ -273,7 +279,7 @@ public class FriendsFragment extends Fragment {
                 {
                     ImageView onlineStatusView = mView.findViewById(R.id.all_users_online_status);
                     if (online_status.equals(TRUE))
-                onlineStatusView.setVisibility(View.VISIBLE);
+                    onlineStatusView.setVisibility(View.VISIBLE);
             }
         }
     }

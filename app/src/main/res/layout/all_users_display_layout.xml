@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_margin="15dp">
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_margin="15dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
         <FrameLayout
             android:layout_width="wrap_content"
@@ -29,7 +25,8 @@
             android:textStyle="bold"
             android:src="@drawable/online"
             android:layout_gravity="end|bottom"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:contentDescription="@string/online_status"/>
 
         </FrameLayout>
 
@@ -49,15 +46,15 @@
                         android:id="@+id/all_users_username"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="User Name"
+                        android:text="@string/username"
                         android:textSize="15sp"
                         android:textStyle="bold"/>
                     <TextView
                         android:id="@+id/all_users_age"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="5dp"
-                        android:text="Age"
+                        android:layout_marginStart="5dp"
+                        android:text="@string/age"
                         android:textSize="15sp"
                         android:textStyle="italic"/>
             </LinearLayout>
@@ -66,8 +63,7 @@
                 android:id="@+id/all_users_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Status"
+                android:text="@string/description"
                 android:textSize="15sp" />
         </LinearLayout>
     </LinearLayout>
-</LinearLayout>
