@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity
     private String profileImageLink;
     private DatabaseReference userReference;
     private LoginManager mAuthFacebook;
+    private String onlineUserID;
 
 
     @Override
@@ -186,13 +187,13 @@ public class MainActivity extends AppCompatActivity
 
 
                 if (user != null) {
-                    final String online_user_id = user.getUid();
-                    userReference = mDatabase.child(USERS).child(online_user_id);
+                    final String onlineUserId = user.getUid();
+                    userReference = mDatabase.child(USERS).child(onlineUserId);
                     userReference.child(ONLINE).setValue(true);
 
                     finalProgressBar.setVisibility(View.VISIBLE);
                     ///Facebook
-                    if (FacebookUtils.isLoggedIn() && online_user_id != null) {
+                    if (FacebookUtils.isLoggedIn() && onlineUserId != null) {
 
                         String firstName = Utils.getPreferences(FACEBOOK_FIRST_NAME, MainActivity.this);
                         String lastName = Utils.getPreferences(FACEBOOK_LAST_NAME, MainActivity.this);
@@ -201,8 +202,8 @@ public class MainActivity extends AppCompatActivity
                         mDatabase.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.child(USERS).child(online_user_id).child(THUMB_PHOTO_URL).exists() && online_user_id != null) {
-                                    profileImageLink = dataSnapshot.child(USERS).child(online_user_id).child(THUMB_PHOTO_URL).getValue().toString();
+                                if (dataSnapshot.child(USERS).child(onlineUserId).child(THUMB_PHOTO_URL).exists() && onlineUserId != null) {
+                                    profileImageLink = dataSnapshot.child(USERS).child(onlineUserId).child(THUMB_PHOTO_URL).getValue().toString();
                                     Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
                                                 .into(profileImage, new Callback() {
                                                     @Override
@@ -226,7 +227,7 @@ public class MainActivity extends AppCompatActivity
                                 }
                                 else
                                 {
-                                    if (mAuth.getUid() != null)
+                                    if (mAuth.getCurrentUser().getUid() != null)
                                     {
                                         profileImageLink= Utils.getPreferences(FACEBOOK_PROFILE_PIC, MainActivity.this);
                                         if (profileImageLink.equals(""))
@@ -284,7 +285,7 @@ public class MainActivity extends AppCompatActivity
 
                     }
                     ///Email
-                    else if (online_user_id != null){
+                    else if (onlineUserId != null){
 
 
                         String firstName = Utils.getPreferences(EMAIL_FIRST_NAME, MainActivity.this);
@@ -293,8 +294,8 @@ public class MainActivity extends AppCompatActivity
                         mDatabase.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).exists() && mAuth.getUid() != null) {
-                                    profileImageLink = dataSnapshot.child(USERS).child(mAuth.getUid()).child(THUMB_PHOTO_URL).getValue().toString();
+                                if (dataSnapshot.child(USERS).child(onlineUserId).child(THUMB_PHOTO_URL).exists() && mAuth.getCurrentUser().getUid() != null) {
+                                    profileImageLink = dataSnapshot.child(USERS).child(mAuth.getCurrentUser().getUid()).child(THUMB_PHOTO_URL).getValue().toString();
                                     Picasso.with(MainActivity.this).load(profileImageLink).networkPolicy(NetworkPolicy.OFFLINE)
                                             .into(profileImage, new Callback() {
                                                 @Override
@@ -390,13 +391,11 @@ public class MainActivity extends AppCompatActivity
     protected void onStop()
     {
         super.onStop();
-        if(mAuth.getUid() != null)
-        {
-            userReference.child(ONLINE).setValue(ServerValue.TIMESTAMP);
-        }
+
         if (mAuthListener != null)
         {
             mAuth.removeAuthStateListener(mAuthListener);
+         //   userReference.child(ONLINE).setValue(ServerValue.TIMESTAMP);
         }
 
 
@@ -448,7 +447,7 @@ public class MainActivity extends AppCompatActivity
 
         if (user != null)
         {
-            userReference.child(USERS).child(mAuth.getUid()).child(ONLINE).setValue(ServerValue.TIMESTAMP);
+            mDatabase.child(USERS).child(mAuth.getCurrentUser().getUid()).child(ONLINE).setValue(ServerValue.TIMESTAMP);
             mAuth.signOut();
             mAuthFacebook.logOut();
             Utils.setPreferences(EMAIL_PROFILE_PIC, "", MainActivity.this);
@@ -475,17 +474,17 @@ public class MainActivity extends AppCompatActivity
             // Handle the camera action
         }
 
-         else if (id == R.id.favorites)
+         else if (id == R.id.people)
         {
+            Intent listIntent = new Intent(MainActivity.this, AllUsersActivity.class);
 
+            startActivity(listIntent);
         } else if (id == R.id.news)
         {
 
         } else if (id == R.id.settings)
         {
-            Intent listIntent = new Intent(MainActivity.this, AllUsersActivity.class);
 
-            startActivity(listIntent);
 
         }
         else if (id == R.id.logout)

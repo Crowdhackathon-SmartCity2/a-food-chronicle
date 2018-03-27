@@ -200,7 +200,7 @@ public class CreateUserActivity extends FacebookUtils implements View.OnClickLis
     private void updateUI(FirebaseUser user) {
         hideProgressDialog();
         if (user != null) {
-            writeBasicInfoToPreferencesEmail(mFirstName.getText().toString(), mLastName.getText().toString(), mAuth.getUid());
+            writeBasicInfoToPreferencesEmail(mFirstName.getText().toString(), mLastName.getText().toString(), mAuth.getCurrentUser().getUid());
             Intent listIntent = new Intent(CreateUserActivity.this, ProfileDetailsActivity.class);
             sendEmailVerification();
             startActivity(listIntent);

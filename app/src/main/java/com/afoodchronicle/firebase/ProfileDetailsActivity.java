@@ -368,7 +368,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         Utils.setPreferences(FACEBOOK_BIRTHDAY, birthday, ProfileDetailsActivity.this);
         Utils.setPreferences(FACEBOOK_DESCRIPTION, description, ProfileDetailsActivity.this);
         FirebaseUser firebaseUser = new FirebaseUser(firstName,lastName, photoUrl, thumbPhotoUrl, birthday, description, age, deviceToken);
-        mDatabase.child(USERS).child(mAuth.getUid()).setValue(firebaseUser);
+        mDatabase.child(USERS).child(mAuth.getCurrentUser().getUid()).setValue(firebaseUser);
     }
 
     private void writeInfoToDatabaseEmail(String birthday, String description)
@@ -382,7 +382,7 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
         Utils.setPreferences(EMAIL_BIRTHDAY, birthday, ProfileDetailsActivity.this);
         Utils.setPreferences(EMAIL_DESCRIPTION, description, ProfileDetailsActivity.this);
         FirebaseUser firebaseUser = new FirebaseUser(firstName,lastName, photoUrl, thumbPhotoUrl, birthday, description, age, deviceToken);
-        mDatabase.child(USERS).child(mAuth.getUid()).setValue(firebaseUser);
+        mDatabase.child(USERS).child(mAuth.getCurrentUser().getUid()).setValue(firebaseUser);
     }
 
     private void writePhotoToPreferencesFacebook(String photoUrl)
@@ -405,6 +405,8 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
+
+
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
                 && data != null && data.getData() != null )
         {
@@ -452,9 +454,9 @@ public class ProfileDetailsActivity extends FacebookUtils implements View.OnClic
 
 
                     StorageReference photoUrlReference = storageReference.child
-                            (IMAGES + mAuth.getUid() + JPG);
+                            (IMAGES + mAuth.getCurrentUser().getUid() + JPG);
                     thumbPhotoUrlReference = storageReference.child
-                            (THUMB_IMAGES + mAuth.getUid()+ JPG);
+                            (THUMB_IMAGES + mAuth.getCurrentUser().getUid()+ JPG);
 
                     photoUrlReference.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                         @Override

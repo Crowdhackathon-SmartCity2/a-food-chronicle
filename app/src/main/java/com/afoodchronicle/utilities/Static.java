@@ -37,6 +37,7 @@ public class Static {
     public static final String FROM_SENDER_ID = "from_sender_id";
     public static final String ONLINE = "online";
     public static final String MESSAGES = "messages";
+    public static final String MESSAGES_PICTURES = "messages_pictures";
 
 
     //Toast
@@ -89,7 +90,7 @@ public class Static {
     public static final String TEXT = "text";
     public static final String TIME = "time";
     public static final String USER_STATUS = "description";
-
+    public static final String IMAGE = "image";
 
 
     // Images

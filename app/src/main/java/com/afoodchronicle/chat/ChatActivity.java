@@ -1,7 +1,16 @@
 package com.afoodchronicle.chat;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.CursorLoader;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,9 +25,15 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
+import android.widget.Toast;
 
 import com.afoodchronicle.R;
+import com.afoodchronicle.firebase.ProfileDetailsActivity;
+import com.afoodchronicle.utilities.FacebookUtils;
 import com.afoodchronicle.utilities.LastSeenTime;
+import com.afoodchronicle.utilities.Utils;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -27,28 +42,47 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
+import static com.afoodchronicle.utilities.Static.EMAIL_THUMB_PROFILE_PIC;
+import static com.afoodchronicle.utilities.Static.FACEBOOK_THUMB_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.FROM;
 import static com.afoodchronicle.utilities.Static.FULL_NAME;
+import static com.afoodchronicle.utilities.Static.IMAGE;
+import static com.afoodchronicle.utilities.Static.IMAGES;
+import static com.afoodchronicle.utilities.Static.JPG;
 import static com.afoodchronicle.utilities.Static.MESSAGE;
 import static com.afoodchronicle.utilities.Static.MESSAGES;
+import static com.afoodchronicle.utilities.Static.MESSAGES_PICTURES;
 import static com.afoodchronicle.utilities.Static.ONLINE;
+import static com.afoodchronicle.utilities.Static.PICK_IMAGE_REQUEST;
 import static com.afoodchronicle.utilities.Static.SEEN;
 import static com.afoodchronicle.utilities.Static.TEXT;
+import static com.afoodchronicle.utilities.Static.THUMB_IMAGES;
 import static com.afoodchronicle.utilities.Static.THUMB_PHOTO_URL;
 import static com.afoodchronicle.utilities.Static.TIME;
 import static com.afoodchronicle.utilities.Static.TRUE;
 import static com.afoodchronicle.utilities.Static.TYPE;
+import static com.afoodchronicle.utilities.Static.UPLOAD;
+import static com.afoodchronicle.utilities.Static.UPLOAD_ERROR;
 import static com.afoodchronicle.utilities.Static.USERS;
 import static com.afoodchronicle.utilities.Static.VISIT_USER_ID;
 
@@ -65,6 +99,9 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private DatabaseReference rootRef;
     private final List<Messages> messagesList = new ArrayList<>();
     private MessagesAdapter messagesAdapter;
+    private StorageReference messageImageStorageRef;
+    private ProgressDialog loadingBar;
+    private Bitmap thumb_bitmap;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,7 +112,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
         messageReceiverId = getIntent().getExtras().get(VISIT_USER_ID).toString();
         messageReceiverName = getIntent().getExtras().get(FULL_NAME).toString();
-
+        messageImageStorageRef = FirebaseStorage.getInstance().getReference().child(MESSAGES_PICTURES);
         Toolbar chatToolBar = findViewById(R.id.chat_custom_bar);
         setSupportActionBar(chatToolBar);
         LayoutInflater layoutInflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -86,6 +123,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
+        loadingBar = new ProgressDialog(this);
 
 
         TextView userNameTitle = findViewById(R.id.custom_chat_username);
@@ -148,6 +186,81 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        {
+            super.onActivityResult(requestCode, resultCode, data);
+
+            if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                    && data != null && data.getData() != null) {
+                loadingBar.setTitle("Sending chat image");
+                loadingBar.setMessage("Please wait...");
+                loadingBar.show();
+                Uri filePath = data.getData();
+
+                final String messageSenderRef = MESSAGES + "/" + messageSenderId + "/" + messageReceiverId;
+                final String messageReceiverRef = MESSAGES + "/" + messageReceiverId + "/" + messageSenderId;
+                DatabaseReference userMessageKey = rootRef.child(MESSAGES).child(messageSenderId)
+                        .child(messageReceiverId).push();
+                final String messagePushId = userMessageKey.getKey();
+
+                StorageReference filePathStorage = messageImageStorageRef.child(messagePushId + ".jpg");
+                if (resultCode == RESULT_OK)
+
+                {
+
+                    try {
+
+                        thumb_bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), filePath);
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    Utils.resize(thumb_bitmap, 1000, 1000).compress(Bitmap.CompressFormat.JPEG, 40, byteArrayOutputStream);
+                    final byte[] thumb_byte = byteArrayOutputStream.toByteArray();
+
+                    UploadTask uploadTask = filePathStorage.putBytes(thumb_byte);
+                    uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> thumb_task) {
+
+
+                            if (thumb_task.isSuccessful()) {
+                                String downloadUrl = thumb_task.getResult().getDownloadUrl().toString();
+
+
+                                Map messageTextBody = new HashMap();
+                                messageTextBody.put(MESSAGE, downloadUrl);
+                                messageTextBody.put(SEEN, false);
+                                messageTextBody.put(TYPE, IMAGE);
+                                messageTextBody.put(TIME, ServerValue.TIMESTAMP);
+                                messageTextBody.put(FROM, messageSenderId);
+
+                                Map messageBodyDetails = new HashMap();
+                                messageBodyDetails.put(messageSenderRef + "/" + messagePushId, messageTextBody);
+                                messageBodyDetails.put(messageReceiverRef + "/" + messagePushId, messageTextBody);
+
+                                rootRef.updateChildren(messageBodyDetails, new DatabaseReference.CompletionListener() {
+                                    @Override
+                                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+
+                                        inputMessageText.setText("");
+                                        loadingBar.dismiss();
+                                    }
+                                });
+                                loadingBar.dismiss();
+                            }
+
+                        }
+                    });
+                }
+
+            }
+        }
+    }
+
     private void fetchMessages()
     {
         FirebaseDatabase.getInstance().getReference().child(MESSAGES).child(messageSenderId).child(messageReceiverId).addChildEventListener(new ChildEventListener() {
@@ -191,8 +304,17 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         }
         else if (i == R.id.add_photo)
         {
-
+            selectImage();
         }
+    }
+
+    private void selectImage() {
+
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+
     }
 
     private void sendMessage()

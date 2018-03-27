@@ -211,7 +211,7 @@ public class FriendsFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if(mAuth.getUid() != null)
+        if(mAuth.getCurrentUser().getUid() != null)
         {
             userReference.child(online_user_id).child(ONLINE).setValue(ServerValue.TIMESTAMP);
         }

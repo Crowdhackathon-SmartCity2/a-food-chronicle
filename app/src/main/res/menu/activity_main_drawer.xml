@@ -16,9 +16,9 @@
             android:title="Chat" />
 
         <item
-            android:id="@+id/favorites"
+            android:id="@+id/people"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Favorites" />
+            android:title="People" />
         <item
             android:id="@+id/news"
             android:icon="@drawable/ic_menu_manage"

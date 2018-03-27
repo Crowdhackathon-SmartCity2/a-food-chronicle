@@ -60,6 +60,7 @@ public class LogInActivity extends FacebookUtils implements
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference getNameFromDatabaseReference;
+    private DatabaseReference mDatabase;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -101,7 +102,7 @@ public class LogInActivity extends FacebookUtils implements
 
         // Firebase Database
 
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
         // Initialize Facebook Login button
@@ -146,7 +147,7 @@ public class LogInActivity extends FacebookUtils implements
                     {
                         if(task.isSuccessful())
                         {
-                            downloadUserDataFromDatabaseToPreferences(mAuth.getUid());
+                            downloadUserDataFromDatabaseToPreferences(mAuth.getCurrentUser().getUid());
                             String deviceToken = FirebaseInstanceId.getInstance().getToken();
                             Utils.setPreferences(EMAIL_DEVICE_TOKEN, deviceToken, LogInActivity.this);
 
