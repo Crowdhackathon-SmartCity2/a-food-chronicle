@@ -52,7 +52,7 @@ public class Static {
     public static final String MARKER_NAME = "MARKER_NAME";
     public static final LatLng mYoleni = new LatLng(37.9776514, 23.7388241);
     public static final LatLng mVorria = new LatLng(37.9797024, 23.7281983);
-    public static final LatLng mPnyka = new LatLng(37.9685393, 23.7478882);
+    public static final LatLng mAriana = new LatLng(37.9806295, 23.7256498);
     public static final LatLng mPantopoleio = new LatLng(38.0056227, 23.7826411);
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     public static final CameraPosition ATHENS = CameraPosition.builder()

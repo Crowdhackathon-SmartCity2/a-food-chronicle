@@ -41,16 +41,32 @@ public class InfoWindowCustom extends AppCompatActivity implements GoogleMap.Inf
                     context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final ViewGroup nullParent = null;
             view = inflater.inflate(R.layout.custom_info_contents, nullParent);
-            if (m.equals("yoleni")){
-                TextView title = view.findViewById(R.id.title);
+            TextView title = view.findViewById(R.id.title);
+            TextView snippet = view.findViewById(R.id.snippet);
+            ImageView badge = view.findViewById(R.id.badge);
+            if (m.equals("yoleni")) {
+
                 title.setText(m);
-
-                TextView snippet = view.findViewById(R.id.snippet);
-                snippet.setText(R.string.lorem_ipsum);
-
-                ImageView badge = view.findViewById(R.id.badge);
+                snippet.setText(R.string.yoleni_snippet);
                 badge.setImageResource(R.drawable.yoleni_restaurant);
             }
+            if (m.equals("vorria")) {
+                title.setText(m);
+                snippet.setText(R.string.vorria_snippet);
+                badge.setImageResource(R.drawable.yoleni_restaurant);
+            }
+            if (m.equals("ariana")){
+                title.setText(m);
+                snippet.setText(R.string.ariana_snippet);
+                badge.setImageResource(R.drawable.yoleni_restaurant);
+           }
+            if (m.equals("pantopoleio")){
+                title.setText(m);
+                snippet.setText(R.string.pantopoleio_snippet);
+                badge.setImageResource(R.drawable.yoleni_restaurant);
+            }
+
+
             return view;
         }
         return view;

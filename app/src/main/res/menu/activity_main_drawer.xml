@@ -6,30 +6,25 @@
     <group android:checkableBehavior="single">
 
         <item
-            android:id="@+id/edit_profile"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Profile" />
-
-        <item
             android:id="@+id/chat"
-            android:icon="@drawable/ic_menu_send"
+            android:icon="@drawable/chat_icon"
             android:title="Chat" />
 
         <item
             android:id="@+id/people"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/profile_icon"
             android:title="People" />
         <item
             android:id="@+id/news"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/news_icon"
             android:title="News" />
         <item
             android:id="@+id/settings"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/setting_icon"
             android:title="Settings" />
         <item
             android:id="@+id/logout"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/log_out_icon"
             android:title="Log out" />
     </group>
 

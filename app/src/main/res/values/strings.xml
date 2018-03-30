@@ -7,8 +7,14 @@
 
     <string name="yoleni">Yolenis Flagship store</string>
     <string name="vorria">Vorria Morria</string>
-    <string name="pnyka">Pnyka</string>
+    <string name="ariana">Pnyka</string>
     <string name="pantopoleio">Pantopoleio medogeiakis diatrofis</string>
+
+    <string name="yoleni_snippet">Yolenis Flagship store /n kdsfsdhfshdfhsdsdfsdfsdfsdfsdfhjsdf</string>
+    <string name="vorria_snippet">Vorria Morria /n kasdfhgsdfhfsdhadfjasjdfhgsakjdfgasjfgggg</string>
+    <string name="ariana_snippet">Ariana /n sdakgfjhsdfgjsdfgasjdfsdhf</string>
+    <string name="pantopoleio_snippet">Pantopoleio medogeiakis diatrofis /sdkfsadjkfhgsdjfhgjsadghfj</string>
+
     <string name="location_permission_denied">Location permission denied.</string>
     <string name="permission_required_toast">Permission is required.</string>
     <string name="permission_rationale_location">Access to the location service is required to demonstrate the \\\'my location\\\' feature, which shows your current location on the map.</string>

@@ -73,8 +73,8 @@ import static com.afoodchronicle.utilities.Static.MARKER_NAME;
 import static com.afoodchronicle.utilities.Static.ONLINE;
 import static com.afoodchronicle.utilities.Static.THUMB_PHOTO_URL;
 import static com.afoodchronicle.utilities.Static.USERS;
+import static com.afoodchronicle.utilities.Static.mAriana;
 import static com.afoodchronicle.utilities.Static.mPantopoleio;
-import static com.afoodchronicle.utilities.Static.mPnyka;
 import static com.afoodchronicle.utilities.Static.mVorria;
 import static com.afoodchronicle.utilities.Static.mYoleni;
 
@@ -372,12 +372,21 @@ public class MainActivity extends AppCompatActivity
                 }
                 //FirebaseUser signed out
                 else {
+                    hideDrawerItems();
                     logIn.setVisibility(View.VISIBLE);
                     profileName.setVisibility(View.GONE);
                     editProfile.setVisibility(View.GONE);
                 }
             }
         };
+    }
+
+    private void hideDrawerItems() {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        Menu nav_Menu = navigationView.getMenu();
+        nav_Menu.findItem(R.id.chat).setVisible(false);
+        nav_Menu.findItem(R.id.people).setVisible(false);
+        nav_Menu.findItem(R.id.logout).setVisible(false);
     }
 
     @Override
@@ -574,12 +583,12 @@ public class MainActivity extends AppCompatActivity
         markerMap.put(id, "vorria");
 
         Marker pnyka = mMap.addMarker(new MarkerOptions()
-                .position(mPnyka)
-                .title(getString(R.string.pnyka))
+                .position(mAriana)
+                .title(getString(R.string.ariana))
                 .icon(BitmapDescriptorFactory.fromBitmap(resizeBitmap())));
 
         id = pnyka.getId();
-        markerMap.put(id, "pnyka");
+        markerMap.put(id, "ariana");
 
         Marker pantopoleio = mMap.addMarker(new MarkerOptions()
                 .position(mPantopoleio)
@@ -611,13 +620,23 @@ public class MainActivity extends AppCompatActivity
             i.putExtra(MARKER_NAME,m);
             startActivity(i);
         }
-        else {
-            Context context = getApplicationContext();
-            CharSequence text = "Hello toast!";
-            int duration = Toast.LENGTH_SHORT;
-
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
+        if (m.equals("vorria"))
+        {
+            Intent i = new Intent(MainActivity.this, InfoWindowDetails.class);
+            i.putExtra(MARKER_NAME,m);
+            startActivity(i);
+        }
+        if (m.equals("ariana"))
+        {
+            Intent i = new Intent(MainActivity.this, InfoWindowDetails.class);
+            i.putExtra(MARKER_NAME,m);
+            startActivity(i);
+        }
+        if (m.equals("pantopoleio"))
+        {
+            Intent i = new Intent(MainActivity.this, InfoWindowDetails.class);
+            i.putExtra(MARKER_NAME,m);
+            startActivity(i);
         }
     }
 
@@ -627,7 +646,7 @@ public class MainActivity extends AppCompatActivity
     private Bitmap resizeBitmap()
     {
         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier("marker", "drawable", getPackageName()));
-        return Bitmap.createScaledBitmap(imageBitmap, 160, 160, false);
+        return Bitmap.createScaledBitmap(imageBitmap, 120, 196, false);
     }
 
     @Override

@@ -8,8 +8,7 @@
     android:id="@+id/activity_chat_window">
 
 
-    <include layout="@layout/chat_custom_bar"
-        >
+    <include layout="@layout/chat_custom_bar">
 
     </include>
 
@@ -29,7 +28,7 @@
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:orientation="horizontal"
         android:layout_weight="0.1"
         >
@@ -38,8 +37,8 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="0.10"
-            app:srcCompat="@drawable/add_photo"
+            android:layout_weight="0.05"
+            app:srcCompat="@drawable/camer_icon"
             android:id="@+id/add_photo"
             android:contentDescription="@string/add_photo"/>
 
@@ -50,6 +49,7 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:imeOptions="actionSend"
+            android:inputType="textLongMessage"
             android:hint="@string/write_your_message"/>
 
         <ImageButton
@@ -58,7 +58,7 @@
             android:layout_height="match_parent"
             android:layout_weight="0.30"
             android:text="@string/send_button_label"
-            android:src="@drawable/ic_menu_send"
+            android:src="@drawable/send_message_icon"
             android:contentDescription="@string/send_button_label"/>
 
     </LinearLayout>

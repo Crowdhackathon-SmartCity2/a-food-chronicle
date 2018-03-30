@@ -2,11 +2,8 @@ package com.afoodchronicle.chat;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -25,11 +22,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
-import android.widget.Toast;
 
 import com.afoodchronicle.R;
-import com.afoodchronicle.firebase.ProfileDetailsActivity;
-import com.afoodchronicle.utilities.FacebookUtils;
 import com.afoodchronicle.utilities.LastSeenTime;
 import com.afoodchronicle.utilities.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -48,11 +42,8 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,15 +51,9 @@ import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import id.zelory.compressor.Compressor;
-
-import static com.afoodchronicle.utilities.Static.EMAIL_THUMB_PROFILE_PIC;
-import static com.afoodchronicle.utilities.Static.FACEBOOK_THUMB_PROFILE_PIC;
 import static com.afoodchronicle.utilities.Static.FROM;
 import static com.afoodchronicle.utilities.Static.FULL_NAME;
 import static com.afoodchronicle.utilities.Static.IMAGE;
-import static com.afoodchronicle.utilities.Static.IMAGES;
-import static com.afoodchronicle.utilities.Static.JPG;
 import static com.afoodchronicle.utilities.Static.MESSAGE;
 import static com.afoodchronicle.utilities.Static.MESSAGES;
 import static com.afoodchronicle.utilities.Static.MESSAGES_PICTURES;
@@ -76,13 +61,10 @@ import static com.afoodchronicle.utilities.Static.ONLINE;
 import static com.afoodchronicle.utilities.Static.PICK_IMAGE_REQUEST;
 import static com.afoodchronicle.utilities.Static.SEEN;
 import static com.afoodchronicle.utilities.Static.TEXT;
-import static com.afoodchronicle.utilities.Static.THUMB_IMAGES;
 import static com.afoodchronicle.utilities.Static.THUMB_PHOTO_URL;
 import static com.afoodchronicle.utilities.Static.TIME;
 import static com.afoodchronicle.utilities.Static.TRUE;
 import static com.afoodchronicle.utilities.Static.TYPE;
-import static com.afoodchronicle.utilities.Static.UPLOAD;
-import static com.afoodchronicle.utilities.Static.UPLOAD_ERROR;
 import static com.afoodchronicle.utilities.Static.USERS;
 import static com.afoodchronicle.utilities.Static.VISIT_USER_ID;
 

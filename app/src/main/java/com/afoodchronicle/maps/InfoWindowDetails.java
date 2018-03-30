@@ -18,14 +18,29 @@ public class InfoWindowDetails extends AppCompatActivity{
         setContentView(R.layout.custom_info_window);
         Intent intent = getIntent();
         String markerName=intent.getExtras().getString(markerKey);
+        TextView title = findViewById(R.id.title);
+        TextView snippet = findViewById(R.id.snippet);
+        ImageView badge = findViewById(R.id.badge);
+
         if (markerName!= null){
             if (markerName.equals("yoleni")) {
-                TextView title = findViewById(R.id.title);
-                TextView snippet = findViewById(R.id.snippet);
                 snippet.setText(R.string.lorem_ipsum_detail);
                 title.setText(markerName);
-
-                ImageView badge = findViewById(R.id.badge);
+                badge.setImageResource(R.drawable.yoleni_restaurant);
+            }
+            if (markerName.equals("vorria")) {
+                snippet.setText(R.string.lorem_ipsum_detail);
+                title.setText(markerName);
+                badge.setImageResource(R.drawable.yoleni_restaurant);
+            }
+            if (markerName.equals("ariana")) {
+                snippet.setText(R.string.lorem_ipsum_detail);
+                title.setText(markerName);
+                badge.setImageResource(R.drawable.yoleni_restaurant);
+            }
+            if (markerName.equals("pantopoleio")) {
+                snippet.setText(R.string.lorem_ipsum_detail);
+                title.setText(markerName);
                 badge.setImageResource(R.drawable.yoleni_restaurant);
             }
         }
